@@ -1,0 +1,4032 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>石川県バウンドテニス協会</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root {
+    --navy: #1E293B;
+    --navy-light: #2D3F56;
+    --navy-dark: #0F172A;
+    --red: #E11D48;
+    --red-light: #FB7185;
+    --red-dark: #9F1239;
+    --gold: #F59E0B;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #1E293B;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .mincho {
+    font-family: 'Shippori Mincho', serif;
+  }
+
+  /* ========== NAVIGATION ========== */
+  #nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+  #nav.scrolled {
+    background: rgba(15,23,42,0.97);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .nav-logo {
+    font-family: 'Shippori Mincho', serif;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-logo-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .nav-links {
+    display: none;
+    gap: 2rem;
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  @media(min-width:768px){ .nav-links { display: flex; } }
+  .nav-links a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+  .nav-links a:hover { color: #fff; }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  @media(min-width:768px){ .hamburger { display: none; } }
+  .hamburger span {
+    display: block;
+    width: 24px; height: 2px;
+    background: #fff;
+    transition: all 0.3s;
+  }
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    background: rgba(15,23,42,0.98);
+    padding: 1rem 2rem 2rem;
+  }
+  .mobile-menu.open { display: flex; }
+  .mobile-menu a {
+    color: rgba(255,255,255,0.85);
+    text-decoration: none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.95rem;
+  }
+
+  /* ========== HERO ========== */
+  #hero {
+    position: relative;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #hero-slides { position: absolute; inset: 0; overflow: hidden; }
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    background: center/cover no-repeat;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+    transform: scale(1.05);
+    animation: heroZoom 22s ease-in-out infinite alternate;
+  }
+  .hero-slide.active { opacity: 1; }
+  .hero-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(14,22,40,0.92) 0%, rgba(30,41,59,0.75) 50%, rgba(225,29,72,0.2) 100%);
+  }
+  .hero-dots {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+  }
+  .hero-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .hero-dot.active { background: #fff; transform: scale(1.3); }
+  @keyframes heroZoom {
+    from { transform: scale(1.05); }
+    to   { transform: scale(1.12); }
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 6rem 1.5rem 4rem;
+    max-width: 800px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--red);
+    color: #fff;
+    padding: 0.4rem 1.2rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    margin-bottom: 1.5rem;
+    animation: fadeInDown 0.8s ease both;
+  }
+  .hero-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 1.2rem;
+    animation: fadeInUp 0.9s 0.2s ease both;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .hero-title span { color: var(--red-light); }
+  .hero-sub {
+    color: rgba(255,255,255,0.85);
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.9s 0.35s ease both;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.9s 0.5s ease both;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    background: var(--red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(225,29,72,0.4);
+  }
+  .btn-outline {
+    background: transparent;
+    color: #fff;
+    padding: 0.85rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 2px solid rgba(255,255,255,0.6);
+    cursor: pointer;
+  }
+  .btn-outline:hover {
+    border-color: #fff;
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+  }
+  .hero-clip {
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 80px;
+    background: #fff;
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  }
+
+  /* ========== EMERGENCY NOTICE ========== */
+  #emergency {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border-top: 4px solid #F59E0B;
+    border-bottom: 4px solid #F59E0B;
+    padding: 0.85rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: relative;
+  }
+  .emergency-icon {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    background: #F59E0B;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ box-shadow: 0 0 0 0 rgba(245,158,11,0.5); }
+    50%     { box-shadow: 0 0 0 8px rgba(245,158,11,0); }
+  }
+  .emergency-text {
+    font-weight: 700;
+    color: #92400E;
+    font-size: 0.9rem;
+  }
+  .emergency-close {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #92400E;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    transition: background 0.2s;
+  }
+  .emergency-close:hover { background: rgba(0,0,0,0.1); }
+
+  /* ========== SEARCH ========== */
+  #search-section {
+    background: #fff;
+    padding: 3rem 1.5rem;
+  }
+  .search-container {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .search-label {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--navy);
+    margin-bottom: 1rem;
+  }
+  .search-wrap {
+    position: relative;
+  }
+  .search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.2rem;
+    border: 2px solid #E2E8F0;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #F8FAFC;
+  }
+  .search-input:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30,41,59,0.1);
+    background: #fff;
+  }
+  .search-icon-wrap {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+  }
+  #search-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: #fff;
+    border: 2px solid #E2E8F0;
+    border-radius: 0.75rem;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    z-index: 100;
+    overflow: hidden;
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    animation: dropIn 0.2s ease;
+  }
+  @keyframes dropIn {
+    from { opacity:0; transform: translateY(-8px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .search-category {
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #94A3B8;
+    text-transform: uppercase;
+    background: #F8FAFC;
+    border-bottom: 1px solid #F1F5F9;
+  }
+  .search-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.15s;
+  }
+  .search-item:hover { background: #F1F5F9; }
+  .search-item-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .search-item-title { font-size: 0.9rem; font-weight: 500; }
+  .search-item-date  { font-size: 0.75rem; color: #94A3B8; margin-top: 2px; }
+  .search-no-result  { padding: 1.5rem; text-align: center; color: #94A3B8; font-size: 0.9rem; }
+
+  /* ========== QUICK LINKS ========== */
+  #quick-links {
+    background: var(--navy);
+    padding: 2.5rem 1.5rem;
+  }
+  .quick-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media(min-width:768px){
+    .quick-grid { grid-template-columns: repeat(4,1fr); }
+  }
+  .quick-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 0.75rem;
+    padding: 1.5rem 1rem;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    cursor: pointer;
+  }
+  .quick-card:hover {
+    background: rgba(255,255,255,0.13);
+    transform: scale(1.04);
+  }
+  .quick-card:hover .quick-icon {
+    transform: scale(1.18);
+  }
+  .quick-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .quick-title {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .quick-desc {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.75rem;
+    line-height: 1.4;
+  }
+
+  /* ========== NEWS ========== */
+  #news {
+    background: #fff;
+    padding: 4rem 1.5rem;
+  }
+  .section-header {
+    max-width: 1100px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .section-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--navy);
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 48px; height: 3px;
+    background: var(--red);
+    border-radius: 2px;
+  }
+  .section-link {
+    color: var(--red);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: gap 0.2s;
+  }
+  .section-link:hover { gap: 0.5rem; }
+  .news-list {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .news-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    padding: 1rem;
+    border-bottom: 1px solid #F1F5F9;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  .news-item.visible {
+    animation: slideInLeft 0.5s ease forwards;
+  }
+  @keyframes slideInLeft {
+    to { opacity:1; transform: translateX(0); }
+  }
+  .news-item:hover { background: #F8FAFC; }
+  .news-item:hover .news-title { color: var(--red); }
+  .news-item:hover .news-arrow { transform: translateX(4px); }
+  /* スマホ：日付＋バッジを1行目に、タイトルを2行目に */
+  .news-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+    width: 100%;
+  }
+  @media (min-width: 768px) {
+    .news-meta { width: auto; }
+    .news-item { gap: 0.4rem 0.75rem; padding: 1rem 0.75rem; }
+  }
+  .news-date {
+    font-size: 0.8rem;
+    color: #64748B;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  .badge-blue   { background:#EFF6FF; color:#1D4ED8; }
+  .badge-red    { background:#FFF1F2; color:#BE123C; }
+  .badge-green  { background:#F0FDF4; color:#15803D; }
+  .badge-purple { background:#FAF5FF; color:#7E22CE; }
+  .badge-gray   { background:#F1F5F9; color:#475569; }
+  .badge-important {
+    background:#FFF1F2; color:#BE123C;
+    display:inline-flex; align-items:center; gap:3px;
+  }
+  .news-title {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.5;
+    transition: color 0.2s;
+  }
+  .news-arrow {
+    color: #94A3B8;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .news-empty {
+    text-align: center;
+    color: #94A3B8;
+    padding: 3rem;
+    font-size: 0.95rem;
+  }
+
+  /* ========== ABOUT ========== */
+  #about {
+    background: #F8FAFC;
+    padding: 4rem 1.5rem;
+    overflow: hidden;
+  }
+  .about-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media(min-width:768px){
+    .about-inner { grid-template-columns: 1fr 1fr; }
+  }
+  .about-img-wrap {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: all 0.7s ease;
+  }
+  .about-img-wrap.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .about-img {
+    width: 100%;
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(30,41,59,0.2);
+    object-fit: cover;
+    aspect-ratio: 4/3;
+  }
+  .about-content {
+    opacity: 0;
+    transform: translateX(40px);
+    transition: all 0.7s 0.15s ease;
+  }
+  .about-content.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .about-heading {
+    font-family: 'Shippori Mincho', serif;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+  }
+  .about-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 56px; height: 3px;
+    background: var(--red);
+    border-radius: 2px;
+  }
+  .about-desc {
+    color: #475569;
+    line-height: 1.9;
+    font-size: 0.925rem;
+    margin-bottom: 1.5rem;
+  }
+  .feature-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    background: #fff;
+    border-radius: 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .feature-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .feature-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    color: var(--navy);
+  }
+  .feature-desc {
+    font-size: 0.8rem;
+    color: #64748B;
+    line-height: 1.5;
+  }
+
+  /* ========== EVENTS ========== */
+  #events {
+    background: #F1F5F9;
+    padding: 4rem 1.5rem;
+  }
+  .events-grid {
+    max-width: 1100px;
+    margin: 0 auto 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media(min-width:640px)  { .events-grid { grid-template-columns: 1fr 1fr; } }
+  @media(min-width:1024px) { .events-grid { grid-template-columns: repeat(3,1fr); } }
+  .event-card {
+    background: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  .event-card.visible {
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  @keyframes fadeInUp {
+    to { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeInDown {
+    from { opacity:0; transform: translateY(-20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .event-card:hover {
+    box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+  }
+  .event-card:hover .event-name { color: var(--red); }
+  .event-header {
+    background: var(--navy);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .event-date-block {}
+  .event-year  { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+  .event-day   { color: #fff; font-size: 1.5rem; font-weight: 800; font-family:'Shippori Mincho',serif; }
+  .event-dow   { color: rgba(255,255,255,0.7); font-size: 0.8rem; }
+  .status-badge {
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .status-open   { background:#D1FAE5; color:#065F46; }
+  .status-soon   { background:#FEF3C7; color:#92400E; }
+  .status-plan   { background:#DBEAFE; color:#1E40AF; }
+  .event-body { padding: 1.25rem 1.5rem; flex:1; display:flex; flex-direction:column; }
+  .event-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    transition: color 0.2s;
+  }
+  .event-venue {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #64748B;
+    font-size: 0.8rem;
+    flex: 1;
+  }
+  .event-link-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid #F1F5F9;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .event-detail-link {
+    color: var(--red);
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: gap 0.2s;
+    text-decoration: none;
+  }
+  .event-detail-link:hover { gap: 0.5rem; }
+  .pdf-btn {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .pdf-btn:hover { background: #DBEAFE; }
+  .events-empty {
+    text-align: center;
+    color: #94A3B8;
+    padding: 3rem;
+    font-size: 0.95rem;
+  }
+  .schedule-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    max-width: 1100px;
+  }
+  .schedule-dl-btn {
+    background: linear-gradient(135deg, #1D4ED8, #2563EB);
+    color: #fff;
+    padding: 0.85rem 1.75rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .schedule-dl-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+  }
+
+  /* ========== FOOTER ========== */
+  footer {
+    background: var(--navy-dark);
+    color: rgba(255,255,255,0.75);
+    padding: 3rem 1.5rem 1.5rem;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  @media(min-width:640px){
+    .footer-inner { grid-template-columns: 1.5fr 1fr 1fr; }
+  }
+  .footer-brand {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .footer-desc {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .footer-info {
+    font-size: 0.8rem;
+    line-height: 1.9;
+  }
+  .footer-info a { color: rgba(255,255,255,0.6); text-decoration: none; }
+  .footer-info a:hover { color: #fff; }
+  .footer-col-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+  }
+  .footer-links { list-style:none; padding:0; margin:0; }
+  .footer-links li { margin-bottom: 0.4rem; }
+  .footer-links a { font-size: 0.8rem; color: rgba(255,255,255,0.6); text-decoration:none; transition: color 0.2s; }
+  .footer-links a:hover { color: #fff; }
+  .footer-bottom {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+  }
+  .admin-link {
+    color: rgba(255,255,255,0.3);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+  }
+  .admin-link:hover { color: rgba(255,255,255,0.6); }
+
+  /* ========== ADMIN PANEL ========== */
+  #admin-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+  }
+  #admin-overlay.open { display: flex; align-items: flex-start; justify-content: center; }
+  .admin-panel {
+    background: #fff;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 860px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+    animation: fadeInUp 0.3s ease;
+  }
+  .admin-header {
+    background: var(--navy);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-header h2 { color:#fff; font-family:'Shippori Mincho',serif; font-size:1.1rem; margin:0; }
+  .admin-close {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    cursor: pointer; padding: 4px; border-radius:4px; display:flex; transition: color 0.2s;
+  }
+  .admin-close:hover { color: #fff; }
+  .admin-tabs {
+    display: flex;
+    border-bottom: 2px solid #F1F5F9;
+    background: #F8FAFC;
+  }
+  .admin-tab {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-family: inherit;
+    color: #64748B;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .admin-tab.active { color: var(--navy); border-bottom-color: var(--red); background: #fff; }
+  .admin-body { padding: 1.5rem; }
+  .admin-section { display: none; }
+  .admin-section.active { display: block; }
+  .form-group { margin-bottom: 1rem; }
+  .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.65rem 0.875rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--navy);
+  }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+  }
+  @media(max-width:480px){ .form-grid { grid-template-columns: 1fr; } }
+  .btn-save {
+    background: var(--red);
+    color: #fff;
+    padding: 0.65rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-save:hover { background: var(--red-dark); }
+  .btn-cancel {
+    background: #F1F5F9;
+    color: #374151;
+    padding: 0.65rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-cancel:hover { background: #E2E8F0; }
+  .btn-add {
+    background: var(--navy);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.2s;
+    margin-bottom: 1.25rem;
+  }
+  .btn-add:hover { background: var(--navy-light); }
+  .admin-item-list { list-style:none; padding:0; margin:0; }
+  .admin-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .admin-item-info { flex:1; min-width: 0; }
+  .admin-item-title { font-weight: 600; font-size: 0.875rem; color: var(--navy); }
+  .admin-item-meta  { font-size: 0.75rem; color: #94A3B8; margin-top: 2px; }
+  .btn-edit {
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-edit:hover { background: #DBEAFE; }
+  .btn-delete {
+    background: #FFF1F2;
+    color: #BE123C;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s;
+  }
+  .btn-delete:hover { background: #FFE4E6; }
+  .form-hint {
+    font-size: 0.72rem;
+    color: #94A3B8;
+    margin-top: 0.25rem;
+  }
+  .admin-comment {
+    font-size: 0.75rem;
+    color: #92400E;
+    background: #FEF3C7;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid #F59E0B;
+  }
+
+  /* misc */
+  .scroll-fade {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .scroll-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .events-footer-row {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .btn-secondary {
+    background: var(--navy);
+    color: #fff;
+    padding: 0.8rem 1.75rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.25s;
+  }
+  .btn-secondary:hover {
+    background: var(--navy-light);
+    transform: translateY(-2px);
+  }
+
+  /* login */
+  #login-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1500;
+    align-items: center;
+    justify-content: center;
+  }
+  #login-overlay.open { display: flex; }
+  .login-box {
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 320px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    animation: fadeInUp 0.3s ease;
+  }
+  .login-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 1.25rem;
+    text-align: center;
+  }
+  .login-error {
+    background: #FFF1F2;
+    color: #BE123C;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    margin-bottom: 0.875rem;
+    display: none;
+  }
+
+  /* ========== PAGE OVERLAY ========== */
+  #page-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1300;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+  }
+  #page-overlay.open {
+    display: block;
+    animation: overlayFadeIn 0.25s ease;
+  }
+  @keyframes overlayFadeIn {
+    from { opacity:0; }
+    to   { opacity:1; }
+  }
+  .page-overlay-inner {
+    background: #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.3);
+    animation: overlaySlideUp 0.3s ease;
+    min-height: 50vh;
+  }
+  @keyframes overlaySlideUp {
+    from { opacity:0; transform:translateY(24px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .page-overlay-header {
+    background: var(--navy);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .page-overlay-title {
+    color: #fff;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .page-overlay-close {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    cursor: pointer;
+    padding: 0.4rem 0.875rem;
+    border-radius: 6px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .page-overlay-close:hover { background: rgba(255,255,255,0.22); }
+  .page-overlay-body {
+    padding: 2rem 2.5rem;
+    color: #374151;
+    line-height: 1.9;
+    font-size: 0.925rem;
+  }
+  @media(max-width:600px){ .page-overlay-body { padding: 1.5rem 1.25rem; } }
+  .page-overlay-body h3 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 1.75rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #F1F5F9;
+    position: relative;
+  }
+  .page-overlay-body h3::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 40px; height: 2px;
+    background: var(--red);
+  }
+  .page-overlay-body h3:first-child { margin-top: 0; }
+  .page-overlay-body h4 {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 0.975rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 1.1rem 0 0.35rem;
+  }
+  .page-overlay-body ul {
+    padding-left: 1.5rem;
+    margin: 0.35rem 0 0.75rem;
+  }
+  .page-overlay-body li { margin-bottom: 0.35rem; }
+  .page-overlay-body p  { margin: 0 0 0.75rem; }
+
+  /* admin tabs scrollable on mobile */
+  .admin-tabs { overflow-x: auto; flex-wrap: nowrap; }
+  .admin-tab  { white-space: nowrap; }
+
+  /* ========== RESPONSIVE ADMIN ========== */
+  /* タッチターゲット保証（全ボタン） */
+  .btn-save, .btn-cancel, .btn-add, .btn-edit, .btn-delete {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .form-input, .form-select, .form-textarea, .form-textarea-lg {
+    min-height: 42px;
+  }
+  @media(max-width:640px){
+    #admin-overlay { padding: 0.5rem 0.375rem; }
+    .admin-panel   { border-radius: 0.75rem; }
+    .admin-body    { padding: 0.875rem; }
+    .admin-tab     { padding: 0.75rem 0.875rem; font-size: 0.78rem; }
+    .admin-header  { padding: 1rem; }
+    .admin-header h2 { font-size: 0.95rem; }
+    .form-input, .form-select, .form-textarea, .form-textarea-lg {
+      font-size: 1rem; padding: 0.75rem 0.875rem;
+    }
+    .form-label { font-size: 0.875rem; margin-bottom: 0.4rem; }
+    .form-hint  { font-size: 0.8rem; }
+    .btn-save, .btn-cancel { font-size: 1rem; padding: 0.75rem 1.25rem; min-height: 48px; }
+    .btn-add   { font-size: 0.85rem; }
+    .admin-item-title { font-size: 0.875rem; }
+    .login-box { width: calc(100vw - 1.5rem); padding: 1.5rem 1.25rem; }
+  }
+  /* navリンク：6項目対応 */
+  @media(max-width:960px) and (min-width:768px){
+    .nav-links { gap: 1.2rem; }
+    .nav-links a { font-size: 0.8rem; }
+  }
+  /* overlay ordered list & note */
+  .page-overlay-body ol {
+    padding-left: 1.5rem;
+    margin: 0.35rem 0 1rem;
+  }
+  .page-overlay-body ol li { margin-bottom: 0.65rem; line-height: 1.8; }
+  .overlay-note {
+    color: #92400E;
+    background: #FEF3C7;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    border-left: 3px solid #F59E0B;
+    margin: 0 0 0.5rem;
+  }
+  /* procedures download button */
+  .proc-dl-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--navy);
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    margin-top: 1.5rem;
+  }
+  .proc-dl-btn:hover { background: var(--navy-light); transform: translateY(-1px); }
+  /* contact form */
+  .cf-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.35rem;
+  }
+  .cf-required { color: var(--red); margin-left: 0.2rem; }
+  .cf-input, .cf-textarea {
+    width: 100%;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.875rem;
+    font-size: 0.9rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #1E293B;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .cf-input:focus, .cf-textarea:focus {
+    border-color: var(--navy);
+    box-shadow: 0 0 0 3px rgba(30,41,59,0.1);
+  }
+  .cf-textarea { resize: vertical; min-height: 120px; line-height: 1.65; }
+  .cf-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+  .cf-submit-btn:hover:not(:disabled) { background: var(--navy-light); transform: translateY(-1px); }
+  .cf-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .cf-success {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .cf-success-icon {
+    width: 48px; height: 48px;
+    background: #16A34A;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.75rem;
+    color: #fff;
+  }
+  .cf-error-msg {
+    background: #FFF1F2;
+    border: 1.5px solid #FECDD3;
+    border-radius: 0.5rem;
+    padding: 0.65rem 0.875rem;
+    font-size: 0.85rem;
+    color: #9F1239;
+    margin-bottom: 0.75rem;
+  }
+  /* ===== clubs table ===== */
+  .clubs-section-heading {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 1.75rem 0 0.6rem;
+    padding: 0.4rem 0.85rem;
+    border-left: 4px solid var(--red);
+    background: #F8FAFC;
+    border-radius: 0 0.375rem 0.375rem 0;
+  }
+  .clubs-section-heading:first-of-type { margin-top: 0; }
+  /* ── desktop table ── */
+  .clubs-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.625rem;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 0.25rem;
+  }
+  .clubs-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 560px;
+  }
+  .clubs-table thead th {
+    background: var(--navy);
+    color: #fff;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    overflow: hidden;
+  }
+  /* 列幅固定 — 全支部テーブルで縦ラインが揃う */
+  .clubs-table thead th:nth-child(1) { width: 25%; }
+  .clubs-table thead th:nth-child(2) { width: 33%; }
+  .clubs-table thead th:nth-child(3) { width: 21%; }
+  .clubs-table thead th:nth-child(4) { width: 21%; }
+  .clubs-table tbody td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: top;
+    text-align: left;
+    line-height: 1.7;
+    color: #374151;
+    overflow-wrap: break-word;
+    word-break: break-all;
+  }
+  .clubs-table tbody tr:last-child td { border-bottom: none; }
+  .clubs-table tbody tr:nth-child(even) td { background: #FAFBFC; }
+  .clubs-table tbody tr:hover td { background: #EFF6FF; transition: background 0.15s; }
+  .clubs-table td:first-child { font-weight: 700; color: var(--navy-dark); font-size: 0.925rem; }
+  /* ── mobile cards ── */
+  @media (max-width: 767px) {
+    .clubs-table-scroll { border: none; border-radius: 0; overflow: visible; }
+    .clubs-table, .clubs-table thead, .clubs-table tbody,
+    .clubs-table th, .clubs-table td, .clubs-table tr { display: block; }
+    .clubs-table thead { display: none; }
+    .clubs-table { min-width: 0; font-size: 0.9rem; }
+    .clubs-table tbody tr {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 0.75rem;
+      margin-bottom: 0.875rem;
+      padding: 0.875rem 1rem;
+      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+    }
+    .clubs-table tbody tr:nth-child(even) td { background: transparent; }
+    .clubs-table tbody tr:hover td { background: transparent; }
+    /* クラブ名セルはカード見出し */
+    .clubs-table td:first-child {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      padding: 0 0 0.625rem;
+      border-bottom: 1px solid #E5E7EB;
+      margin-bottom: 0.5rem;
+    }
+    .clubs-table td:first-child::before { display: none; }
+    /* ラベル付きデータ行 */
+    .clubs-table tbody td {
+      padding: 0.3rem 0;
+      border-bottom: none;
+      background: transparent !important;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      line-height: 1.65;
+    }
+    .clubs-table td[data-label]::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: #fff;
+      background: var(--navy-light);
+      border-radius: 3px;
+      padding: 0.1em 0.45em;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 0.2em;
+    }
+  }
+  /* emergency toggle row */
+  .emergency-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    background: #F8FAFC;
+    border-radius: 0.5rem;
+    border: 2px solid #E5E7EB;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #374151;
+    transition: border-color 0.2s;
+    user-select: none;
+  }
+  .emergency-toggle-label:hover { border-color: var(--navy); }
+  .emergency-toggle-label input[type=checkbox] {
+    width: 20px; height: 20px; cursor: pointer; accent-color: var(--red);
+  }
+
+  /* content management textarea */
+  .form-textarea-lg {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+    resize: vertical;
+    min-height: 260px;
+    line-height: 1.85;
+  }
+  .form-textarea-lg:focus { border-color: var(--navy); }
+
+  /* toast */
+  #toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--navy);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ========== AWAY EVENTS ========== */
+  #away-events {
+    background: #F8FAFC;
+    padding: 4rem 1.5rem;
+    border-top: 1px solid #F1F5F9;
+  }
+  .away-grid {
+    max-width: 1100px;
+    margin: 0 auto 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+  @media(min-width:640px)  { .away-grid { grid-template-columns: 1fr 1fr; } }
+  @media(min-width:1024px) { .away-grid { grid-template-columns: repeat(3,1fr); } }
+  .away-card {
+    background: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    border: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .away-card.visible { animation: fadeInUp 0.6s ease forwards; }
+  .away-card:hover {
+    box-shadow: 0 12px 36px rgba(0,0,0,0.13);
+    transform: translateY(-3px);
+  }
+  .away-card-header {
+    background: linear-gradient(135deg, #334155, #1E293B);
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .away-card-date {
+    color: #fff;
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .away-card-date-sub {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.72rem;
+    margin-top: 3px;
+  }
+  .away-card-region {
+    background: rgba(245,158,11,0.9);
+    color: #fff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .away-card-body {
+    padding: 1rem 1.25rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .away-card-name {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 0.975rem;
+    color: var(--navy);
+    line-height: 1.45;
+    flex: 1;
+  }
+  .away-empty {
+    text-align: center;
+    color: #94A3B8;
+    padding: 2.5rem;
+    font-size: 0.95rem;
+    grid-column: 1/-1;
+  }
+
+  /* ========== TRIAL FORM (クラブ体験申込) ========== */
+  .trial-section {
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 2px solid #F1F5F9;
+  }
+  .trial-heading {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--navy);
+    position: relative;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .trial-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 44px; height: 2px;
+    background: var(--red);
+  }
+  .trial-note {
+    font-size: 0.875rem;
+    color: #64748B;
+    line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+  .trial-external-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--red);
+    color: #fff;
+    padding: 0.875rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 4px 16px rgba(225,29,72,0.3);
+  }
+  .trial-external-btn:hover {
+    background: var(--red-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(225,29,72,0.4);
+  }
+  .trial-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+    margin-bottom: 0.875rem;
+  }
+  @media(max-width:540px){ .trial-form-grid { grid-template-columns: 1fr; } }
+  .trial-success {
+    background: #F0FDF4;
+    border: 1.5px solid #86EFAC;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+    display: none;
+  }
+
+  /* ========== ABOUT SPORT OVERLAY ========== */
+  .video-responsive {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #0F172A;
+    margin: 1rem 0 1.5rem;
+  }
+  .video-responsive iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+    border-radius: 0.75rem;
+  }
+  .video-no-url {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+    gap: 0.75rem;
+  }
+  .sport-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.875rem;
+    margin: 1rem 0 1.5rem;
+  }
+  .sport-rule-item {
+    background: #F8FAFC;
+    border-radius: 0.75rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid #E5E7EB;
+  }
+  .sport-rule-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+  .sport-rule-value {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.4;
+  }
+  .sport-intro-text {
+    font-size: 1rem;
+    line-height: 2;
+    color: #374151;
+    margin-bottom: 1rem;
+  }
+  @media(max-width:600px){ .sport-intro-text { font-size: 0.95rem; } }
+</style>
+</head>
+<body>
+
+<!-- ========== NAVIGATION ========== -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      石川県バウンドテニス協会
+    </a>
+    <ul class="nav-links">
+      <li><a href="#news">お知らせ</a></li>
+      <li><a href="#events">大会情報</a></li>
+      <li><a href="/clubs">クラブ一覧</a></li>
+      <li><a href="/procedures">各種手続き</a></li>
+      <li><a href="/about">協会概要</a></li>
+      <li><a href="/contact">お問い合わせ</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" role="button" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#news">お知らせ</a>
+    <a href="#events">大会情報</a>
+    <a href="/clubs">クラブ一覧</a>
+    <a href="/procedures">各種手続き</a>
+    <a href="/about">協会概要</a>
+    <a href="/contact">お問い合わせ</a>
+  </div>
+</nav>
+
+<!-- ========== HERO ========== -->
+<section id="hero">
+  <div id="hero-slides"></div>
+  <div class="hero-dots" id="hero-dots"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span data-lucide="trophy" style="width:14px;height:14px"></span>
+      石川県バウンドテニス協会
+    </div>
+    <h1 class="hero-title">
+      バウンドテニスで<br>
+      <span>つながる石川</span>
+    </h1>
+    <p class="hero-sub">
+      年齢・性別・経験を問わず、誰もが主役になれるスポーツ。<br>
+      一歩を踏み出してみませんか？
+    </p>
+    <div class="hero-btns">
+      <a href="/clubs" class="btn-primary">
+        <span data-lucide="map-pin" style="width:16px;height:16px"></span>
+        クラブを探す
+      </a>
+      <a href="#about" class="btn-outline">
+        <span data-lucide="book-open" style="width:16px;height:16px"></span>
+        競技を知る
+      </a>
+    </div>
+  </div>
+  <div class="hero-clip"></div>
+</section>
+
+<!-- ========== EMERGENCY NOTICE ========== -->
+<div id="emergency">
+  <div class="emergency-icon">
+    <span data-lucide="alert-triangle" style="width:16px;height:16px;color:#fff"></span>
+  </div>
+  <p class="emergency-text" id="emergency-text-el"></p>
+  <button class="emergency-close" onclick="document.getElementById('emergency').style.display='none'" aria-label="閉じる">
+    <span data-lucide="x" style="width:18px;height:18px"></span>
+  </button>
+</div>
+
+<!-- ========== SEARCH ========== -->
+<section id="search-section">
+  <div class="search-container">
+    <p class="search-label">サイト内検索</p>
+    <div class="search-wrap">
+      <div class="search-icon-wrap">
+        <span data-lucide="search" style="width:18px;height:18px"></span>
+      </div>
+      <input
+        type="text"
+        id="search-input"
+        class="search-input"
+        placeholder="大会名、クラブ名、記事タイトルなどで検索..."
+        autocomplete="off"
+      >
+      <div id="search-dropdown"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== QUICK LINKS ========== -->
+<section id="quick-links">
+  <div class="quick-grid">
+    <a href="/clubs" class="quick-card">
+      <div class="quick-icon" style="background:rgba(59,130,246,0.2)">
+        <span data-lucide="map-pin" style="width:22px;height:22px;color:#60A5FA"></span>
+      </div>
+      <p class="quick-title">クラブを探す</p>
+      <p class="quick-desc">石川県内のクラブ一覧</p>
+    </a>
+    <a href="#about" class="quick-card">
+      <div class="quick-icon" style="background:rgba(225,29,72,0.2)">
+        <span data-lucide="book-open" style="width:22px;height:22px;color:#FB7185"></span>
+      </div>
+      <p class="quick-title">競技を知る</p>
+      <p class="quick-desc">バウンドテニスとは</p>
+    </a>
+    <a href="/downloads" class="quick-card">
+      <div class="quick-icon" style="background:rgba(34,197,94,0.2)">
+        <span data-lucide="download" style="width:22px;height:22px;color:#4ADE80"></span>
+      </div>
+      <p class="quick-title">資料ダウンロード</p>
+      <p class="quick-desc">各種申込書・要項</p>
+    </a>
+    <a href="/contact" class="quick-card">
+      <div class="quick-icon" style="background:rgba(168,85,247,0.2)">
+        <span data-lucide="mail" style="width:22px;height:22px;color:#C084FC"></span>
+      </div>
+      <p class="quick-title">お問い合わせ</p>
+      <p class="quick-desc">ご質問はこちら</p>
+    </a>
+  </div>
+</section>
+
+<!-- ========== NEWS ========== -->
+<section id="news">
+  <div class="section-header">
+    <h2 class="section-title">お知らせ・最新情報</h2>
+    <a href="/news" class="section-link">
+      すべてのお知らせを見る
+      <span data-lucide="chevron-right" style="width:16px;height:16px"></span>
+    </a>
+  </div>
+  <div class="news-list" id="news-list">
+    <!-- Dynamically rendered -->
+  </div>
+</section>
+
+<!-- ========== ABOUT ========== -->
+<section id="about">
+  <div class="about-inner">
+    <div class="about-img-wrap" id="about-img">
+      <img
+        src="https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=800&q=80"
+        alt="バウンドテニスの様子"
+        class="about-img"
+      >
+    </div>
+    <div class="about-content" id="about-text">
+      <h2 class="about-heading">バウンドテニスとは</h2>
+      <p class="about-desc" id="about-main-desc"></p>
+      <div id="about-features-container"></div>
+      <div style="margin-top:1.5rem">
+        <a href="/about-sport" class="btn-primary">
+          動画・詳しく見る
+          <span data-lucide="play-circle" style="width:16px;height:16px"></span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== EVENTS ========== -->
+<section id="events">
+  <div class="section-header" style="max-width:1100px;margin:0 auto 1.5rem">
+    <h2 class="section-title">直近の大会・イベント</h2>
+  </div>
+  <div class="schedule-btn">
+    <a href="#" id="schedule-pdf-btn" class="schedule-dl-btn">
+      <span data-lucide="calendar" style="width:18px;height:18px"></span>
+      令和8年度 年間行事予定表（PDF）をダウンロード
+    </a>
+  </div>
+  <div class="events-grid" id="events-grid">
+    <!-- Dynamically rendered -->
+  </div>
+  <div class="events-footer-row">
+    <a href="/events-list" class="btn-secondary">
+      <span data-lucide="list" style="width:16px;height:16px"></span>
+      大会一覧を見る
+    </a>
+  </div>
+</section>
+
+<!-- ========== AWAY EVENTS ========== -->
+<section id="away-events">
+  <div class="section-header" style="max-width:1100px;margin:0 auto 2rem">
+    <h2 class="section-title">他県案内・遠征情報</h2>
+  </div>
+  <div class="away-grid" id="away-events-grid">
+    <!-- Dynamically rendered -->
+  </div>
+</section>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <p class="footer-brand">石川県バウンドテニス協会</p>
+      <p class="footer-desc">
+        石川県内でバウンドテニスの普及・振興を目指して活動している団体です。<br>
+        初心者から競技者まで、ともにスポーツを楽しむ仲間を歓迎します。
+      </p>
+      <div class="footer-info" id="footer-office-info"></div>
+    </div>
+    <div>
+      <p class="footer-col-title">コンテンツ</p>
+      <ul class="footer-links">
+        <li><a href="#news">お知らせ一覧</a></li>
+        <li><a href="/events-list">大会・イベント</a></li>
+        <li><a href="/clubs">クラブ一覧</a></li>
+        <li><a href="#about">バウンドテニスとは</a></li>
+        <li><a href="/downloads">資料ダウンロード</a></li>
+        <li><a href="/procedures">各種手続き・様式</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">協会について</p>
+      <ul class="footer-links">
+        <li><a href="/about">協会概要</a></li>
+        <li><a href="/history">沿革</a></li>
+        <li><a href="/committee">役員一覧</a></li>
+        <li><a href="/contact">お問い合わせ</a></li>
+        <li><a href="/privacy">プライバシーポリシー</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 石川県バウンドテニス協会. All rights reserved.</p>
+    <button class="admin-link" id="admin-open-btn" onclick="openAdminLogin()">管理者向けログイン</button>
+  </div>
+</footer>
+
+<!-- ========== LOGIN OVERLAY ========== -->
+<div id="login-overlay">
+  <div class="login-box">
+    <p class="login-title">管理者ログイン</p>
+    <div class="login-error" id="login-error">パスワードが正しくありません。</div>
+    <div class="form-group">
+      <label class="form-label">パスワード</label>
+      <input type="password" id="login-pw" class="form-input" placeholder="パスワードを入力">
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+      <button class="btn-save" style="flex:1" onclick="doLogin()">ログイン</button>
+      <button class="btn-cancel" style="flex:1" onclick="closeLogin()">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ADMIN PANEL ========== -->
+<div id="admin-overlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>🛠 管理画面 — データ更新</h2>
+      <button class="admin-close" onclick="closeAdmin()">
+        <span data-lucide="x" style="width:20px;height:20px"></span>
+      </button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('news-tab', this)">お知らせ管理</button>
+      <button class="admin-tab" onclick="switchTab('events-tab', this)">大会・イベント管理</button>
+      <button class="admin-tab" onclick="switchTab('away-tab', this)">他県案内管理</button>
+      <button class="admin-tab" onclick="switchTab('content-tab', this)">ページ本文・情報管理</button>
+    </div>
+    <div class="admin-body">
+
+      <!-- ★ここを書き換えるだけで更新できます★ お知らせ管理タブ -->
+      <div id="news-tab" class="admin-section active">
+        <div class="admin-comment">
+          ★ここを書き換えるだけで更新できます★<br>
+          下の「＋新規作成」から追加、または既存の項目を編集・削除してください。ページを閉じると初期データに戻ります（将来はLocalStorage/CMSへ保存可）。
+        </div>
+        <button class="btn-add" onclick="openNewsForm()">
+          <span data-lucide="plus" style="width:14px;height:14px"></span>
+          ＋ 新規作成
+        </button>
+        <ul class="admin-item-list" id="admin-news-list"></ul>
+
+        <!-- News Form -->
+        <div id="news-form" style="display:none;margin-top:1.25rem;padding:1.25rem;background:#F8FAFC;border-radius:0.75rem;border:1px solid #E5E7EB">
+          <input type="hidden" id="news-edit-id">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">日付 *</label>
+              <input type="date" id="nf-date" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">カテゴリ *</label>
+              <select id="nf-category" class="form-select">
+                <option value="notice">お知らせ</option>
+                <option value="tournament">大会情報</option>
+                <option value="event">イベント</option>
+                <option value="member">会員向け</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">タイトル *</label>
+            <input type="text" id="nf-title" class="form-input" placeholder="記事タイトルを入力">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <input type="checkbox" id="nf-important"> 重要フラグ
+            </label>
+          </div>
+          <div class="form-group">
+            <label class="form-label">本文テキスト</label>
+            <textarea id="nf-body" class="form-textarea" placeholder="本文（省略可）"></textarea>
+          </div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <button class="btn-save" onclick="saveNews()">保存</button>
+            <button class="btn-cancel" onclick="cancelNewsForm()">キャンセル</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ここを書き換えるだけで更新できます★ 大会管理タブ -->
+      <div id="events-tab" class="admin-section">
+        <div class="admin-comment">
+          ★ここを書き換えるだけで更新できます★<br>
+          GoogleドライブのURL（要項・結果PDF）やGoogleフォトの画像URLを貼り付けるだけで、ホームページに自動反映されます。
+        </div>
+        <button class="btn-add" onclick="openEventForm()">
+          <span data-lucide="plus" style="width:14px;height:14px"></span>
+          ＋ 新規作成
+        </button>
+        <ul class="admin-item-list" id="admin-events-list"></ul>
+
+        <!-- Event Form -->
+        <div id="event-form" style="display:none;margin-top:1.25rem;padding:1.25rem;background:#F8FAFC;border-radius:0.75rem;border:1px solid #E5E7EB">
+          <input type="hidden" id="ef-edit-id">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">開催日 *</label>
+              <input type="date" id="ef-date" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ステータス *</label>
+              <select id="ef-status" class="form-select">
+                <option value="open">受付中</option>
+                <option value="soon">締切間近</option>
+                <option value="plan">予定</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会名 *</label>
+            <input type="text" id="ef-name" class="form-input" placeholder="大会・イベント名">
+          </div>
+          <div class="form-group">
+            <label class="form-label">会場名</label>
+            <input type="text" id="ef-venue" class="form-input" placeholder="会場名">
+          </div>
+          <div class="form-group">
+            <label class="form-label">本文テキスト</label>
+            <textarea id="ef-body" class="form-textarea" placeholder="大会詳細（省略可）"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会要項URL（GoogleドライブPDF）</label>
+            <input type="url" id="ef-youkou" class="form-input" placeholder="https://drive.google.com/...">
+            <p class="form-hint">GoogleドライブのPDF共有リンクを貼り付けると「大会要項」ボタンが自動表示されます。</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">試合結果URL（GoogleドライブPDF）</label>
+            <input type="url" id="ef-result" class="form-input" placeholder="https://drive.google.com/...">
+            <p class="form-hint">試合終了後に貼り付けると「試合結果」ボタンが自動表示されます。</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会写真URL（GoogleフォトまたはURL）</label>
+            <input type="url" id="ef-photo" class="form-input" placeholder="https://...">
+            <p class="form-hint">画像のURLを貼り付けると写真カードに表示されます。</p>
+          </div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <button class="btn-save" onclick="saveEvent()">保存</button>
+            <button class="btn-cancel" onclick="cancelEventForm()">キャンセル</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★他県案内・遠征情報管理タブ★ -->
+      <div id="away-tab" class="admin-section">
+        <div class="admin-comment">
+          ★他県案内・遠征情報の管理★<br>
+          開催日を過ぎた大会は自動的にホームページから非表示になります。「＋新規作成」から追加してください。
+        </div>
+        <button class="btn-add" onclick="openAwayForm()">
+          <span data-lucide="plus" style="width:14px;height:14px"></span>
+          ＋ 新規作成
+        </button>
+        <ul class="admin-item-list" id="admin-away-list"></ul>
+
+        <!-- Away Form -->
+        <div id="away-form" style="display:none;margin-top:1.25rem;padding:1.25rem;background:#F8FAFC;border-radius:0.75rem;border:1px solid #E5E7EB">
+          <input type="hidden" id="af-edit-id">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">開催日 *</label>
+              <input type="date" id="af-date" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">開催地域・県名 *</label>
+              <input type="text" id="af-region" class="form-input" placeholder="例：富山県、全国大会など">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会・イベント名 *</label>
+            <input type="text" id="af-name" class="form-input" placeholder="大会・イベント名を入力">
+          </div>
+          <div class="form-group">
+            <label class="form-label">詳細URL・案内PDFリンク（GoogleドライブURL等）</label>
+            <input type="url" id="af-url" class="form-input" placeholder="https://drive.google.com/...">
+            <p class="form-hint">URLを入力すると「詳細・要項」ボタンが表示されます。空欄でも登録できます。</p>
+          </div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+            <button class="btn-save" onclick="saveAwayItem()">保存</button>
+            <button class="btn-cancel" onclick="cancelAwayForm()">キャンセル</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★ページ本文・情報管理タブ★ -->
+      <div id="content-tab" class="admin-section">
+        <div class="admin-comment">
+          ★ここを書き換えるだけで更新できます★<br>
+          項目を選択 → テキストを書き換え → 「保存して反映」ボタンを押すだけで、トップページ・各下層ページの表示がその場で変わります。
+        </div>
+        <div class="form-group">
+          <label class="form-label">編集する項目を選択</label>
+          <select id="content-page-select" class="form-select" onchange="loadContentEditor()">
+            <optgroup label="── サイト設定 ──">
+              <option value="hero_images">★ ヒーロー画像URL管理</option>
+              <option value="schedule_url">★ 年間行事予定表のURL設定</option>
+              <option value="emergency_bar">★ 緊急のお知らせバー（テキスト）</option>
+              <option value="trial_form_url">★ 体験申込URL・フォーム設定</option>
+              <option value="about_sport_video_url">★ バウンドテニス紹介動画URL（YouTube）</option>
+            </optgroup>
+            <optgroup label="── トップページ ──">
+              <option value="about_main">バウンドテニスとは（メイン説明文）</option>
+              <option value="about_feature1">特徴1（タイトル＋説明文）</option>
+              <option value="about_feature2">特徴2（タイトル＋説明文）</option>
+              <option value="about_feature3">特徴3（タイトル＋説明文）</option>
+            </optgroup>
+            <optgroup label="── 下層ページ本文 ──">
+              <option value="about_page">協会概要</option>
+              <option value="contact">お問い合わせ</option>
+              <option value="downloads_items">★ 資料ダウンロード管理（タイトル・URL）</option>
+              <option value="procedures">各種手続き・様式（ページ本文）</option>
+              <option value="procedures_form_url">★ 所属協会変更申請フォームURL</option>
+              <option value="japan_assoc_url">★ 日本協会 入会案内URL</option>
+              <option value="contact_email">★ お問い合わせ通知先メールアドレス</option>
+              <option value="contact_form_url">★ お問い合わせフォームURL（Formspree等）</option>
+              <option value="clubs_data">★ クラブ一覧・練習日程テーブル管理</option>
+              <option value="clubs">クラブ一覧 冒頭説明文</option>
+              <option value="history">沿革</option>
+              <option value="committee">役員一覧</option>
+              <option value="privacy">プライバシーポリシー</option>
+            </optgroup>
+            <optgroup label="── 協会情報 ──">
+              <option value="office_info">事務局情報</option>
+            </optgroup>
+          </select>
+        </div>
+        <div id="emergency-toggle-row" class="form-group" style="display:none">
+          <label class="emergency-toggle-label">
+            <input type="checkbox" id="emergency-visible-chk" onchange="toggleEmergencyVisible()">
+            緊急バーを表示する（チェックを外すと非表示）
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="content-editor-label">テキストを編集</label>
+          <textarea id="content-editor-textarea" class="form-textarea-lg" placeholder="テキストを入力..."></textarea>
+          <p class="form-hint" id="content-editor-hint"></p>
+        </div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-save" onclick="saveContent()">保存して反映</button>
+          <button class="btn-cancel" onclick="loadContentEditor()">元に戻す</button>
+        </div>
+        <div style="margin-top:2rem;padding-top:1.25rem;border-top:1px solid #E5E7EB">
+          <p style="font-size:0.78rem;color:#64748B;margin-bottom:0.6rem">⚠️ すべての管理データ（お知らせ・大会・ページ本文）を初期値にリセットします</p>
+          <button class="btn-delete" onclick="resetAllData()">データを初期化（リセット）</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE OVERLAY ========== -->
+<div id="page-overlay">
+  <div class="page-overlay-inner">
+    <div class="page-overlay-header">
+      <h2 class="page-overlay-title" id="page-overlay-title">ページ</h2>
+      <button class="page-overlay-close" onclick="closePageOverlay()">
+        <span data-lucide="x" style="width:15px;height:15px"></span>
+        閉じる
+      </button>
+    </div>
+    <div class="page-overlay-body" id="page-overlay-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">保存しました ✓</div>
+
+<script>
+// ======================================================
+// ★ここを書き換えるだけで更新できます★
+// モックデータ — 将来はLocalStorage・microCMS・バックエンドAPIに置き換えてください
+// ======================================================
+
+// ▼ デフォルトデータ（LocalStorageが空のときに使用）
+const DEFAULT_NEWS = [
+  { id: 1, date: '2025-06-10', category: 'tournament', title: '第28回石川県バウンドテニス選手権大会 参加申込受付開始', important: true,  body: '' },
+  { id: 2, date: '2025-06-05', category: 'notice',     title: '令和7年度 総会議事録を会員向けページにて公開しました',     important: false, body: '' },
+  { id: 3, date: '2025-05-28', category: 'event',      title: '初心者体験教室（7月開催）の受付を開始しました',           important: false, body: '' },
+  { id: 4, date: '2025-05-15', category: 'member',     title: '2025年度会員証の発送が完了しました',                     important: false, body: '' },
+  { id: 5, date: '2025-04-30', category: 'notice',     title: '石川県スポーツフェスタへの参加報告',                     important: false, body: '' }
+];
+
+const DEFAULT_EVENTS = [
+  { id: 1, date: '2025-07-13', dow: '日', name: '第28回石川県バウンドテニス選手権大会', venue: '金沢市内灘総合体育館',          status: 'open', youkou: 'https://drive.google.com/example', result: '', photo: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80', body: '' },
+  { id: 2, date: '2025-08-24', dow: '日', name: '夏季オープン大会 in 能登',           venue: '輪島市ふれあいスポーツセンター', status: 'soon', youkou: '', result: '', photo: '', body: '' },
+  { id: 3, date: '2025-09-21', dow: '日', name: '秋季シニア大会（60歳以上）',          venue: '白山市松任総合運動公園',         status: 'plan', youkou: '', result: '', photo: '', body: '' }
+];
+
+const DEFAULT_CLUBS_DATA = [
+  { branch:'金沢支部',   name:'金沢サンダーバード',        venue:'扇台小学校体育館',                 day:'毎週金曜日',                   time:'19:00〜21:00' },
+  { branch:'金沢支部',   name:'長田バウンドテニスクラブ',   venue:'長田小学校体育館',                 day:'毎週月曜日',                   time:'19:00〜21:00' },
+  { branch:'金沢支部',   name:'小坂バウンドテニスクラブ',   venue:'小坂小学校体育館',                 day:'毎週火・土曜日',               time:'19:00〜21:00' },
+  { branch:'金沢支部',   name:'四十万バウンドテニスクラブ', venue:'四十万小学校体育館',               day:'毎週水曜日\n(12〜3月は火曜)', time:'19:00〜21:00' },
+  { branch:'野々市支部', name:'野々市バウンドテニスクラブ', venue:'野々市スポーツセンター',            day:'毎週火曜日\n毎週木曜日',       time:'19:00〜21:30\n10:00〜13:00' },
+  { branch:'白山支部',   name:'フェニックス松任',           venue:'松任小学校体育館',                 day:'毎週水曜日',                   time:'19:30〜21:30' },
+  { branch:'白山支部',   name:'フェニックス松任',           venue:'千代野体育館',                     day:'毎週月曜日',                   time:'19:00〜21:00' },
+  { branch:'白山支部',   name:'しらやまさん(旧獅子吼BTC)', venue:'鶴来中学校体育館',                 day:'毎週月・木曜日',               time:'19:30〜21:30' },
+  { branch:'白山支部',   name:'しらやまさん(旧山島BTC)',   venue:'山島台児童センター',                day:'毎週金曜日',                   time:'20:00〜22:00' },
+  { branch:'白山支部',   name:'シリウス',                   venue:'舟岡山体育館',                     day:'毎週日曜日',                   time:'13:00〜16:00' },
+  { branch:'川北町',     name:'スクーデリア川北',           venue:'川北町総合体育館',                 day:'毎週水・金曜日',               time:'19:00〜21:00' },
+  { branch:'かほく支部', name:'七塚Y2SC',                   venue:'かほく市七塚体育センター',         day:'毎週火・木曜日',               time:'20:00〜22:00' },
+];
+
+// ▼ 他県案内・遠征情報（デフォルトデータ）
+const DEFAULT_AWAY_EVENTS = [
+  { id: 1, date: '2026-07-20', region: '富山県', name: '第20回富山バウンドテニスオープン大会', url: '' },
+  { id: 2, date: '2026-08-03', region: '福井県', name: '福井・北信越交流大会 2026',           url: '' },
+];
+
+// ▼ お知らせデータ（ページロード後に LocalStorage で上書き）
+let newsData = DEFAULT_NEWS.map(n => ({...n}));
+
+// ▼ 大会・イベントデータ（ページロード後に LocalStorage で上書き）
+let eventsData = DEFAULT_EVENTS.map(e => ({...e}));
+
+// ▼ 他県案内データ（ページロード後に LocalStorage で上書き）
+let awayEventsData = DEFAULT_AWAY_EVENTS.map(a => ({...a}));
+
+// ======================================================
+// ▼ サイトコンテンツデータ（ページ本文・協会情報）
+// ======================================================
+const siteContent = {
+  about: {
+    main: 'バウンドテニスは、1980年に日本で誕生した生涯スポーツです。テニスコートの約6分の1という省スペース（3m×10m）で行い、高さ50cmのローネット、50cm以下の短いラケット、適度に弾むウレタン製の専用ボールを使用します。狭い場所でも本格的なラリーが楽しめるのが最大の魅力です。',
+    features: [
+      {
+        title: 'テニスの臨場感を凝縮',
+        desc: 'コートの約1/6の広さがあれば体育館等で手軽に設置可能。限られた空間だからこそ、テニスさながらのダイナミックでスピーディーなラリーが楽しめます。',
+        icon: 'users', iconBg: '#EFF6FF', iconColor: '#2563EB'
+      },
+      {
+        title: '腕に優しい軽量設計',
+        desc: 'ラケットが短く軽いため扱いやすく、テニスのように手首や肘を痛めにくいのが特徴です。無理のないスイングで、運動が久しぶりの方でも自分のペースで始められます。',
+        icon: 'zap', iconBg: '#F0FDF4', iconColor: '#16A34A'
+      },
+      {
+        title: '子どもからシニアまで',
+        desc: '日本生まれのスポーツで、ジュニアから90代のシニアまで共通ルールで競い合えます。健康目的のエンジョイ層から、全国大会を目指す本格派まで活躍中。',
+        icon: 'award', iconBg: '#FAF5FF', iconColor: '#9333EA'
+      }
+    ]
+  },
+  officeInfo: {
+    name: '石川県バウンドテニス協会 事務局',
+    address: '〒921-8806 石川県野々市市三日市3-160',
+    email: 'ishikawaboundtennis@gmail.com'
+  },
+  pages: {
+    history:
+`## 沿革
+
+昭和61年6月「石川県普及本部」発足
+昭和63年3月「石川県バウンドテニス協会」設立
+
+－－現在に至る－－`,
+    committee:
+`## 役員一覧
+
+### 顧問
+- 山野之義
+- 村山卓
+
+### 名誉会長
+- 安達前
+
+### 会長
+- 吉田修
+
+### 副会長
+（副会長氏名）
+
+### 参与
+（参与氏名）
+
+### 理事長
+（理事長氏名）
+
+### 副理事長
+（副理事長氏名）
+
+### 事務局次長
+（事務局次長氏名）
+
+### 常任理事
+（常任理事氏名）
+
+### 理事
+（理事氏名）
+
+### 監事
+（監事氏名）`,
+    privacy:
+`## プライバシーポリシー
+
+石川県バウンドテニス協会（以下「当協会」）は、個人情報の適切な保護と取扱いを重要な責務と認識し、以下の方針に基づいて個人情報を管理します。
+
+### 1. 個人情報の収集について
+当協会は、会員登録・大会参加申込・お問い合わせ等の際に、氏名・住所・電話番号・メールアドレス等の個人情報を収集することがあります。
+
+### 2. 個人情報の利用目的
+収集した個人情報は、以下の目的のためにのみ利用します。
+- 会員管理および会員サービスの提供
+- 大会・イベントの案内および運営
+- お問い合わせへの対応
+- 協会活動に関する情報のご提供
+
+### 3. 個人情報の第三者提供
+当協会は、法令に基づく場合を除き、ご本人の同意なく個人情報を第三者に提供することはありません。
+
+### 4. 個人情報の管理
+当協会は、個人情報の正確性を保ち、情報の漏洩・滅失・毀損を防止するため、適切な安全管理措置を講じます。
+
+### 5. 個人情報の開示・訂正・削除
+ご本人から個人情報の開示・訂正・削除のご要請があった場合は、合理的な期間内に対応いたします。
+
+### 6. Cookieの使用について
+当ウェブサイトでは、サービス向上を目的としてCookieを使用する場合があります。
+
+### 7. 個人情報保護方針の変更
+本方針は、法令の改正や協会の方針変更に伴い、予告なく変更する場合があります。変更後はウェブサイトに掲載します。
+
+### 8. お問い合わせ
+個人情報の取扱いに関するお問い合わせは、下記の事務局までご連絡ください。
+石川県バウンドテニス協会 事務局
+Mail: ishikawaboundtennis@gmail.com`,
+    clubs:
+`石川県内のバウンドテニスクラブをご紹介します。ご入会・体験参加を希望される方は、各クラブへ直接お問い合わせいただくか、協会事務局（ishikawaboundtennis@gmail.com）までご連絡ください。`,
+    downloads:
+`## 資料ダウンロード
+
+各種申込書・大会要項・規約等をダウンロードいただけます。
+
+### 会員向け
+- 入会申込書（準備中）
+- 会員更新申込書（準備中）
+
+### 大会関連
+- 大会参加申込書（準備中）
+- 大会要項（各大会ページよりダウンロード）
+
+### 協会規約
+- 協会定款（準備中）
+- 競技規則（準備中）
+
+※各資料は随時更新予定です。ご不明な点は事務局（ishikawaboundtennis@gmail.com）までお問い合わせください。`,
+    contact:
+`## お問い合わせ
+
+石川県バウンドテニス協会への各種お問い合わせは、下記フォームまたはメールにてお受けしております。
+
+### 事務局連絡先
+メールアドレス: ishikawaboundtennis@gmail.com
+〒921-8806 石川県野々市市三日市3-160
+
+※お問い合わせは24時間メールにて受け付けております。内容を確認の上、事務局より折り返しご連絡いたします。
+
+### よくあるお問い合わせ
+- バウンドテニスを始めたい → クラブ一覧ページをご覧ください。体験参加可能なクラブもございます。
+- 大会に参加したい → 大会・イベントページよりご確認ください。
+- 協会へのご意見・ご要望 → 事務局メールアドレスまでお送りください。`,
+    about_page:
+`## 協会概要
+
+### 団体名
+石川県バウンドテニス協会
+
+### 所在地
+〒921-8806 石川県野々市市三日市3-160
+
+### 連絡先
+Mail: ishikawaboundtennis@gmail.com
+
+### 設立
+昭和63年（1988年）3月
+
+### 目的
+石川県内におけるバウンドテニスの普及・振興を図り、県民の体力増進および健康保持に寄与することを目的とします。
+
+### 主な事業
+- 県内大会・イベントの開催
+- クラブへの支援・情報提供
+- 全国大会への選手派遣
+- バウンドテニスの普及活動
+- 指導者の育成`,
+    procedures:
+`## 各種手続き・様式
+
+### 所属協会変更手続き
+
+他の都道府県バウンドテニス協会から石川県協会へ、または石川県協会から他の都道府県協会へ移籍を希望される場合は、以下の手順で手続きを行ってください。
+
+1. 現在の所属協会の事務局へ移籍の意向をお伝えください。
+2. 石川県バウンドテニス協会（ishikawaboundtennis@gmail.com）へご連絡ください。
+3. 下記のボタンから「所属協会変更申請フォーム（Excel）」をダウンロードしてください。
+4. 必要事項を記入のうえ、事務局メールアドレスへ送付してください。
+5. 受付後、事務局より受理のご連絡をいたします。
+
+※ 移籍の完了には通常2〜4週間程度かかります。
+※ 大会出場を予定している場合は、余裕をもって手続きを開始してください。
+※ ご不明な点は協会事務局（ishikawaboundtennis@gmail.com）までお気軽にお問い合わせください。`
+  },
+  emergency: {
+    visible: true,
+    text: '【重要】熱中症警戒アラート発令のため、本日（6月15日）の練習会は中止となります。次回は6月22日を予定しています。'
+  },
+  proceduresFormUrl: '',
+  japanAssocUrl: 'https://boundtennis.or.jp/association/join/',
+  contactEmail: 'ishikawaboundtennis@gmail.com',
+  contactFormUrl: '',
+  trialFormUrl: '',
+  aboutSportVideoUrl: '',
+  heroImages: [
+    'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1600&q=80',
+    'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=1600&q=80',
+    'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1600&q=80',
+  ],
+  schedulePdfUrl: '',
+  downloadsItems: [
+    { category: '会員向け', title: '入会申込書',                     url: '' },
+    { category: '会員向け', title: '会員更新申込書',                 url: '' },
+    { category: '大会関連', title: '大会参加申込書',                 url: '' },
+    { category: '大会関連', title: '大会要項（各大会ページよりDL）', url: '' },
+    { category: '協会規約', title: '協会定款',                       url: '' },
+    { category: '協会規約', title: '競技規則',                       url: '' },
+  ],
+  clubsData: DEFAULT_CLUBS_DATA.map(c => ({...c})),
+};
+
+// ▼ 検索用キャッシュデータ
+const searchCache = [
+  ...newsData.map(n => ({ type: 'news', id: n.id, title: n.title, date: n.date, category: n.category })),
+  ...eventsData.map(e => ({ type: 'event', id: e.id, title: e.name, date: e.date })),
+  { type: 'club', title: '金沢バウンドテニスクラブ', date: '' },
+  { type: 'club', title: '能登半島BC', date: '' },
+  { type: 'club', title: '加賀温泉クラブ', date: '' },
+];
+
+// ======================================================
+// aboutセクション・フッター描画
+// ======================================================
+function renderAbout() {
+  const descEl = document.getElementById('about-main-desc');
+  if (descEl) descEl.textContent = siteContent.about.main;
+
+  const featEl = document.getElementById('about-features-container');
+  if (!featEl) return;
+  featEl.innerHTML = siteContent.about.features.map(f => `
+    <div class="feature-card">
+      <div class="feature-icon" style="background:${f.iconBg}">
+        <span data-lucide="${f.icon}" style="width:20px;height:20px;color:${f.iconColor}"></span>
+      </div>
+      <div>
+        <p class="feature-title">${f.title}</p>
+        <p class="feature-desc">${f.desc}</p>
+      </div>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+function renderFooterOffice() {
+  const el = document.getElementById('footer-office-info');
+  if (!el) return;
+  const o = siteContent.officeInfo;
+  el.innerHTML = `
+    <strong style="color:#fff;display:block;margin-bottom:0.3rem">事務局</strong>
+    ${o.name}<br>
+    ${o.address}<br>
+    MAIL: <a href="mailto:${o.email}">${o.email}</a>
+  `;
+}
+
+// ======================================================
+// ページオーバーレイ
+// ======================================================
+
+function renderEventsListOverlay() {
+  if (!eventsData.length) return '<p style="text-align:center;color:#94A3B8;padding:3rem">大会データがありません。</p>';
+  const sorted = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
+  return sorted.map(ev => {
+    const db  = formatDateBlock(ev.date);
+    const st  = statusMap[ev.status] || statusMap.plan;
+    let pdfs  = '';
+    if (ev.youkou) pdfs += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
+    if (ev.result)  pdfs += `<a href="${ev.result}"  target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+    return `
+      <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
+        <div style="background:var(--navy);color:#fff;border-radius:0.5rem;padding:0.75rem 1rem;text-align:center;flex-shrink:0;min-width:68px">
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6)">${db.year}</div>
+          <div style="font-size:1.6rem;font-weight:800;font-family:'Shippori Mincho',serif;line-height:1.1">${db.day}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">${db.dow}</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="margin-bottom:0.35rem">
+            <span class="status-badge ${st.cls}" style="font-size:0.7rem">${st.label}</span>
+          </div>
+          <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">${ev.name}</p>
+          <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.5rem">
+            <span data-lucide="map-pin" style="width:12px;height:12px"></span>${ev.venue || '会場未定'}
+          </p>
+          ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap">${pdfs}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderDownloadsOverlay() {
+  const items = siteContent.downloadsItems || [];
+  if (!items.length) return '<p style="text-align:center;color:#94A3B8;padding:3rem">資料が登録されていません。</p>';
+  const groups = {};
+  items.forEach(item => {
+    if (item.title) (groups[item.category] = groups[item.category] || []).push(item);
+  });
+  return Object.entries(groups).map(([cat, catItems]) => `
+    <h3>${cat}</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0.75rem;margin-bottom:0.5rem">
+      ${catItems.map(item => `
+        <div style="border:1px solid #E5E7EB;border-radius:0.75rem;padding:1rem;display:flex;flex-direction:column;gap:0.625rem;background:#F8FAFC">
+          <p style="font-weight:600;font-size:0.875rem;color:var(--navy);margin:0;flex:1;line-height:1.45">${item.title}</p>
+          ${item.url
+            ? `<a href="${item.url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;background:var(--navy);color:#fff;padding:0.45rem 0.75rem;border-radius:0.4rem;font-size:0.8rem;font-weight:600;text-decoration:none">
+                <span data-lucide="download" style="width:13px;height:13px"></span>ダウンロード
+              </a>`
+            : `<span style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;background:#F1F5F9;color:#94A3B8;padding:0.45rem 0.75rem;border-radius:0.4rem;font-size:0.8rem;font-weight:600">準備中</span>`
+          }
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function renderEmergencyBar() {
+  const bar = document.getElementById('emergency');
+  const textEl = document.getElementById('emergency-text-el');
+  if (!bar) return;
+  const em = siteContent.emergency;
+  if (textEl) textEl.textContent = em.text || '';
+  bar.style.display = em.visible ? '' : 'none';
+}
+
+function renderClubsOverlay() {
+  const clubs    = siteContent.clubsData || [];
+  const intro    = (siteContent.pages.clubs || '').trim();
+  const japanUrl = siteContent.japanAssocUrl || '';
+
+  // Group by branch (insertion order preserved)
+  const branchOrder = [];
+  const branchMap   = {};
+  clubs.forEach(c => {
+    if (!branchMap[c.branch]) { branchMap[c.branch] = []; branchOrder.push(c.branch); }
+    branchMap[c.branch].push(c);
+  });
+
+  const introHtml = intro
+    ? `<p style="font-size:0.9rem;color:#475569;margin:0 0 1.5rem;line-height:1.75">${intro}</p>`
+    : '';
+
+  const tableHtml = clubs.length
+    ? `<h3 style="font-family:'Shippori Mincho',serif;font-size:1.1rem;color:var(--navy);margin:0 0 1.25rem">
+         県内クラブ・練習日程一覧
+       </h3>
+       ${branchOrder.map(branch => `
+         <div class="clubs-section-heading">${branch}</div>
+         <div class="clubs-table-scroll">
+           <table class="clubs-table">
+             <colgroup>
+               <col style="width:25%">
+               <col style="width:33%">
+               <col style="width:21%">
+               <col style="width:21%">
+             </colgroup>
+             <thead>
+               <tr>
+                 <th>クラブ名</th>
+                 <th>練習場所</th>
+                 <th>練習日</th>
+                 <th>練習時間</th>
+               </tr>
+             </thead>
+             <tbody>
+               ${branchMap[branch].map(c => `
+                 <tr>
+                   <td>${nl2br(c.name)}</td>
+                   <td data-label="練習場所">${nl2br(c.venue)}</td>
+                   <td data-label="練習日">${nl2br(c.day)}</td>
+                   <td data-label="練習時間">${nl2br(c.time)}</td>
+                 </tr>`).join('')}
+             </tbody>
+           </table>
+         </div>`).join('')}
+       <p class="overlay-note" style="margin-top:1rem">
+         ※練習日・時間は変更になる場合があります。参加前に各クラブへご確認ください。
+       </p>`
+    : '<p style="color:#94A3B8;text-align:center;padding:2rem">クラブデータがありません。</p>';
+
+  const trialUrl = (siteContent.trialFormUrl || '').trim();
+  const trialSection = `
+    <div class="trial-section">
+      <h3 class="trial-heading">クラブ体験・練習見学のお申し込み</h3>
+      <p class="trial-note">※内容を確認後、事務局または各クラブの担当者より折り返しご連絡いたします。</p>
+      ${trialUrl
+        ? `<a href="${trialUrl}" target="_blank" rel="noopener" class="trial-external-btn">
+             <span data-lucide="external-link" style="width:17px;height:17px"></span>
+             体験申込をする（外部フォームへ）
+           </a>`
+        : `<div id="trial-success" class="trial-success">
+             <p style="font-weight:700;color:#166534;font-size:1rem;margin:0 0 0.3rem">申込を受け付けました。</p>
+             <p style="color:#166534;font-size:0.875rem;margin:0">事務局より折り返しご連絡いたします。</p>
+           </div>
+           <form id="trial-form" onsubmit="submitTrialForm(event)">
+             <div class="trial-form-grid">
+               <div class="form-group" style="margin:0">
+                 <label class="cf-label">お名前<span class="cf-required">*</span></label>
+                 <input type="text" id="tf-name" class="cf-input" required placeholder="例：山田 花子" autocomplete="name">
+               </div>
+               <div class="form-group" style="margin:0">
+                 <label class="cf-label">メールアドレス<span class="cf-required">*</span></label>
+                 <input type="email" id="tf-email" class="cf-input" required placeholder="例：hanako@example.com" autocomplete="email">
+               </div>
+               <div class="form-group" style="margin:0">
+                 <label class="cf-label">電話番号</label>
+                 <input type="tel" id="tf-phone" class="cf-input" placeholder="例：076-XXX-XXXX" autocomplete="tel">
+               </div>
+               <div class="form-group" style="margin:0">
+                 <label class="cf-label">希望するクラブ名・支部</label>
+                 <input type="text" id="tf-club" class="cf-input" placeholder="例：野々市支部、金沢サンダーバードなど">
+               </div>
+             </div>
+             <div class="form-group" style="margin-bottom:1rem">
+               <label class="cf-label">メッセージ・ご質問</label>
+               <textarea id="tf-message" class="cf-textarea" style="min-height:90px" placeholder="体験希望日や質問などがあればご記入ください（省略可）"></textarea>
+             </div>
+             <div id="tf-error" class="cf-error-msg" style="display:none"></div>
+             <button type="submit" id="tf-submit" class="trial-external-btn" style="border:none;cursor:pointer;font-family:inherit;font-size:0.95rem">
+               <span data-lucide="send" style="width:17px;height:17px"></span>
+               申込内容を送信する
+             </button>
+           </form>`
+      }
+    </div>`;
+
+  return introHtml + tableHtml + trialSection;
+}
+
+function renderProceduresOverlay() {
+  const formUrl = siteContent.proceduresFormUrl || '';
+  const markdownHtml = renderMarkdown(siteContent.pages.procedures || '（コンテンツを準備中です）');
+  const dlBtn = `<div style="margin-top:1.5rem">
+    ${formUrl
+      ? `<a href="${formUrl}" target="_blank" rel="noopener" class="proc-dl-btn">
+           <span data-lucide="download" style="width:16px;height:16px"></span>
+           所属協会変更申請フォーム（Excel）をダウンロード
+         </a>`
+      : `<span class="proc-dl-btn" style="opacity:0.55;cursor:default;pointer-events:none">
+           <span data-lucide="download" style="width:16px;height:16px"></span>
+           申請フォーム（準備中）
+         </span>`
+    }
+  </div>`;
+  return markdownHtml + dlBtn;
+}
+
+function renderContactOverlay() {
+  const infoHtml = renderMarkdown(siteContent.pages.contact || '');
+  return `
+    ${infoHtml}
+    <div style="margin-top:2rem;padding-top:1.5rem;border-top:2px solid #E5E7EB">
+      <h3 style="font-family:'Shippori Mincho',serif;font-size:1.1rem;color:var(--navy);margin:0 0 1.25rem">メールフォームで送信する</h3>
+      <div id="cf-success" class="cf-success" style="display:none">
+        <div class="cf-success-icon">
+          <span data-lucide="check" style="width:24px;height:24px"></span>
+        </div>
+        <p style="font-weight:700;color:#166534;font-size:1rem;margin:0 0 0.4rem">お問い合わせを受け付けました。</p>
+        <p style="color:#166534;font-size:0.875rem;margin:0">折り返しご連絡いたします。しばらくお待ちください。</p>
+      </div>
+      <form id="cf-form" onsubmit="submitContactForm(event)">
+        <div class="form-group">
+          <label class="cf-label">お名前<span class="cf-required">*</span></label>
+          <input type="text" id="cf-name" class="cf-input" required placeholder="例：山田 太郎" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="cf-label">メールアドレス（返信用）<span class="cf-required">*</span></label>
+          <input type="email" id="cf-email" class="cf-input" required placeholder="例：taro@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="cf-label">件名<span class="cf-required">*</span></label>
+          <input type="text" id="cf-subject" class="cf-input" required placeholder="例：大会参加について">
+        </div>
+        <div class="form-group">
+          <label class="cf-label">お問い合わせ内容<span class="cf-required">*</span></label>
+          <textarea id="cf-body" class="cf-textarea" required placeholder="お問い合わせ内容をご記入ください..."></textarea>
+        </div>
+        <div id="cf-error" class="cf-error-msg" style="display:none"></div>
+        <button type="submit" id="cf-submit" class="cf-submit-btn">
+          <span data-lucide="send" style="width:16px;height:16px"></span>
+          送信する
+        </button>
+      </form>
+    </div>`;
+}
+
+// ======================================================
+// YouTube URL から動画IDを抽出
+// ======================================================
+function extractYouTubeId(url) {
+  if (!url) return '';
+  // youtu.be/ID
+  let m = url.match(/youtu\.be\/([A-Za-z0-9_\-]{11})/);
+  if (m) return m[1];
+  // youtube.com/watch?v=ID
+  m = url.match(/[?&]v=([A-Za-z0-9_\-]{11})/);
+  if (m) return m[1];
+  // youtube.com/embed/ID
+  m = url.match(/embed\/([A-Za-z0-9_\-]{11})/);
+  if (m) return m[1];
+  // youtube.com/shorts/ID
+  m = url.match(/shorts\/([A-Za-z0-9_\-]{11})/);
+  if (m) return m[1];
+  return '';
+}
+
+// ======================================================
+// バウンドテニスの魅力・動画オーバーレイ
+// ======================================================
+function renderAboutSportOverlay() {
+  const rawUrl = (siteContent.aboutSportVideoUrl || '').trim();
+  const videoId = extractYouTubeId(rawUrl);
+
+  const videoHtml = `
+    <div class="video-responsive">
+      ${videoId
+        ? `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" title="バウンドテニス紹介動画" allowfullscreen></iframe>`
+        : `<div class="video-no-url">
+             <span data-lucide="video" style="width:40px;height:40px;opacity:0.35"></span>
+             <span>管理画面から動画URLを設定してください</span>
+           </div>`
+      }
+    </div>`;
+
+  return `
+    <h3 style="font-family:'Shippori Mincho',serif;font-size:1.4rem;font-weight:700;color:var(--navy);margin:0 0 0.75rem">動画で見るバウンドテニスの魅力</h3>
+    ${videoHtml}
+    <p class="sport-intro-text">
+      バウンドテニスは1980年に日本で誕生した生涯スポーツです。<br>
+      テニスコートの約 <strong>6分の1の広さ</strong>（3m×10m）で楽しめ、<br>
+      <strong>年齢・性別・経験を問わず</strong>、誰もが気軽に始められます。
+    </p>
+    <h4 style="font-family:'Shippori Mincho',serif;font-size:1.05rem;font-weight:700;color:var(--navy);margin:0 0 0.75rem">基本ルール・テニスとの違い</h4>
+    <div class="sport-rules-grid">
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">コートの広さ</div>
+        <div class="sport-rule-value">3m × 10m<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">テニスの約1/6</span></div>
+      </div>
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">ネットの高さ</div>
+        <div class="sport-rule-value">50cm<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">テニスより低い</span></div>
+      </div>
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">ラケットの長さ</div>
+        <div class="sport-rule-value">50cm以内<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">短く軽量で扱いやすい</span></div>
+      </div>
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">ボール</div>
+        <div class="sport-rule-value">ウレタン製<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">弾みすぎず安全</span></div>
+      </div>
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">発祥</div>
+        <div class="sport-rule-value">日本（1980年）<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">純国産スポーツ</span></div>
+      </div>
+      <div class="sport-rule-item">
+        <div class="sport-rule-label">参加年齢</div>
+        <div class="sport-rule-value">ジュニア〜90代<br><span style="font-size:0.8rem;font-weight:400;color:#64748B">世代を超えて競い合える</span></div>
+      </div>
+    </div>
+    <p class="sport-intro-text" style="margin-top:0.5rem">
+      ラケットが短く軽いため、手首や肘を傷めにくいのも特長です。<br>
+      運動が久しぶりの方、シニアの方も、安心して始めていただけます。
+    </p>
+    <div style="margin-top:2rem;padding-top:1.5rem;border-top:2px solid #F1F5F9;text-align:center">
+      <p style="font-size:0.9rem;color:#475569;margin-bottom:1rem">まずはお近くのクラブで体験してみませんか？</p>
+      <a href="/clubs" class="btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none">
+        <span data-lucide="map-pin" style="width:17px;height:17px"></span>
+        お近くのクラブを探す・体験申込はこちら
+      </a>
+    </div>`;
+}
+
+// ======================================================
+// 体験申込フォーム送信
+// ======================================================
+async function submitTrialForm(e) {
+  e.preventDefault();
+  const name    = (document.getElementById('tf-name')?.value    || '').trim();
+  const email   = (document.getElementById('tf-email')?.value   || '').trim();
+  const phone   = (document.getElementById('tf-phone')?.value   || '').trim();
+  const club    = (document.getElementById('tf-club')?.value    || '').trim();
+  const message = (document.getElementById('tf-message')?.value || '').trim();
+  const errEl   = document.getElementById('tf-error');
+  const submitBtn = document.getElementById('tf-submit');
+  if (errEl) errEl.style.display = 'none';
+  if (!name || !email) {
+    if (errEl) { errEl.textContent = 'お名前とメールアドレスは必須です。'; errEl.style.display = ''; }
+    return;
+  }
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '送信中...'; }
+  const to   = siteContent.contactEmail || 'ishikawaboundtennis@gmail.com';
+  const subj = `【体験申込】${name} 様より`;
+  const body = `お名前: ${name}\nメール: ${email}\n電話: ${phone || '（未入力）'}\n希望クラブ: ${club || '（未入力）'}\n\n${message}`;
+  window.open(`mailto:${to}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`);
+  const form = document.getElementById('trial-form');
+  const success = document.getElementById('trial-success');
+  if (form)    form.style.display    = 'none';
+  if (success) success.style.display = '';
+}
+
+const pageOverlayMeta = {
+  '/clubs':        { title: 'クラブ一覧',                         customRender: renderClubsOverlay      },
+  '/downloads':    { title: '資料ダウンロード',                   customRender: renderDownloadsOverlay  },
+  '/contact':      { title: 'お問い合わせ',                       customRender: renderContactOverlay    },
+  '/about':        { title: '協会概要',                           key: 'about_page'                     },
+  '/about-sport':  { title: 'バウンドテニスの魅力・動画',         customRender: renderAboutSportOverlay },
+  '/history':      { title: '沿革',                               key: 'history'                        },
+  '/committee':    { title: '役員一覧',                           key: 'committee'                      },
+  '/privacy':      { title: 'プライバシーポリシー',               key: 'privacy'                        },
+  '/events-list':  { title: '大会一覧',                           customRender: renderEventsListOverlay },
+  '/procedures':   { title: '各種手続き・様式',                   customRender: renderProceduresOverlay },
+};
+
+function nl2br(str) {
+  return (str || '').replace(/\n/g, '<br>');
+}
+
+function renderMarkdown(text) {
+  const lines = text.split('\n');
+  let html = '';
+  let inUl = false;
+  let inOl = false;
+  const closeList = () => {
+    if (inUl) { html += '</ul>'; inUl = false; }
+    if (inOl) { html += '</ol>'; inOl = false; }
+  };
+  lines.forEach(line => {
+    if (line.startsWith('## ')) {
+      closeList();
+      html += `<h3>${line.slice(3)}</h3>`;
+    } else if (line.startsWith('### ')) {
+      closeList();
+      html += `<h4>${line.slice(4)}</h4>`;
+    } else if (line.startsWith('- ')) {
+      if (inOl) { html += '</ol>'; inOl = false; }
+      if (!inUl) { html += '<ul>'; inUl = true; }
+      html += `<li>${line.slice(2)}</li>`;
+    } else if (/^\d+\.\s/.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      if (!inOl) { html += '<ol>'; inOl = true; }
+      html += `<li>${line.replace(/^\d+\.\s/, '')}</li>`;
+    } else if (line.trim() === '') {
+      closeList();
+    } else if (line.startsWith('※')) {
+      closeList();
+      html += `<p class="overlay-note">${line}</p>`;
+    } else {
+      closeList();
+      html += `<p>${line}</p>`;
+    }
+  });
+  closeList();
+  return html;
+}
+
+function openPageOverlay(path) {
+  const meta = pageOverlayMeta[path];
+  if (!meta) return;
+  const html = meta.customRender
+    ? meta.customRender()
+    : renderMarkdown(siteContent.pages[meta.key] || '（コンテンツを準備中です）');
+  document.getElementById('page-overlay-title').textContent = meta.title;
+  document.getElementById('page-overlay-body').innerHTML = html;
+  const ov = document.getElementById('page-overlay');
+  ov.classList.add('open');
+  ov.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  lucide.createIcons();
+}
+
+function closePageOverlay() {
+  document.getElementById('page-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function submitContactForm(e) {
+  e.preventDefault();
+  const name    = document.getElementById('cf-name').value.trim();
+  const email   = document.getElementById('cf-email').value.trim();
+  const subject = document.getElementById('cf-subject').value.trim();
+  const body    = document.getElementById('cf-body').value.trim();
+  const errEl   = document.getElementById('cf-error');
+  const submitBtn = document.getElementById('cf-submit');
+
+  errEl.style.display = 'none';
+  if (!name || !email || !subject || !body) {
+    errEl.textContent = 'すべての項目を入力してください。';
+    errEl.style.display = '';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = '送信中...';
+
+  const formUrl = (siteContent.contactFormUrl || '').trim();
+  let ok = false;
+
+  if (formUrl.startsWith('http')) {
+    try {
+      const res = await fetch(formUrl, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message: body })
+      });
+      ok = res.ok;
+      if (!ok) {
+        const j = await res.json().catch(() => ({}));
+        errEl.textContent = j.error || '送信中にエラーが発生しました。直接メールでお問い合わせください。';
+        errEl.style.display = '';
+      }
+    } catch (_) {
+      errEl.textContent = '通信エラーが発生しました。直接メールでお問い合わせください。';
+      errEl.style.display = '';
+    }
+  } else {
+    const to      = siteContent.contactEmail || 'ishikawaboundtennis@gmail.com';
+    const mailBody = `お名前: ${name}\n返信先: ${email}\n\n${body}`;
+    window.open(`mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`);
+    ok = true;
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '<span data-lucide="send" style="width:16px;height:16px"></span>送信する';
+  lucide.createIcons();
+
+  if (ok) {
+    document.getElementById('cf-form').style.display = 'none';
+    document.getElementById('cf-success').style.display = '';
+    lucide.createIcons();
+  }
+}
+
+// ======================================================
+// リンク遷移処理（スムーススクロール／オーバーレイ）
+// ======================================================
+function initLinkInterception() {
+  const scrollTargets  = ['#news', '#events', '#about'];
+  const overlayPaths   = Object.keys(pageOverlayMeta);
+
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href]');
+    if (!a) return;
+    const href = a.getAttribute('href');
+
+    if (scrollTargets.includes(href)) {
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('mobile-menu').classList.remove('open');
+      return;
+    }
+
+    if (overlayPaths.includes(href)) {
+      e.preventDefault();
+      openPageOverlay(href);
+      document.getElementById('mobile-menu').classList.remove('open');
+      return;
+    }
+  });
+
+  document.getElementById('page-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('page-overlay')) closePageOverlay();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePageOverlay();
+  });
+}
+
+// ======================================================
+// ヒーロースライドショー
+// ======================================================
+function initHeroSlideshow() {
+  const container = document.getElementById('hero-slides');
+  const dotsEl    = document.getElementById('hero-dots');
+  const images    = (siteContent.heroImages || []).filter(Boolean);
+  if (!container) return;
+
+  clearInterval(window._heroTimer);
+
+  if (!images.length) {
+    container.innerHTML = `<div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=1600&q=80')"></div>`;
+    if (dotsEl) dotsEl.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = images.map((url, i) =>
+    `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${url}')"></div>`
+  ).join('');
+
+  if (dotsEl) {
+    dotsEl.innerHTML = images.length > 1
+      ? images.map((_, i) => `<span class="hero-dot${i===0?' active':''}" onclick="heroGoTo(${i})"></span>`).join('')
+      : '';
+  }
+
+  if (images.length < 2) return;
+  let idx = 0;
+  window._heroTimer = setInterval(() => heroGoTo((idx + 1) % images.length), 5500);
+
+  window.heroGoTo = function(n) {
+    const slides = container.querySelectorAll('.hero-slide');
+    const dots   = dotsEl ? dotsEl.querySelectorAll('.hero-dot') : [];
+    slides[idx].classList.remove('active');
+    if (dots[idx]) dots[idx].classList.remove('active');
+    idx = n;
+    slides[idx].classList.add('active');
+    if (dots[idx]) dots[idx].classList.add('active');
+  };
+}
+
+// ======================================================
+// 年間行事予定表PDFボタン更新
+// ======================================================
+function updateScheduleBtn() {
+  const btn = document.getElementById('schedule-pdf-btn');
+  if (!btn) return;
+  const url = siteContent.schedulePdfUrl || '';
+  btn.href = url || '#';
+  if (url) {
+    btn.target = '_blank';
+    btn.setAttribute('rel', 'noopener');
+    btn.style.opacity = '1';
+  } else {
+    btn.removeAttribute('target');
+    btn.style.opacity = '0.65';
+  }
+}
+
+// ======================================================
+// 管理画面：ページ本文・情報管理
+// ======================================================
+const contentKeyMeta = {
+  hero_images: {
+    label: 'ヒーロー画像URL（1行に1枚・最大5枚）',
+    hint: '画像URLを1行ずつ入力してください。保存するとスライドショーが切り替わります。',
+    get: () => siteContent.heroImages.join('\n'),
+    set: (v) => {
+      siteContent.heroImages = v.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 5);
+      initHeroSlideshow();
+    }
+  },
+  schedule_url: {
+    label: '年間行事予定表（PDF）のURL',
+    hint: 'GoogleドライブのPDF共有リンクを貼り付けてください。空のままにするとボタンが薄く表示されます。',
+    get: () => siteContent.schedulePdfUrl,
+    set: (v) => {
+      siteContent.schedulePdfUrl = v.trim();
+      updateScheduleBtn();
+    }
+  },
+  downloads_items: {
+    label: '資料ダウンロード一覧（1行: カテゴリ|タイトル|URL）',
+    hint: '形式: カテゴリ名|資料タイトル|URL\n例: 会員向け|入会申込書|https://drive.google.com/...\nURLを省略すると「準備中」と表示されます。',
+    get: () => siteContent.downloadsItems.map(i => `${i.category}|${i.title}|${i.url}`).join('\n'),
+    set: (v) => {
+      siteContent.downloadsItems = v.split('\n')
+        .map(line => { const [c='',t='',u=''] = line.split('|').map(s=>s.trim()); return {category:c,title:t,url:u}; })
+        .filter(i => i.title);
+    }
+  },
+  about_main: {
+    label: 'バウンドテニスとは（メイン説明文）',
+    hint: '一段落のテキストをそのまま入力してください。',
+    get: ()  => siteContent.about.main,
+    set: (v) => { siteContent.about.main = v; renderAbout(); }
+  },
+  about_feature1: {
+    label: '特徴1（1行目＝タイトル、2行目以降＝説明文）',
+    hint: '1行目がタイトル、2行目以降が説明文になります。',
+    get: ()  => `${siteContent.about.features[0].title}\n${siteContent.about.features[0].desc}`,
+    set: (v) => {
+      const [t, ...rest] = v.split('\n');
+      siteContent.about.features[0].title = t.trim();
+      siteContent.about.features[0].desc  = rest.join('\n').trim();
+      renderAbout();
+    }
+  },
+  about_feature2: {
+    label: '特徴2（1行目＝タイトル、2行目以降＝説明文）',
+    hint: '1行目がタイトル、2行目以降が説明文になります。',
+    get: ()  => `${siteContent.about.features[1].title}\n${siteContent.about.features[1].desc}`,
+    set: (v) => {
+      const [t, ...rest] = v.split('\n');
+      siteContent.about.features[1].title = t.trim();
+      siteContent.about.features[1].desc  = rest.join('\n').trim();
+      renderAbout();
+    }
+  },
+  about_feature3: {
+    label: '特徴3（1行目＝タイトル、2行目以降＝説明文）',
+    hint: '1行目がタイトル、2行目以降が説明文になります。',
+    get: ()  => `${siteContent.about.features[2].title}\n${siteContent.about.features[2].desc}`,
+    set: (v) => {
+      const [t, ...rest] = v.split('\n');
+      siteContent.about.features[2].title = t.trim();
+      siteContent.about.features[2].desc  = rest.join('\n').trim();
+      renderAbout();
+    }
+  },
+  office_info: {
+    label: '事務局情報（1行目＝組織名、2行目＝住所、3行目＝メール）',
+    hint: '1行目：組織名　2行目：住所（郵便番号含む）　3行目：メールアドレス',
+    get: ()  => `${siteContent.officeInfo.name}\n${siteContent.officeInfo.address}\n${siteContent.officeInfo.email}`,
+    set: (v) => {
+      const lines = v.split('\n').map(l => l.trim()).filter(Boolean);
+      siteContent.officeInfo.name    = lines[0] || '';
+      siteContent.officeInfo.address = lines[1] || '';
+      siteContent.officeInfo.email   = lines[2] || '';
+      renderFooterOffice();
+    }
+  },
+  history:   { label:'沿革',                   hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.history,    set:(v)=>{ siteContent.pages.history    = v; } },
+  committee: { label:'役員一覧',               hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.committee,  set:(v)=>{ siteContent.pages.committee  = v; } },
+  privacy:   { label:'プライバシーポリシー',   hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.privacy,    set:(v)=>{ siteContent.pages.privacy    = v; } },
+  clubs:     { label:'クラブ一覧 冒頭説明文',              hint:'テーブルの上に表示される1〜2文の説明文です。', get:()=>siteContent.pages.clubs,      set:(v)=>{ siteContent.pages.clubs      = v; } },
+  clubs_data: {
+    label: 'クラブ一覧・練習日程（1行1クラブ）',
+    hint: '形式: 支部名|クラブ名|練習場所|練習日|練習時間\n例: 金沢支部|金沢サンダーバード|扇台小学校体育館|毎週金曜日|19時〜21時\nセル内で改行したい場合は「\\n」と入力してください。\n例（時間欄）: 火曜 19時〜21時30分\\n木曜 10時〜13時',
+    get: () => {
+      const esc = s => (s || '').replace(/\n/g, '\\n');
+      return siteContent.clubsData.map(c =>
+        `${c.branch}|${c.name}|${esc(c.venue)}|${esc(c.day)}|${esc(c.time)}`
+      ).join('\n');
+    },
+    set: (v) => {
+      const unesc = s => (s || '').replace(/\\n/g, '\n');
+      siteContent.clubsData = v.split('\n')
+        .map(line => {
+          const [branch='', name='', venue='', day='', time=''] = line.split('|').map(s => s.trim());
+          return { branch, name, venue: unesc(venue), day: unesc(day), time: unesc(time) };
+        })
+        .filter(c => c.name);
+    }
+  },
+  downloads: { label:'資料ダウンロード（ページ本文）',    hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.downloads,  set:(v)=>{ siteContent.pages.downloads  = v; } },
+  contact:   { label:'お問い合わせ（ページ本文）',        hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.contact,    set:(v)=>{ siteContent.pages.contact    = v; } },
+  about_page:{ label:'協会概要（ページ本文）',            hint:'## 大見出し、### 小見出し、- でリスト。', get:()=>siteContent.pages.about_page, set:(v)=>{ siteContent.pages.about_page = v; } },
+  procedures:{ label:'各種手続き・様式（ページ本文）',    hint:'## 大見出し、### 小見出し、- でリスト、1. でナンバーリスト、※で注釈。', get:()=>siteContent.pages.procedures, set:(v)=>{ siteContent.pages.procedures = v; } },
+  emergency_bar: {
+    label: '緊急のお知らせバー テキスト',
+    hint: '表示するメッセージを入力してください。バーの表示/非表示は上のトグルで切り替えられます。',
+    get: () => siteContent.emergency.text,
+    set: (v) => { siteContent.emergency.text = v; renderEmergencyBar(); }
+  },
+  procedures_form_url: {
+    label: '所属協会変更申請フォーム（Excel）のURL',
+    hint: 'GoogleドライブなどのダウンロードリンクURLを入力してください。空の場合は「準備中」と表示されます。',
+    get: () => siteContent.proceduresFormUrl,
+    set: (v) => { siteContent.proceduresFormUrl = v.trim(); }
+  },
+  japan_assoc_url: {
+    label: '日本バウンドテニス協会 入会案内URL',
+    hint: 'クラブ一覧ページ下部に表示する外部リンクのURLです。空の場合はボタンが非表示になります。',
+    get: () => siteContent.japanAssocUrl,
+    set: (v) => { siteContent.japanAssocUrl = v.trim(); }
+  },
+  contact_email: {
+    label: 'お問い合わせ通知先メールアドレス',
+    hint: 'フォーム送信先（mailto方式）またはFormspree未設定時のメールアドレスです。変更後は「保存して反映」を押してください。',
+    get: () => siteContent.contactEmail,
+    set: (v) => { siteContent.contactEmail = v.trim(); }
+  },
+  contact_form_url: {
+    label: 'お問い合わせフォームURL（Formspree等）',
+    hint: 'FormspreeのエンドポイントURL（https://formspree.io/f/XXXXX）を入力するとfetchで直接送信します。空の場合はmailto方式になります。',
+    get: () => siteContent.contactFormUrl,
+    set: (v) => { siteContent.contactFormUrl = v.trim(); }
+  },
+  trial_form_url: {
+    label: '体験申込フォームURL（Googleフォーム等）',
+    hint: 'GoogleフォームなどのURLを入力するとクラブ一覧ページの申込フォームが外部リンクボタンに切り替わります。空の場合はホームページ内に入力フォームを表示します。',
+    get: () => siteContent.trialFormUrl,
+    set: (v) => { siteContent.trialFormUrl = v.trim(); }
+  },
+  about_sport_video_url: {
+    label: 'バウンドテニス紹介動画URL（YouTube）',
+    hint: 'YouTubeのURL（https://youtu.be/XXXXX や https://www.youtube.com/watch?v=XXXXX）を貼り付けてください。動画IDを自動で読み取り、動画ページに埋め込まれます。',
+    get: () => siteContent.aboutSportVideoUrl,
+    set: (v) => { siteContent.aboutSportVideoUrl = v.trim(); }
+  },
+};
+
+// ======================================================
+// LocalStorage 永続化
+// ======================================================
+const LS = {
+  NEWS:   'ibta_hp_news',
+  EVENTS: 'ibta_hp_events',
+  AWAY:   'ibta_hp_away',
+  CONTENT:'ibta_hp_content',
+};
+
+function lsSave(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch(e) { console.warn('localStorage書き込み失敗:', e); }
+}
+function lsLoad(key) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : null; } catch(e) { return null; }
+}
+
+function saveNewsToStorage()      { lsSave(LS.NEWS,    newsData); }
+function saveEventsToStorage()    { lsSave(LS.EVENTS,  eventsData); }
+function saveAwayEventsToStorage(){ lsSave(LS.AWAY,    awayEventsData); }
+function saveContentToStorage() {
+  lsSave(LS.CONTENT, {
+    about: {
+      main:     siteContent.about.main,
+      features: siteContent.about.features.map(f => ({ title: f.title, desc: f.desc }))
+    },
+    officeInfo:           { ...siteContent.officeInfo },
+    pages:                { ...siteContent.pages },
+    heroImages:           [...siteContent.heroImages],
+    schedulePdfUrl:       siteContent.schedulePdfUrl,
+    downloadsItems:       siteContent.downloadsItems.map(i => ({...i})),
+    clubsData:            siteContent.clubsData.map(c => ({...c})),
+    emergency:            { ...siteContent.emergency },
+    proceduresFormUrl:    siteContent.proceduresFormUrl,
+    japanAssocUrl:        siteContent.japanAssocUrl,
+    contactEmail:         siteContent.contactEmail,
+    contactFormUrl:       siteContent.contactFormUrl,
+    trialFormUrl:         siteContent.trialFormUrl,
+    aboutSportVideoUrl:   siteContent.aboutSportVideoUrl,
+  });
+}
+
+function loadAllFromStorage() {
+  // お知らせ
+  const savedNews = lsLoad(LS.NEWS);
+  if (savedNews !== null) newsData = savedNews;
+
+  // 大会データ
+  const savedEvents = lsLoad(LS.EVENTS);
+  if (savedEvents !== null) eventsData = savedEvents;
+
+  // 他県案内データ
+  const savedAway = lsLoad(LS.AWAY);
+  if (savedAway !== null) awayEventsData = savedAway;
+
+  // idCounter を既存データの最大IDより確実に大きくする
+  const maxId = Math.max(0, ...newsData.map(n => n.id), ...eventsData.map(e => e.id), ...awayEventsData.map(a => a.id));
+  if (maxId >= idCounter) idCounter = maxId + 1;
+
+  // siteContent（部分マージ：コードで追加した新キーを消さない）
+  const saved = lsLoad(LS.CONTENT);
+  if (saved) {
+    if (saved.about) {
+      if (saved.about.main !== undefined) siteContent.about.main = saved.about.main;
+      if (Array.isArray(saved.about.features)) {
+        saved.about.features.forEach((f, i) => {
+          if (siteContent.about.features[i]) {
+            if (f.title !== undefined) siteContent.about.features[i].title = f.title;
+            if (f.desc  !== undefined) siteContent.about.features[i].desc  = f.desc;
+          }
+        });
+      }
+    }
+    if (saved.officeInfo)                      Object.assign(siteContent.officeInfo, saved.officeInfo);
+    if (saved.pages)                           Object.assign(siteContent.pages,      saved.pages);
+    // 旧バージョンに保存された「対応時間」セクションを自動削除
+    if (siteContent.pages.contact && siteContent.pages.contact.includes('対応時間')) {
+      siteContent.pages.contact = siteContent.pages.contact.replace(/\n*### 対応時間\n[^\n]*/g, '');
+    }
+    if (Array.isArray(saved.heroImages))       siteContent.heroImages     = saved.heroImages;
+    if (saved.schedulePdfUrl !== undefined)    siteContent.schedulePdfUrl = saved.schedulePdfUrl;
+    if (Array.isArray(saved.downloadsItems))   siteContent.downloadsItems = saved.downloadsItems;
+    if (Array.isArray(saved.clubsData))        siteContent.clubsData      = saved.clubsData;
+    if (saved.emergency) {
+      if (saved.emergency.visible !== undefined) siteContent.emergency.visible = saved.emergency.visible;
+      if (saved.emergency.text    !== undefined) siteContent.emergency.text    = saved.emergency.text;
+    }
+    if (saved.proceduresFormUrl  !== undefined) siteContent.proceduresFormUrl  = saved.proceduresFormUrl;
+    if (saved.japanAssocUrl      !== undefined) siteContent.japanAssocUrl      = saved.japanAssocUrl;
+    if (saved.contactEmail       !== undefined) siteContent.contactEmail       = saved.contactEmail;
+    if (saved.contactFormUrl     !== undefined) siteContent.contactFormUrl     = saved.contactFormUrl;
+    if (saved.trialFormUrl       !== undefined) siteContent.trialFormUrl       = saved.trialFormUrl;
+    if (saved.aboutSportVideoUrl !== undefined) siteContent.aboutSportVideoUrl = saved.aboutSportVideoUrl;
+  }
+}
+
+function resetAllData() {
+  if (!confirm('お知らせ・大会データ・他県案内・ページ本文をすべて初期値に戻します。\nこの操作は取り消せません。よろしいですか？')) return;
+  Object.values(LS).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
+function loadContentEditor() {
+  const key  = document.getElementById('content-page-select').value;
+  const meta = contentKeyMeta[key];
+  if (!meta) return;
+  document.getElementById('content-editor-textarea').value = meta.get();
+  document.getElementById('content-editor-label').textContent  = meta.label;
+  document.getElementById('content-editor-hint').textContent   = meta.hint;
+  const toggleRow = document.getElementById('emergency-toggle-row');
+  if (toggleRow) {
+    const isEmergency = key === 'emergency_bar';
+    toggleRow.style.display = isEmergency ? '' : 'none';
+    if (isEmergency) {
+      document.getElementById('emergency-visible-chk').checked = siteContent.emergency.visible;
+    }
+  }
+}
+
+function toggleEmergencyVisible() {
+  siteContent.emergency.visible = document.getElementById('emergency-visible-chk').checked;
+  renderEmergencyBar();
+  saveContentToStorage();
+}
+
+function saveContent() {
+  const key  = document.getElementById('content-page-select').value;
+  const meta = contentKeyMeta[key];
+  if (!meta) return;
+  meta.set(document.getElementById('content-editor-textarea').value);
+  saveContentToStorage();
+  showToast('保存してページに反映しました ✓');
+}
+
+// ======================================================
+// ユーティリティ
+// ======================================================
+let idCounter = 100;
+function nextId() { return ++idCounter; }
+
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+}
+function formatDateShort(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDateBlock(iso) {
+  if (!iso) return { year:'', day:'', dow:'' };
+  const d = new Date(iso);
+  const dows = ['日','月','火','水','木','金','土'];
+  return {
+    year: `${d.getFullYear()}年${d.getMonth()+1}月`,
+    day:  `${d.getDate()}日`,
+    dow:  `（${dows[d.getDay()]}）`
+  };
+}
+
+const categoryMap = {
+  notice:     { label: 'お知らせ',   cls: 'badge-blue'   },
+  tournament: { label: '大会情報',   cls: 'badge-red'    },
+  event:      { label: 'イベント',   cls: 'badge-green'  },
+  member:     { label: '会員向け',   cls: 'badge-purple' },
+  other:      { label: 'その他',     cls: 'badge-gray'   }
+};
+const statusMap = {
+  open: { label: '受付中',   cls: 'status-open' },
+  soon: { label: '締切間近', cls: 'status-soon' },
+  plan: { label: '予定',     cls: 'status-plan' }
+};
+
+// ======================================================
+// ナビゲーション
+// ======================================================
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 30);
+});
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('mobile-menu').classList.toggle('open');
+});
+
+// ======================================================
+// お知らせ描画
+// ======================================================
+function renderNews() {
+  const list = document.getElementById('news-list');
+  list.innerHTML = '';
+  const items = newsData.slice(0, 5);
+  if (items.length === 0) {
+    list.innerHTML = '<p class="news-empty">現在のお知らせはありません。</p>';
+    return;
+  }
+  items.forEach((n, i) => {
+    const cat = categoryMap[n.category] || categoryMap.other;
+    const row = document.createElement('a');
+    row.href = `/news/${n.id}`;
+    row.className = 'news-item';
+    row.style.animationDelay = `${i * 0.08}s`;
+    row.innerHTML = `
+      <div class="news-meta">
+        <span class="news-date">${formatDateShort(n.date)}</span>
+        <span class="badge ${cat.cls}">${cat.label}</span>
+        ${n.important ? `<span class="badge badge-important"><span data-lucide="bell" style="width:11px;height:11px"></span>重要</span>` : ''}
+      </div>
+      <span class="news-title">${n.title}</span>
+      <span class="news-arrow"><span data-lucide="chevron-right" style="width:16px;height:16px"></span></span>
+    `;
+    list.appendChild(row);
+  });
+  lucide.createIcons();
+  // scroll observer
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1 });
+  list.querySelectorAll('.news-item').forEach(el => io.observe(el));
+}
+
+// ======================================================
+// イベント描画
+// ======================================================
+function renderEvents() {
+  const grid = document.getElementById('events-grid');
+  grid.innerHTML = '';
+  if (eventsData.length === 0) {
+    grid.innerHTML = '<p class="events-empty" style="grid-column:1/-1">現在予定されている大会はありません。</p>';
+    return;
+  }
+  eventsData.slice(0, 3).forEach((ev, i) => {
+    const dateBlock = formatDateBlock(ev.date);
+    const st = statusMap[ev.status] || statusMap.plan;
+    const card = document.createElement('a');
+    card.href = `/events/${ev.id}`;
+    card.className = 'event-card';
+    card.style.animationDelay = `${i * 0.1}s`;
+
+    let pdfBtns = '';
+    if (ev.youkou) pdfBtns += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
+    if (ev.result) pdfBtns += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+
+    let photoEl = ev.photo ? `<img src="${ev.photo}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+
+    card.innerHTML = `
+      <div class="event-header">
+        <div class="event-date-block">
+          <p class="event-year">${dateBlock.year}</p>
+          <p class="event-day">${dateBlock.day}</p>
+          <p class="event-dow">${dateBlock.dow}</p>
+        </div>
+        <span class="status-badge ${st.cls}">${st.label}</span>
+      </div>
+      <div class="event-body">
+        ${photoEl}
+        <p class="event-name">${ev.name}</p>
+        <p class="event-venue">
+          <span data-lucide="map-pin" style="width:13px;height:13px"></span>
+          ${ev.venue}
+        </p>
+        <div class="event-link-row">
+          ${pdfBtns}
+          <span class="event-detail-link">
+            詳細を見る
+            <span data-lucide="chevron-right" style="width:14px;height:14px"></span>
+          </span>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  lucide.createIcons();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  grid.querySelectorAll('.event-card').forEach(el => io.observe(el));
+}
+
+// ======================================================
+// 他県案内・遠征情報 描画
+// ======================================================
+function renderAwayEvents() {
+  const grid = document.getElementById('away-events-grid');
+  const section = document.getElementById('away-events');
+  if (!grid) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  // 開催日が今日以降のものだけ表示
+  const upcoming = awayEventsData
+    .filter(a => a.date && new Date(a.date) >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  // データが空なら丸ごと非表示
+  if (section) section.style.display = (awayEventsData.length === 0) ? 'none' : '';
+
+  grid.innerHTML = '';
+  if (!upcoming.length) {
+    grid.innerHTML = '<p class="away-empty">現在の遠征情報はありません。</p>';
+    return;
+  }
+  upcoming.forEach((a, i) => {
+    const db   = formatDateBlock(a.date);
+    const card = document.createElement('div');
+    card.className = 'away-card';
+    card.style.animationDelay = `${i * 0.09}s`;
+    card.innerHTML = `
+      <div class="away-card-header">
+        <div>
+          <div class="away-card-date">${db.day} ${db.dow}</div>
+          <div class="away-card-date-sub">${db.year}</div>
+        </div>
+        <span class="away-card-region">${a.region || ''}</span>
+      </div>
+      <div class="away-card-body">
+        <p class="away-card-name">${a.name}</p>
+        ${a.url
+          ? `<a href="${a.url}" target="_blank" rel="noopener" class="pdf-btn" style="align-self:flex-start">
+               <span data-lucide="file-text" style="width:12px;height:12px"></span>詳細・要項
+             </a>`
+          : ''}
+      </div>`;
+    grid.appendChild(card);
+  });
+  lucide.createIcons();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  grid.querySelectorAll('.away-card').forEach(el => io.observe(el));
+}
+
+// ======================================================
+// スクロールアニメーション（汎用）
+// ======================================================
+function initScrollFade() {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('#about-img, #about-text').forEach(el => io.observe(el));
+  document.querySelectorAll('.scroll-fade').forEach(el => io.observe(el));
+}
+
+// ======================================================
+// 検索
+// ======================================================
+const searchInput    = document.getElementById('search-input');
+const searchDropdown = document.getElementById('search-dropdown');
+
+function buildSearchCache() {
+  return [
+    ...newsData.map(n => ({ type: 'news',  id: n.id, title: n.title, date: n.date, category: n.category })),
+    ...eventsData.map(e => ({ type: 'event', id: e.id, title: e.name, date: e.date })),
+    { type: 'club', title: '金沢バウンドテニスクラブ', date: '' },
+    { type: 'club', title: '能登半島BC', date: '' },
+    { type: 'club', title: '加賀温泉クラブ', date: '' },
+  ];
+}
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  if (q.length < 2) { searchDropdown.style.display = 'none'; return; }
+
+  const cache = buildSearchCache();
+  const results = cache.filter(item => item.title.includes(q));
+  const groups = { news: [], event: [], club: [] };
+  results.forEach(r => { if (groups[r.type]) groups[r.type].push(r); });
+
+  const typeLabels = { news: 'お知らせ', event: '大会・イベント', club: 'クラブ' };
+  const typeColors = {
+    news:  { bg: '#EFF6FF', color: '#2563EB' },
+    event: { bg: '#FFF1F2', color: '#BE123C' },
+    club:  { bg: '#F0FDF4', color: '#15803D' }
+  };
+  const typeIcons = { news: 'newspaper', event: 'trophy', club: 'map-pin' };
+
+  if (results.length === 0) {
+    searchDropdown.innerHTML = '<p class="search-no-result">一致する情報が見つかりませんでした</p>';
+    searchDropdown.style.display = 'block';
+    return;
+  }
+
+  let html = '';
+  Object.entries(groups).forEach(([type, items]) => {
+    if (!items.length) return;
+    html += `<div class="search-category">${typeLabels[type]}</div>`;
+    items.forEach(item => {
+      const ic = typeColors[type];
+      html += `
+        <div class="search-item" onclick="searchDropdown.style.display='none';searchInput.value='';window.location='/${type}/${item.id||''}'" >
+          <div class="search-item-icon" style="background:${ic.bg}">
+            <span data-lucide="${typeIcons[type]}" style="width:14px;height:14px;color:${ic.color}"></span>
+          </div>
+          <div>
+            <div class="search-item-title">${item.title.replace(q, `<mark style="background:#FEF9C3;border-radius:2px">${q}</mark>`)}</div>
+            ${item.date ? `<div class="search-item-date">${formatDateShort(item.date)}</div>` : ''}
+          </div>
+        </div>`;
+    });
+  });
+  searchDropdown.innerHTML = html;
+  searchDropdown.style.display = 'block';
+  lucide.createIcons();
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) searchDropdown.style.display = 'none';
+});
+
+// ======================================================
+// 管理画面ロジック
+// ======================================================
+const ADMIN_PASSWORD = 'boundtennis2025'; // ★パスワードを変更してください★
+
+function openAdminLogin() {
+  document.getElementById('login-overlay').classList.add('open');
+  document.getElementById('login-pw').focus();
+}
+function closeLogin() {
+  document.getElementById('login-overlay').classList.remove('open');
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-pw').value = '';
+}
+function doLogin() {
+  const pw = document.getElementById('login-pw').value;
+  if (pw === ADMIN_PASSWORD) {
+    closeLogin();
+    openAdmin();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+function openAdmin() {
+  document.getElementById('admin-overlay').classList.add('open');
+  renderAdminNews();
+  renderAdminEvents();
+  renderAdminAwayEvents();
+  loadContentEditor();
+  lucide.createIcons();
+}
+function closeAdmin() {
+  document.getElementById('admin-overlay').classList.remove('open');
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// -- Toast --
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// -- Admin News --
+function renderAdminNews() {
+  const ul = document.getElementById('admin-news-list');
+  ul.innerHTML = '';
+  if (newsData.length === 0) {
+    ul.innerHTML = '<li style="color:#94A3B8;font-size:0.85rem;padding:0.5rem">お知らせはありません。</li>';
+    return;
+  }
+  newsData.forEach(n => {
+    const cat = categoryMap[n.category] || categoryMap.other;
+    const li = document.createElement('li');
+    li.className = 'admin-list-item';
+    li.innerHTML = `
+      <div class="admin-item-info">
+        <div class="admin-item-title">${n.title}</div>
+        <div class="admin-item-meta">${formatDateShort(n.date)} ／ <span class="badge ${cat.cls}" style="font-size:0.65rem">${cat.label}</span>${n.important?' ／ 重要':''}</div>
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn-edit" onclick="editNews(${n.id})">編集</button>
+        <button class="btn-delete" onclick="deleteNews(${n.id})">削除</button>
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function openNewsForm(data) {
+  const form = document.getElementById('news-form');
+  form.style.display = 'block';
+  document.getElementById('news-edit-id').value = data ? data.id : '';
+  document.getElementById('nf-date').value     = data ? data.date : new Date().toISOString().split('T')[0];
+  document.getElementById('nf-category').value = data ? data.category : 'notice';
+  document.getElementById('nf-title').value    = data ? data.title : '';
+  document.getElementById('nf-important').checked = data ? data.important : false;
+  document.getElementById('nf-body').value     = data ? data.body : '';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function editNews(id) {
+  const n = newsData.find(x => x.id === id);
+  if (n) openNewsForm(n);
+}
+
+function cancelNewsForm() {
+  document.getElementById('news-form').style.display = 'none';
+}
+
+function saveNews() {
+  const id       = document.getElementById('news-edit-id').value;
+  const date     = document.getElementById('nf-date').value;
+  const category = document.getElementById('nf-category').value;
+  const title    = document.getElementById('nf-title').value.trim();
+  const important= document.getElementById('nf-important').checked;
+  const body     = document.getElementById('nf-body').value.trim();
+  if (!title || !date) { alert('日付とタイトルは必須です。'); return; }
+
+  if (id) {
+    const idx = newsData.findIndex(x => x.id == id);
+    if (idx > -1) newsData[idx] = { id: Number(id), date, category, title, important, body };
+  } else {
+    newsData.unshift({ id: nextId(), date, category, title, important, body });
+  }
+  cancelNewsForm();
+  renderAdminNews();
+  renderNews();
+  saveNewsToStorage();
+  showToast('お知らせを保存しました ✓');
+}
+
+function deleteNews(id) {
+  if (!confirm('このお知らせを削除しますか？')) return;
+  newsData = newsData.filter(x => x.id !== id);
+  renderAdminNews();
+  renderNews();
+  saveNewsToStorage();
+  showToast('削除しました');
+}
+
+// -- Admin Events --
+function renderAdminEvents() {
+  const ul = document.getElementById('admin-events-list');
+  ul.innerHTML = '';
+  if (eventsData.length === 0) {
+    ul.innerHTML = '<li style="color:#94A3B8;font-size:0.85rem;padding:0.5rem">大会データはありません。</li>';
+    return;
+  }
+  eventsData.forEach(ev => {
+    const st = statusMap[ev.status] || statusMap.plan;
+    const li = document.createElement('li');
+    li.className = 'admin-list-item';
+    li.innerHTML = `
+      <div class="admin-item-info">
+        <div class="admin-item-title">${ev.name}</div>
+        <div class="admin-item-meta">${formatDateShort(ev.date)} ／ ${ev.venue} ／ <span class="status-badge ${st.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${st.label}</span></div>
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn-edit" onclick="editEvent(${ev.id})">編集</button>
+        <button class="btn-delete" onclick="deleteEvent(${ev.id})">削除</button>
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function openEventForm(data) {
+  const form = document.getElementById('event-form');
+  form.style.display = 'block';
+  document.getElementById('ef-edit-id').value = data ? data.id : '';
+  document.getElementById('ef-date').value    = data ? data.date : new Date().toISOString().split('T')[0];
+  document.getElementById('ef-status').value  = data ? data.status : 'plan';
+  document.getElementById('ef-name').value    = data ? data.name : '';
+  document.getElementById('ef-venue').value   = data ? data.venue : '';
+  document.getElementById('ef-body').value    = data ? data.body : '';
+  document.getElementById('ef-youkou').value  = data ? data.youkou : '';
+  document.getElementById('ef-result').value  = data ? data.result : '';
+  document.getElementById('ef-photo').value   = data ? data.photo : '';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function editEvent(id) {
+  const ev = eventsData.find(x => x.id === id);
+  if (ev) openEventForm(ev);
+}
+
+function cancelEventForm() {
+  document.getElementById('event-form').style.display = 'none';
+}
+
+function saveEvent() {
+  const id     = document.getElementById('ef-edit-id').value;
+  const date   = document.getElementById('ef-date').value;
+  const status = document.getElementById('ef-status').value;
+  const name   = document.getElementById('ef-name').value.trim();
+  const venue  = document.getElementById('ef-venue').value.trim();
+  const body   = document.getElementById('ef-body').value.trim();
+  const youkou = document.getElementById('ef-youkou').value.trim();
+  const result = document.getElementById('ef-result').value.trim();
+  const photo  = document.getElementById('ef-photo').value.trim();
+  if (!name || !date) { alert('日付と大会名は必須です。'); return; }
+
+  const d    = new Date(date);
+  const dows = ['日','月','火','水','木','金','土'];
+  const dow  = dows[d.getDay()];
+
+  if (id) {
+    const idx = eventsData.findIndex(x => x.id == id);
+    if (idx > -1) eventsData[idx] = { id: Number(id), date, dow, name, venue, status, body, youkou, result, photo };
+  } else {
+    eventsData.push({ id: nextId(), date, dow, name, venue, status, body, youkou, result, photo });
+  }
+  cancelEventForm();
+  renderAdminEvents();
+  renderEvents();
+  saveEventsToStorage();
+  showToast('大会データを保存しました ✓');
+}
+
+function deleteEvent(id) {
+  if (!confirm('この大会データを削除しますか？')) return;
+  eventsData = eventsData.filter(x => x.id !== id);
+  renderAdminEvents();
+  renderEvents();
+  saveEventsToStorage();
+  showToast('削除しました');
+}
+
+// -- Admin Away Events --
+function renderAdminAwayEvents() {
+  const ul = document.getElementById('admin-away-list');
+  if (!ul) return;
+  ul.innerHTML = '';
+  if (!awayEventsData.length) {
+    ul.innerHTML = '<li style="color:#94A3B8;font-size:0.85rem;padding:0.5rem">他県案内データはありません。</li>';
+    return;
+  }
+  awayEventsData.forEach(a => {
+    const li = document.createElement('li');
+    li.className = 'admin-list-item';
+    li.innerHTML = `
+      <div class="admin-item-info">
+        <div class="admin-item-title">${a.name}</div>
+        <div class="admin-item-meta">${formatDateShort(a.date)} ／ ${a.region || '地域未設定'}${a.url ? ' ／ 要項リンクあり' : ''}</div>
+      </div>
+      <div style="display:flex;gap:0.5rem">
+        <button class="btn-edit" onclick="editAwayItem(${a.id})">編集</button>
+        <button class="btn-delete" onclick="deleteAwayItem(${a.id})">削除</button>
+      </div>`;
+    ul.appendChild(li);
+  });
+}
+
+function openAwayForm(data) {
+  const form = document.getElementById('away-form');
+  if (!form) return;
+  form.style.display = 'block';
+  document.getElementById('af-edit-id').value = data ? data.id : '';
+  document.getElementById('af-date').value    = data ? data.date   : new Date().toISOString().split('T')[0];
+  document.getElementById('af-region').value  = data ? data.region : '';
+  document.getElementById('af-name').value    = data ? data.name   : '';
+  document.getElementById('af-url').value     = data ? data.url    : '';
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function editAwayItem(id) {
+  const a = awayEventsData.find(x => x.id === id);
+  if (a) openAwayForm(a);
+}
+
+function cancelAwayForm() {
+  const form = document.getElementById('away-form');
+  if (form) form.style.display = 'none';
+}
+
+function saveAwayItem() {
+  const id     = document.getElementById('af-edit-id').value;
+  const date   = document.getElementById('af-date').value;
+  const region = document.getElementById('af-region').value.trim();
+  const name   = document.getElementById('af-name').value.trim();
+  const url    = document.getElementById('af-url').value.trim();
+  if (!name || !date) { alert('開催日と大会名は必須です。'); return; }
+
+  if (id) {
+    const idx = awayEventsData.findIndex(x => x.id == id);
+    if (idx > -1) awayEventsData[idx] = { id: Number(id), date, region, name, url };
+  } else {
+    awayEventsData.push({ id: nextId(), date, region, name, url });
+  }
+  cancelAwayForm();
+  renderAdminAwayEvents();
+  renderAwayEvents();
+  saveAwayEventsToStorage();
+  showToast('他県案内データを保存しました ✓');
+}
+
+function deleteAwayItem(id) {
+  if (!confirm('この他県案内データを削除しますか？')) return;
+  awayEventsData = awayEventsData.filter(x => x.id !== id);
+  renderAdminAwayEvents();
+  renderAwayEvents();
+  saveAwayEventsToStorage();
+  showToast('削除しました');
+}
+
+// ======================================================
+// 初期化
+// ======================================================
+document.addEventListener('DOMContentLoaded', () => {
+  loadAllFromStorage();   // ← LocalStorage からデータを復元（描画より先に実行）
+  lucide.createIcons();
+  initHeroSlideshow();
+  updateScheduleBtn();
+  renderEmergencyBar();
+  renderAbout();
+  renderFooterOffice();
+  renderNews();
+  renderEvents();
+  renderAwayEvents();
+  initScrollFade();
+  initLinkInterception();
+});
+</script>
+</body>
+</html>
