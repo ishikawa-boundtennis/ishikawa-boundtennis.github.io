@@ -736,6 +736,8 @@
   .status-open   { background:#D1FAE5; color:#065F46; }
   .status-soon   { background:#FEF3C7; color:#92400E; }
   .status-plan   { background:#DBEAFE; color:#1E40AF; }
+  .status-active { background:#A7F3D0; color:#064E3B; }
+  .status-done   { background:#E2E8F0; color:#64748B; }
   .event-body { padding: 1.25rem 1.5rem; flex:1; display:flex; flex-direction:column; }
   .event-name {
     font-weight: 700;
@@ -2048,7 +2050,7 @@
         </div>
         <button class="btn-add" onclick="openNewsForm()">
           <span data-lucide="plus" style="width:14px;height:14px"></span>
-          ＋ 新規作成
+          新規作成
         </button>
         <ul class="admin-item-list" id="admin-news-list"></ul>
 
@@ -2099,7 +2101,7 @@
         </div>
         <button class="btn-add" onclick="openEventForm()">
           <span data-lucide="plus" style="width:14px;height:14px"></span>
-          ＋ 新規作成
+          新規作成
         </button>
         <ul class="admin-item-list" id="admin-events-list"></ul>
 
@@ -2108,44 +2110,83 @@
           <input type="hidden" id="ef-edit-id">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">開催日 *</label>
+              <label class="form-label">開始日（初日）*</label>
               <input type="date" id="ef-date" class="form-input">
             </div>
             <div class="form-group">
-              <label class="form-label">ステータス *</label>
-              <select id="ef-status" class="form-select">
-                <option value="open">受付中</option>
-                <option value="soon">締切間近</option>
-                <option value="plan">予定</option>
-              </select>
+              <label class="form-label">終了日（複数日の場合）</label>
+              <input type="date" id="ef-date-end" class="form-input">
+              <p class="form-hint">1日のみの場合は空欄のままで構いません。</p>
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ステータス *</label>
+            <select id="ef-status" class="form-select">
+              <option value="open">受付中</option>
+              <option value="soon">締切間近</option>
+              <option value="plan">予定</option>
+              <option value="active">開催中</option>
+              <option value="done">終了</option>
+            </select>
+            <p class="form-hint">開始日当日〜終了日は「開催中」、翌日以降は「終了」に自動切替されます。</p>
           </div>
           <div class="form-group">
             <label class="form-label">大会名 *</label>
             <input type="text" id="ef-name" class="form-input" placeholder="大会・イベント名">
           </div>
-          <div class="form-group">
-            <label class="form-label">会場名</label>
-            <input type="text" id="ef-venue" class="form-input" placeholder="会場名">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">会場名</label>
+              <input type="text" id="ef-venue" class="form-input" placeholder="例：金沢市内灘総合体育館">
+            </div>
+            <div class="form-group">
+              <label class="form-label">会場住所</label>
+              <input type="text" id="ef-address" class="form-input" placeholder="例：石川県河北郡内灘町...">
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">本文テキスト</label>
-            <textarea id="ef-body" class="form-textarea" placeholder="大会詳細（省略可）"></textarea>
+            <textarea id="ef-body" class="form-textarea" placeholder="大会詳細・注意事項（省略可）"></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">大会要項URL（GoogleドライブPDF）</label>
+            <label class="form-label">大会要項URL</label>
             <input type="url" id="ef-youkou" class="form-input" placeholder="https://drive.google.com/...">
-            <p class="form-hint">GoogleドライブのPDF共有リンクを貼り付けると「大会要項」ボタンが自動表示されます。</p>
+            <p class="form-hint">入力するとボタンが自動表示されます。</p>
           </div>
           <div class="form-group">
-            <label class="form-label">試合結果URL（GoogleドライブPDF）</label>
+            <label class="form-label">ドロー表URL</label>
+            <input type="url" id="ef-draw" class="form-input" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">参加申込書URL（Excel・PDF等）</label>
+            <input type="url" id="ef-entry" class="form-input" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">試合結果URL</label>
             <input type="url" id="ef-result" class="form-input" placeholder="https://drive.google.com/...">
-            <p class="form-hint">試合終了後に貼り付けると「試合結果」ボタンが自動表示されます。</p>
           </div>
           <div class="form-group">
-            <label class="form-label">大会写真URL（GoogleフォトまたはURL）</label>
+            <label class="form-label" style="font-weight:700;margin-bottom:0.5rem;display:block">その他資料（最大3件）</label>
+            <p class="form-hint" style="margin-bottom:0.75rem">ラベルとURLの両方を入力するとボタンが表示されます。</p>
+            <div style="display:flex;flex-direction:column;gap:0.5rem">
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra1-label" class="form-input" placeholder="ラベル例：注意事項" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra1-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra2-label" class="form-input" placeholder="ラベル例：タイムテーブル" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra2-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra3-label" class="form-input" placeholder="ラベル例：参加者名簿" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra3-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">大会写真URL</label>
             <input type="url" id="ef-photo" class="form-input" placeholder="https://...">
-            <p class="form-hint">画像のURLを貼り付けると写真カードに表示されます。</p>
+            <p class="form-hint">画像URLを貼り付けると写真がカードに表示されます。</p>
           </div>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
             <button class="btn-save" onclick="saveEvent()">保存</button>
@@ -2162,7 +2203,7 @@
         </div>
         <button class="btn-add" onclick="openAwayForm()">
           <span data-lucide="plus" style="width:14px;height:14px"></span>
-          ＋ 新規作成
+          新規作成
         </button>
         <ul class="admin-item-list" id="admin-away-list"></ul>
 
@@ -2171,13 +2212,18 @@
           <input type="hidden" id="af-edit-id">
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label">開催日 *</label>
+              <label class="form-label">開始日（初日）*</label>
               <input type="date" id="af-date" class="form-input">
             </div>
             <div class="form-group">
-              <label class="form-label">開催地域・県名 *</label>
-              <input type="text" id="af-region" class="form-input" placeholder="例：富山県、全国大会など">
+              <label class="form-label">終了日（複数日の場合）</label>
+              <input type="date" id="af-date-end" class="form-input">
+              <p class="form-hint">1日のみの場合は空欄のままで構いません。</p>
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">開催地域・県名 *</label>
+            <input type="text" id="af-region" class="form-input" placeholder="例：富山県、全国大会など">
           </div>
           <div class="form-group">
             <label class="form-label">大会・イベント名 *</label>
@@ -2295,9 +2341,9 @@ const DEFAULT_NEWS = [
 ];
 
 const DEFAULT_EVENTS = [
-  { id: 1, date: '2025-07-13', dow: '日', name: '第28回石川県バウンドテニス選手権大会', venue: '金沢市内灘総合体育館',          status: 'open', youkou: 'https://drive.google.com/example', result: '', photo: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80', body: '' },
-  { id: 2, date: '2025-08-24', dow: '日', name: '夏季オープン大会 in 能登',           venue: '輪島市ふれあいスポーツセンター', status: 'soon', youkou: '', result: '', photo: '', body: '' },
-  { id: 3, date: '2025-09-21', dow: '日', name: '秋季シニア大会（60歳以上）',          venue: '白山市松任総合運動公園',         status: 'plan', youkou: '', result: '', photo: '', body: '' }
+  { id: 1, date: '2025-07-13', dateEnd: '', dow: '日', name: '第28回石川県バウンドテニス選手権大会', venue: '金沢市内灘総合体育館', address: '石川県河北郡内灘町大学2-2-1', status: 'open', youkou: 'https://drive.google.com/example', draw: '', entry: '', result: '', extras: [], photo: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80', body: '' },
+  { id: 2, date: '2025-08-24', dateEnd: '', dow: '日', name: '夏季オープン大会 in 能登',           venue: '輪島市ふれあいスポーツセンター', address: '', status: 'soon', youkou: '', draw: '', entry: '', result: '', extras: [], photo: '', body: '' },
+  { id: 3, date: '2025-09-21', dateEnd: '', dow: '日', name: '秋季シニア大会（60歳以上）',          venue: '白山市松任総合運動公園',         address: '', status: 'plan', youkou: '', draw: '', entry: '', result: '', extras: [], photo: '', body: '' }
 ];
 
 const DEFAULT_CLUBS_DATA = [
@@ -2317,8 +2363,8 @@ const DEFAULT_CLUBS_DATA = [
 
 // ▼ 他県案内・遠征情報（デフォルトデータ）
 const DEFAULT_AWAY_EVENTS = [
-  { id: 1, date: '2026-07-20', region: '富山県', name: '第20回富山バウンドテニスオープン大会', url: '' },
-  { id: 2, date: '2026-08-03', region: '福井県', name: '福井・北信越交流大会 2026',           url: '' },
+  { id: 1, date: '2026-07-20', dateEnd: '', region: '富山県', name: '第20回富山バウンドテニスオープン大会', url: '' },
+  { id: 2, date: '2026-08-03', dateEnd: '', region: '福井県', name: '福井・北信越交流大会 2026',           url: '' },
 ];
 
 // ▼ お知らせデータ（ページロード後に LocalStorage で上書き）
@@ -2593,26 +2639,38 @@ function renderEventsListOverlay() {
   const sorted = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
   return sorted.map(ev => {
     const db  = formatDateBlock(ev.date);
-    const st  = statusMap[ev.status] || statusMap.plan;
-    let pdfs  = '';
+    const st  = computeEventStatus(ev);
+    const endLabel = ev.dateEnd && ev.dateEnd !== ev.date
+      ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}日(${de.dow})`; })()
+      : '';
+    let pdfs = '';
     if (ev.youkou) pdfs += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
-    if (ev.result)  pdfs += `<a href="${ev.result}"  target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+    if (ev.draw)   pdfs += `<a href="${ev.draw}"   target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
+    if (ev.entry)  pdfs += `<a href="${ev.entry}"  target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
+    if (ev.result) pdfs += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+    (ev.extras || []).forEach(ex => {
+      if (ex.label && ex.url) pdfs += `<a href="${ex.url}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${ex.label}</a>`;
+    });
+    const addrLine = ev.address
+      ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${ev.address}</p>`
+      : '';
     return `
       <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
         <div style="background:var(--navy);color:#fff;border-radius:0.5rem;padding:0.75rem 1rem;text-align:center;flex-shrink:0;min-width:68px">
           <div style="font-size:0.68rem;color:rgba(255,255,255,0.6)">${db.year}</div>
           <div style="font-size:1.6rem;font-weight:800;font-family:'Shippori Mincho',serif;line-height:1.1">${db.day}</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">${db.dow}</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">${db.dow}${endLabel ? `<br><span style="font-size:0.65rem;opacity:0.85">${endLabel}</span>` : ''}</div>
         </div>
         <div style="flex:1;min-width:0">
           <div style="margin-bottom:0.35rem">
             <span class="status-badge ${st.cls}" style="font-size:0.7rem">${st.label}</span>
           </div>
           <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">${ev.name}</p>
-          <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.5rem">
+          <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.2rem">
             <span data-lucide="map-pin" style="width:12px;height:12px"></span>${ev.venue || '会場未定'}
           </p>
-          ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap">${pdfs}</div>` : ''}
+          ${addrLine}
+          ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem">${pdfs}</div>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -3477,10 +3535,29 @@ const categoryMap = {
   other:      { label: 'その他',     cls: 'badge-gray'   }
 };
 const statusMap = {
-  open: { label: '受付中',   cls: 'status-open' },
-  soon: { label: '締切間近', cls: 'status-soon' },
-  plan: { label: '予定',     cls: 'status-plan' }
+  open:   { label: '受付中',   cls: 'status-open'   },
+  soon:   { label: '締切間近', cls: 'status-soon'   },
+  plan:   { label: '予定',     cls: 'status-plan'   },
+  active: { label: '開催中',   cls: 'status-active' },
+  done:   { label: '終了',     cls: 'status-done'   }
 };
+
+function computeEventStatus(ev) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(ev.date);
+  start.setHours(0, 0, 0, 0);
+  const end = ev.dateEnd ? new Date(ev.dateEnd) : new Date(ev.date);
+  end.setHours(0, 0, 0, 0);
+  if (today > end) return statusMap.done;
+  if (today >= start) return statusMap.active;
+  return statusMap[ev.status] || statusMap.plan;
+}
+
+function formatDateRange(date, dateEnd) {
+  if (!dateEnd || dateEnd === date) return formatDateShort(date);
+  return `${formatDateShort(date)} 〜 ${formatDateShort(dateEnd)}`;
+}
 
 // ======================================================
 // ナビゲーション
@@ -3531,6 +3608,62 @@ function renderNews() {
 // ======================================================
 // イベント描画
 // ======================================================
+function buildEventCard(ev, i) {
+  const dateBlock = formatDateBlock(ev.date);
+  const st = computeEventStatus(ev);
+  const card = document.createElement('a');
+  card.href = `/events/${ev.id}`;
+  card.className = 'event-card';
+  card.style.animationDelay = `${i * 0.1}s`;
+
+  const endBlock = ev.dateEnd && ev.dateEnd !== ev.date ? formatDateBlock(ev.dateEnd) : null;
+  const dowLine = endBlock
+    ? `${dateBlock.dow} 〜 ${endBlock.day}日(${endBlock.dow})`
+    : dateBlock.dow;
+
+  let pdfBtns = '';
+  if (ev.youkou) pdfBtns += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
+  if (ev.draw)   pdfBtns += `<a href="${ev.draw}"   target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
+  if (ev.entry)  pdfBtns += `<a href="${ev.entry}"  target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
+  if (ev.result) pdfBtns += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+  (ev.extras || []).forEach(ex => {
+    if (ex.label && ex.url) pdfBtns += `<a href="${ex.url}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${ex.label}</a>`;
+  });
+
+  const addrEl = ev.address
+    ? `<p class="event-venue" style="font-size:0.75rem;color:#94A3B8;margin-top:0.15rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${ev.address}</p>`
+    : '';
+  let photoEl = ev.photo ? `<img src="${ev.photo}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+
+  card.innerHTML = `
+    <div class="event-header">
+      <div class="event-date-block">
+        <p class="event-year">${dateBlock.year}</p>
+        <p class="event-day">${dateBlock.day}</p>
+        <p class="event-dow">${dowLine}</p>
+      </div>
+      <span class="status-badge ${st.cls}">${st.label}</span>
+    </div>
+    <div class="event-body">
+      ${photoEl}
+      <p class="event-name">${ev.name}</p>
+      <p class="event-venue">
+        <span data-lucide="map-pin" style="width:13px;height:13px"></span>
+        ${ev.venue || '会場未定'}
+      </p>
+      ${addrEl}
+      <div class="event-link-row">
+        ${pdfBtns}
+        <span class="event-detail-link">
+          詳細を見る
+          <span data-lucide="chevron-right" style="width:14px;height:14px"></span>
+        </span>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
 function renderEvents() {
   const grid = document.getElementById('events-grid');
   grid.innerHTML = '';
@@ -3538,46 +3671,19 @@ function renderEvents() {
     grid.innerHTML = '<p class="events-empty" style="grid-column:1/-1">現在予定されている大会はありません。</p>';
     return;
   }
-  eventsData.slice(0, 3).forEach((ev, i) => {
-    const dateBlock = formatDateBlock(ev.date);
-    const st = statusMap[ev.status] || statusMap.plan;
-    const card = document.createElement('a');
-    card.href = `/events/${ev.id}`;
-    card.className = 'event-card';
-    card.style.animationDelay = `${i * 0.1}s`;
 
-    let pdfBtns = '';
-    if (ev.youkou) pdfBtns += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
-    if (ev.result) pdfBtns += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+  const sorted = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
+  const active = sorted.filter(ev => computeEventStatus(ev) !== statusMap.done);
+  const done   = sorted.filter(ev => computeEventStatus(ev) === statusMap.done);
 
-    let photoEl = ev.photo ? `<img src="${ev.photo}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+  // 終了大会を除いて最大3件。3件未満なら直近終了1件で補完
+  const display = active.slice(0, 3);
+  if (display.length < 3 && done.length > 0) {
+    display.push(done[done.length - 1]);
+  }
 
-    card.innerHTML = `
-      <div class="event-header">
-        <div class="event-date-block">
-          <p class="event-year">${dateBlock.year}</p>
-          <p class="event-day">${dateBlock.day}</p>
-          <p class="event-dow">${dateBlock.dow}</p>
-        </div>
-        <span class="status-badge ${st.cls}">${st.label}</span>
-      </div>
-      <div class="event-body">
-        ${photoEl}
-        <p class="event-name">${ev.name}</p>
-        <p class="event-venue">
-          <span data-lucide="map-pin" style="width:13px;height:13px"></span>
-          ${ev.venue}
-        </p>
-        <div class="event-link-row">
-          ${pdfBtns}
-          <span class="event-detail-link">
-            詳細を見る
-            <span data-lucide="chevron-right" style="width:14px;height:14px"></span>
-          </span>
-        </div>
-      </div>
-    `;
-    grid.appendChild(card);
+  display.forEach((ev, i) => {
+    grid.appendChild(buildEventCard(ev, i));
   });
   lucide.createIcons();
   const io = new IntersectionObserver(entries => {
@@ -3595,9 +3701,14 @@ function renderAwayEvents() {
   if (!grid) return;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  // 開催日が今日以降のものだけ表示
+  // 終了日（なければ開始日）が今日以降のものだけ表示
   const upcoming = awayEventsData
-    .filter(a => a.date && new Date(a.date) >= today)
+    .filter(a => {
+      if (!a.date) return false;
+      const expiry = a.dateEnd ? new Date(a.dateEnd) : new Date(a.date);
+      expiry.setHours(0, 0, 0, 0);
+      return expiry >= today;
+    })
     .sort((a, b) => a.date.localeCompare(b.date));
 
   // データが空なら丸ごと非表示
@@ -3609,14 +3720,18 @@ function renderAwayEvents() {
     return;
   }
   upcoming.forEach((a, i) => {
-    const db   = formatDateBlock(a.date);
+    const db    = formatDateBlock(a.date);
+    const dbEnd = a.dateEnd && a.dateEnd !== a.date ? formatDateBlock(a.dateEnd) : null;
+    const dateLabel = dbEnd
+      ? `${db.day}(${db.dow}) 〜 ${dbEnd.day}(${dbEnd.dow})`
+      : `${db.day} ${db.dow}`;
     const card = document.createElement('div');
     card.className = 'away-card';
     card.style.animationDelay = `${i * 0.09}s`;
     card.innerHTML = `
       <div class="away-card-header">
         <div>
-          <div class="away-card-date">${db.day} ${db.dow}</div>
+          <div class="away-card-date">${dateLabel}</div>
           <div class="away-card-date-sub">${db.year}</div>
         </div>
         <span class="away-card-region">${a.region || ''}</span>
@@ -3854,13 +3969,13 @@ function renderAdminEvents() {
     return;
   }
   eventsData.forEach(ev => {
-    const st = statusMap[ev.status] || statusMap.plan;
+    const st = computeEventStatus(ev);
     const li = document.createElement('li');
     li.className = 'admin-list-item';
     li.innerHTML = `
       <div class="admin-item-info">
         <div class="admin-item-title">${ev.name}</div>
-        <div class="admin-item-meta">${formatDateShort(ev.date)} ／ ${ev.venue} ／ <span class="status-badge ${st.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${st.label}</span></div>
+        <div class="admin-item-meta">${formatDateRange(ev.date, ev.dateEnd)} ／ ${ev.venue} ／ <span class="status-badge ${st.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${st.label}</span></div>
       </div>
       <div style="display:flex;gap:0.5rem">
         <button class="btn-edit" onclick="editEvent(${ev.id})">編集</button>
@@ -3874,15 +3989,26 @@ function renderAdminEvents() {
 function openEventForm(data) {
   const form = document.getElementById('event-form');
   form.style.display = 'block';
-  document.getElementById('ef-edit-id').value = data ? data.id : '';
-  document.getElementById('ef-date').value    = data ? data.date : new Date().toISOString().split('T')[0];
-  document.getElementById('ef-status').value  = data ? data.status : 'plan';
-  document.getElementById('ef-name').value    = data ? data.name : '';
-  document.getElementById('ef-venue').value   = data ? data.venue : '';
-  document.getElementById('ef-body').value    = data ? data.body : '';
-  document.getElementById('ef-youkou').value  = data ? data.youkou : '';
-  document.getElementById('ef-result').value  = data ? data.result : '';
-  document.getElementById('ef-photo').value   = data ? data.photo : '';
+  document.getElementById('ef-edit-id').value     = data ? data.id : '';
+  document.getElementById('ef-date').value        = data ? data.date       : new Date().toISOString().split('T')[0];
+  document.getElementById('ef-date-end').value    = data ? (data.dateEnd || '') : '';
+  document.getElementById('ef-status').value      = data ? data.status     : 'plan';
+  document.getElementById('ef-name').value        = data ? data.name       : '';
+  document.getElementById('ef-venue').value       = data ? data.venue      : '';
+  document.getElementById('ef-address').value     = data ? (data.address || '') : '';
+  document.getElementById('ef-body').value        = data ? data.body       : '';
+  document.getElementById('ef-youkou').value      = data ? data.youkou     : '';
+  document.getElementById('ef-draw').value        = data ? (data.draw || '') : '';
+  document.getElementById('ef-entry').value       = data ? (data.entry || '') : '';
+  document.getElementById('ef-result').value      = data ? data.result     : '';
+  document.getElementById('ef-photo').value       = data ? data.photo      : '';
+  const ex = (data && data.extras) ? data.extras : [];
+  document.getElementById('ef-extra1-label').value = ex[0] ? ex[0].label : '';
+  document.getElementById('ef-extra1-url').value   = ex[0] ? ex[0].url   : '';
+  document.getElementById('ef-extra2-label').value = ex[1] ? ex[1].label : '';
+  document.getElementById('ef-extra2-url').value   = ex[1] ? ex[1].url   : '';
+  document.getElementById('ef-extra3-label').value = ex[2] ? ex[2].label : '';
+  document.getElementById('ef-extra3-url').value   = ex[2] ? ex[2].url   : '';
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -3896,16 +4022,26 @@ function cancelEventForm() {
 }
 
 function saveEvent() {
-  const id     = document.getElementById('ef-edit-id').value;
-  const date   = document.getElementById('ef-date').value;
-  const status = document.getElementById('ef-status').value;
-  const name   = document.getElementById('ef-name').value.trim();
-  const venue  = document.getElementById('ef-venue').value.trim();
-  const body   = document.getElementById('ef-body').value.trim();
-  const youkou = document.getElementById('ef-youkou').value.trim();
-  const result = document.getElementById('ef-result').value.trim();
-  const photo  = document.getElementById('ef-photo').value.trim();
-  if (!name || !date) { alert('日付と大会名は必須です。'); return; }
+  const id      = document.getElementById('ef-edit-id').value;
+  const date    = document.getElementById('ef-date').value;
+  const dateEnd = document.getElementById('ef-date-end').value;
+  const status  = document.getElementById('ef-status').value;
+  const name    = document.getElementById('ef-name').value.trim();
+  const venue   = document.getElementById('ef-venue').value.trim();
+  const address = document.getElementById('ef-address').value.trim();
+  const body    = document.getElementById('ef-body').value.trim();
+  const youkou  = document.getElementById('ef-youkou').value.trim();
+  const draw    = document.getElementById('ef-draw').value.trim();
+  const entry   = document.getElementById('ef-entry').value.trim();
+  const result  = document.getElementById('ef-result').value.trim();
+  const photo   = document.getElementById('ef-photo').value.trim();
+  const extras  = [
+    { label: document.getElementById('ef-extra1-label').value.trim(), url: document.getElementById('ef-extra1-url').value.trim() },
+    { label: document.getElementById('ef-extra2-label').value.trim(), url: document.getElementById('ef-extra2-url').value.trim() },
+    { label: document.getElementById('ef-extra3-label').value.trim(), url: document.getElementById('ef-extra3-url').value.trim() },
+  ].filter(e => e.label && e.url);
+  if (!name || !date) { alert('開始日と大会名は必須です。'); return; }
+  if (dateEnd && dateEnd < date) { alert('終了日は開始日より後の日付を設定してください。'); return; }
 
   const d    = new Date(date);
   const dows = ['日','月','火','水','木','金','土'];
@@ -3913,9 +4049,9 @@ function saveEvent() {
 
   if (id) {
     const idx = eventsData.findIndex(x => x.id == id);
-    if (idx > -1) eventsData[idx] = { id: Number(id), date, dow, name, venue, status, body, youkou, result, photo };
+    if (idx > -1) eventsData[idx] = { id: Number(id), date, dateEnd, dow, name, venue, address, status, body, youkou, draw, entry, result, extras, photo };
   } else {
-    eventsData.push({ id: nextId(), date, dow, name, venue, status, body, youkou, result, photo });
+    eventsData.push({ id: nextId(), date, dateEnd, dow, name, venue, address, status, body, youkou, draw, entry, result, extras, photo });
   }
   cancelEventForm();
   renderAdminEvents();
@@ -3948,7 +4084,7 @@ function renderAdminAwayEvents() {
     li.innerHTML = `
       <div class="admin-item-info">
         <div class="admin-item-title">${a.name}</div>
-        <div class="admin-item-meta">${formatDateShort(a.date)} ／ ${a.region || '地域未設定'}${a.url ? ' ／ 要項リンクあり' : ''}</div>
+        <div class="admin-item-meta">${formatDateRange(a.date, a.dateEnd)} ／ ${a.region || '地域未設定'}${a.url ? ' ／ 要項リンクあり' : ''}</div>
       </div>
       <div style="display:flex;gap:0.5rem">
         <button class="btn-edit" onclick="editAwayItem(${a.id})">編集</button>
@@ -3962,11 +4098,12 @@ function openAwayForm(data) {
   const form = document.getElementById('away-form');
   if (!form) return;
   form.style.display = 'block';
-  document.getElementById('af-edit-id').value = data ? data.id : '';
-  document.getElementById('af-date').value    = data ? data.date   : new Date().toISOString().split('T')[0];
-  document.getElementById('af-region').value  = data ? data.region : '';
-  document.getElementById('af-name').value    = data ? data.name   : '';
-  document.getElementById('af-url').value     = data ? data.url    : '';
+  document.getElementById('af-edit-id').value  = data ? data.id : '';
+  document.getElementById('af-date').value     = data ? data.date            : new Date().toISOString().split('T')[0];
+  document.getElementById('af-date-end').value = data ? (data.dateEnd || '') : '';
+  document.getElementById('af-region').value   = data ? data.region          : '';
+  document.getElementById('af-name').value     = data ? data.name            : '';
+  document.getElementById('af-url').value      = data ? data.url             : '';
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -3981,18 +4118,20 @@ function cancelAwayForm() {
 }
 
 function saveAwayItem() {
-  const id     = document.getElementById('af-edit-id').value;
-  const date   = document.getElementById('af-date').value;
-  const region = document.getElementById('af-region').value.trim();
-  const name   = document.getElementById('af-name').value.trim();
-  const url    = document.getElementById('af-url').value.trim();
-  if (!name || !date) { alert('開催日と大会名は必須です。'); return; }
+  const id      = document.getElementById('af-edit-id').value;
+  const date    = document.getElementById('af-date').value;
+  const dateEnd = document.getElementById('af-date-end').value;
+  const region  = document.getElementById('af-region').value.trim();
+  const name    = document.getElementById('af-name').value.trim();
+  const url     = document.getElementById('af-url').value.trim();
+  if (!name || !date) { alert('開始日と大会名は必須です。'); return; }
+  if (dateEnd && dateEnd < date) { alert('終了日は開始日より後の日付を設定してください。'); return; }
 
   if (id) {
     const idx = awayEventsData.findIndex(x => x.id == id);
-    if (idx > -1) awayEventsData[idx] = { id: Number(id), date, region, name, url };
+    if (idx > -1) awayEventsData[idx] = { id: Number(id), date, dateEnd, region, name, url };
   } else {
-    awayEventsData.push({ id: nextId(), date, region, name, url });
+    awayEventsData.push({ id: nextId(), date, dateEnd, region, name, url });
   }
   cancelAwayForm();
   renderAdminAwayEvents();
