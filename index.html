@@ -3383,6 +3383,43 @@ function lsLoad(key) {
   try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : null; } catch(e) { return null; }
 }
 
+// ======================================================
+// 大会・イベントデータ の Google スプレッドシート連携
+// ======================================================
+// Google Apps Script を Web アプリとして公開したときのURLをここに貼り付けてください。
+// （apps-script/Code.gs 参照。運用マニュアルのセットアップ手順で取得します）
+// 未設定（空文字）の間は今まで通りこのブラウザの localStorage のみで動作します。
+const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzDKibdxyel8Nj7V-lH3SjRoE3EqpLqe15gIlcYquqoJFKLvfCQDBjVneYmjLxnDFm1/exec';
+
+async function fetchEventsFromServer() {
+  if (!EVENTS_API_URL) return null;
+  try {
+    const res = await fetch(EVENTS_API_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch (e) {
+    console.warn('大会データの取得に失敗しました（オフラインまたは未設定）:', e);
+    return null;
+  }
+}
+
+async function pushEventsToServer(events) {
+  if (!EVENTS_API_URL) return true; // 未設定時はローカル保存のみで成功扱い
+  try {
+    const res = await fetch(EVENTS_API_URL, {
+      method: 'POST',
+      // プリフライトリクエストを避けるため text/plain で送信（Apps Script 側で JSON.parse する）
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, events }),
+    });
+    const json = await res.json();
+    return !!json.ok;
+  } catch (e) {
+    console.warn('大会データのサーバー保存に失敗しました:', e);
+    return false;
+  }
+}
+
 function saveNewsToStorage()      { lsSave(LS.NEWS,    newsData); }
 function saveEventsToStorage()    { lsSave(LS.EVENTS,  eventsData); }
 function saveAwayEventsToStorage(){ lsSave(LS.AWAY,    awayEventsData); }
@@ -4021,7 +4058,7 @@ function cancelEventForm() {
   document.getElementById('event-form').style.display = 'none';
 }
 
-function saveEvent() {
+async function saveEvent() {
   const id      = document.getElementById('ef-edit-id').value;
   const date    = document.getElementById('ef-date').value;
   const dateEnd = document.getElementById('ef-date-end').value;
@@ -4057,16 +4094,18 @@ function saveEvent() {
   renderAdminEvents();
   renderEvents();
   saveEventsToStorage();
-  showToast('大会データを保存しました ✓');
+  const ok = await pushEventsToServer(eventsData);
+  showToast(ok ? '大会データを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
 }
 
-function deleteEvent(id) {
+async function deleteEvent(id) {
   if (!confirm('この大会データを削除しますか？')) return;
   eventsData = eventsData.filter(x => x.id !== id);
   renderAdminEvents();
   renderEvents();
   saveEventsToStorage();
-  showToast('削除しました');
+  const ok = await pushEventsToServer(eventsData);
+  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
 }
 
 // -- Admin Away Events --
@@ -4165,6 +4204,17 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAwayEvents();
   initScrollFade();
   initLinkInterception();
+
+  // 大会データはGoogleスプレッドシートが「正」。取得できたら最新の内容で描画し直す。
+  fetchEventsFromServer().then(remoteEvents => {
+    if (remoteEvents === null) return;
+    eventsData = remoteEvents;
+    const maxId = Math.max(0, ...eventsData.map(e => e.id));
+    if (maxId >= idCounter) idCounter = maxId + 1;
+    saveEventsToStorage();
+    renderEvents();
+    renderAdminEvents();
+  });
 });
 </script>
 </body>
