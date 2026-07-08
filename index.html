@@ -3384,47 +3384,54 @@ function lsLoad(key) {
 }
 
 // ======================================================
-// 大会・イベントデータ の Google スプレッドシート連携
+// 管理画面データ の Google スプレッドシート連携
 // ======================================================
 // Google Apps Script を Web アプリとして公開したときのURLをここに貼り付けてください。
-// （apps-script/Code.gs 参照。運用マニュアルのセットアップ手順で取得します）
+// （apps-script/Code.gs 参照。セットアップ手順.md で取得します）
 // 未設定（空文字）の間は今まで通りこのブラウザの localStorage のみで動作します。
-const EVENTS_API_URL = 'https://script.google.com/macros/s/AKfycbzDKibdxyel8Nj7V-lH3SjRoE3EqpLqe15gIlcYquqoJFKLvfCQDBjVneYmjLxnDFm1/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzDKibdxyel8Nj7V-lH3SjRoE3EqpLqe15gIlcYquqoJFKLvfCQDBjVneYmjLxnDFm1/exec';
 
-async function fetchEventsFromServer() {
-  if (!EVENTS_API_URL) return null;
+async function fetchListFromServer(type) {
+  if (!SHEETS_API_URL) return null;
   try {
-    const res = await fetch(EVENTS_API_URL);
+    const res = await fetch(`${SHEETS_API_URL}?type=${type}`);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return await res.json();
   } catch (e) {
-    console.warn('大会データの取得に失敗しました（オフラインまたは未設定）:', e);
+    console.warn(`${type}データの取得に失敗しました（オフラインまたは未設定）:`, e);
     return null;
   }
 }
 
-async function pushEventsToServer(events) {
-  if (!EVENTS_API_URL) return true; // 未設定時はローカル保存のみで成功扱い
+async function pushListToServer(type, items) {
+  if (!SHEETS_API_URL) return true; // 未設定時はローカル保存のみで成功扱い
   try {
-    const res = await fetch(EVENTS_API_URL, {
+    const res = await fetch(SHEETS_API_URL, {
       method: 'POST',
       // プリフライトリクエストを避けるため text/plain で送信（Apps Script 側で JSON.parse する）
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ password: ADMIN_PASSWORD, events }),
+      body: JSON.stringify({ password: ADMIN_PASSWORD, type, items }),
     });
     const json = await res.json();
     return !!json.ok;
   } catch (e) {
-    console.warn('大会データのサーバー保存に失敗しました:', e);
+    console.warn(`${type}データのサーバー保存に失敗しました:`, e);
     return false;
   }
 }
 
+const fetchEventsFromServer     = () => fetchListFromServer('events');
+const pushEventsToServer        = (events) => pushListToServer('events', events);
+const fetchNewsFromServer       = () => fetchListFromServer('news');
+const pushNewsToServer          = (news) => pushListToServer('news', news);
+const fetchAwayEventsFromServer = () => fetchListFromServer('away');
+const pushAwayEventsToServer    = (away) => pushListToServer('away', away);
+
 function saveNewsToStorage()      { lsSave(LS.NEWS,    newsData); }
 function saveEventsToStorage()    { lsSave(LS.EVENTS,  eventsData); }
 function saveAwayEventsToStorage(){ lsSave(LS.AWAY,    awayEventsData); }
-function saveContentToStorage() {
-  lsSave(LS.CONTENT, {
+function buildContentSnapshot() {
+  return {
     about: {
       main:     siteContent.about.main,
       features: siteContent.about.features.map(f => ({ title: f.title, desc: f.desc }))
@@ -3442,7 +3449,29 @@ function saveContentToStorage() {
     contactFormUrl:       siteContent.contactFormUrl,
     trialFormUrl:         siteContent.trialFormUrl,
     aboutSportVideoUrl:   siteContent.aboutSportVideoUrl,
-  });
+  };
+}
+
+function saveContentToStorage() {
+  lsSave(LS.CONTENT, buildContentSnapshot());
+}
+
+const fetchContentFromServer = () => fetchListFromServer('content');
+
+async function pushContentToServer() {
+  if (!SHEETS_API_URL) return true;
+  try {
+    const res = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ password: ADMIN_PASSWORD, type: 'content', content: buildContentSnapshot() }),
+    });
+    const json = await res.json();
+    return !!json.ok;
+  } catch (e) {
+    console.warn('ページ本文・情報データのサーバー保存に失敗しました:', e);
+    return false;
+  }
 }
 
 function loadAllFromStorage() {
@@ -3464,7 +3493,10 @@ function loadAllFromStorage() {
 
   // siteContent（部分マージ：コードで追加した新キーを消さない）
   const saved = lsLoad(LS.CONTENT);
-  if (saved) {
+  if (saved) applyContentSnapshot(saved);
+}
+
+function applyContentSnapshot(saved) {
     if (saved.about) {
       if (saved.about.main !== undefined) siteContent.about.main = saved.about.main;
       if (Array.isArray(saved.about.features)) {
@@ -3496,7 +3528,6 @@ function loadAllFromStorage() {
     if (saved.contactFormUrl     !== undefined) siteContent.contactFormUrl     = saved.contactFormUrl;
     if (saved.trialFormUrl       !== undefined) siteContent.trialFormUrl       = saved.trialFormUrl;
     if (saved.aboutSportVideoUrl !== undefined) siteContent.aboutSportVideoUrl = saved.aboutSportVideoUrl;
-  }
 }
 
 function resetAllData() {
@@ -3522,19 +3553,22 @@ function loadContentEditor() {
   }
 }
 
-function toggleEmergencyVisible() {
+async function toggleEmergencyVisible() {
   siteContent.emergency.visible = document.getElementById('emergency-visible-chk').checked;
   renderEmergencyBar();
   saveContentToStorage();
+  const ok = await pushContentToServer();
+  if (!ok) showToast('⚠ サーバーへの反映に失敗しました（このブラウザにのみ一時保存されています）');
 }
 
-function saveContent() {
+async function saveContent() {
   const key  = document.getElementById('content-page-select').value;
   const meta = contentKeyMeta[key];
   if (!meta) return;
   meta.set(document.getElementById('content-editor-textarea').value);
   saveContentToStorage();
-  showToast('保存してページに反映しました ✓');
+  const ok = await pushContentToServer();
+  showToast(ok ? '保存してページに反映しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
 }
 
 // ======================================================
@@ -3966,7 +4000,7 @@ function cancelNewsForm() {
   document.getElementById('news-form').style.display = 'none';
 }
 
-function saveNews() {
+async function saveNews() {
   const id       = document.getElementById('news-edit-id').value;
   const date     = document.getElementById('nf-date').value;
   const category = document.getElementById('nf-category').value;
@@ -3985,16 +4019,18 @@ function saveNews() {
   renderAdminNews();
   renderNews();
   saveNewsToStorage();
-  showToast('お知らせを保存しました ✓');
+  const ok = await pushNewsToServer(newsData);
+  showToast(ok ? 'お知らせを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
 }
 
-function deleteNews(id) {
+async function deleteNews(id) {
   if (!confirm('このお知らせを削除しますか？')) return;
   newsData = newsData.filter(x => x.id !== id);
   renderAdminNews();
   renderNews();
   saveNewsToStorage();
-  showToast('削除しました');
+  const ok = await pushNewsToServer(newsData);
+  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
 }
 
 // -- Admin Events --
@@ -4156,7 +4192,7 @@ function cancelAwayForm() {
   if (form) form.style.display = 'none';
 }
 
-function saveAwayItem() {
+async function saveAwayItem() {
   const id      = document.getElementById('af-edit-id').value;
   const date    = document.getElementById('af-date').value;
   const dateEnd = document.getElementById('af-date-end').value;
@@ -4176,16 +4212,18 @@ function saveAwayItem() {
   renderAdminAwayEvents();
   renderAwayEvents();
   saveAwayEventsToStorage();
-  showToast('他県案内データを保存しました ✓');
+  const ok = await pushAwayEventsToServer(awayEventsData);
+  showToast(ok ? '他県案内データを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
 }
 
-function deleteAwayItem(id) {
+async function deleteAwayItem(id) {
   if (!confirm('この他県案内データを削除しますか？')) return;
   awayEventsData = awayEventsData.filter(x => x.id !== id);
   renderAdminAwayEvents();
   renderAwayEvents();
   saveAwayEventsToStorage();
-  showToast('削除しました');
+  const ok = await pushAwayEventsToServer(awayEventsData);
+  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
 }
 
 // ======================================================
@@ -4205,7 +4243,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollFade();
   initLinkInterception();
 
-  // 大会データはGoogleスプレッドシートが「正」。取得できたら最新の内容で描画し直す。
+  // 大会データ・お知らせデータはGoogleスプレッドシートが「正」。取得できたら最新の内容で描画し直す。
   fetchEventsFromServer().then(remoteEvents => {
     if (remoteEvents === null) return;
     eventsData = remoteEvents;
@@ -4214,6 +4252,34 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEventsToStorage();
     renderEvents();
     renderAdminEvents();
+  });
+  fetchNewsFromServer().then(remoteNews => {
+    if (remoteNews === null) return;
+    newsData = remoteNews;
+    const maxId = Math.max(0, ...newsData.map(n => n.id));
+    if (maxId >= idCounter) idCounter = maxId + 1;
+    saveNewsToStorage();
+    renderNews();
+    renderAdminNews();
+  });
+  fetchAwayEventsFromServer().then(remoteAway => {
+    if (remoteAway === null) return;
+    awayEventsData = remoteAway;
+    const maxId = Math.max(0, ...awayEventsData.map(a => a.id));
+    if (maxId >= idCounter) idCounter = maxId + 1;
+    saveAwayEventsToStorage();
+    renderAwayEvents();
+    renderAdminAwayEvents();
+  });
+  fetchContentFromServer().then(remoteContent => {
+    if (!remoteContent || Object.keys(remoteContent).length === 0) return;
+    applyContentSnapshot(remoteContent);
+    saveContentToStorage();
+    initHeroSlideshow();
+    updateScheduleBtn();
+    renderEmergencyBar();
+    renderAbout();
+    renderFooterOffice();
   });
 });
 </script>
