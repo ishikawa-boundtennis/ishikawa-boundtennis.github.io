@@ -5,13 +5,36 @@
  * セットアップ手順は apps-script/セットアップ手順.md を参照。
  *
  * API仕様:
- *   GET  ?type=events|news|away        → 該当データの配列をJSONで返す
- *   POST { password, type, items: [] } → 該当データを配列ごと丸ごと保存（上書き）する
+ *   GET  ?type=events|news|away|content            → 該当データをJSONで返す（認証不要・誰でも閲覧可）
+ *   POST { idToken, type, items: [] / content: {} } → 該当データを丸ごと保存（上書き）する
+ *     idToken には index.html 側でGoogleサインインして取得したID tokenを渡す。
+ *     ALLOWED_EMAILS に含まれるメールアドレスのアカウントのみ書き込みを許可する。
  */
 
-// 管理画面のログインパスワードと同じ値にしてあります。
-// index.html 側の ADMIN_PASSWORD を変更した場合は、こちらも必ず同じ値に変更してください。
-const ADMIN_PASSWORD = 'boundtennis2025';
+// index.html の GOOGLE_CLIENT_ID と同じ値にしてください（Google Cloud ConsoleのOAuthクライアントID）。
+const GOOGLE_CLIENT_ID = '684319382004-0619hecm5kivaefuaaaojneemn3rghqr.apps.googleusercontent.com';
+
+// 管理画面での書き込みを許可するGoogleアカウントのメールアドレス一覧。
+const ALLOWED_EMAILS = ['ishikawaboundtennis@gmail.com'];
+
+// Googleが発行したID tokenを検証し、認証済みメールアドレスを返す（不正な場合はnull）。
+function verifyIdToken_(idToken) {
+  if (!idToken) return null;
+  try {
+    const res = UrlFetchApp.fetch(
+      'https://oauth2.googleapis.com/tokeninfo?id_token=' + encodeURIComponent(idToken),
+      { muteHttpExceptions: true }
+    );
+    if (res.getResponseCode() !== 200) return null;
+    const info = JSON.parse(res.getContentText());
+    if (info.aud !== GOOGLE_CLIENT_ID) return null;
+    if (info.email_verified !== 'true' && info.email_verified !== true) return null;
+    if (ALLOWED_EMAILS.indexOf(info.email) === -1) return null;
+    return info.email;
+  } catch (e) {
+    return null;
+  }
+}
 
 const EVENT_COLUMNS = [
   'id', 'date', 'dateEnd', 'dow', 'name', 'venue', 'address',
@@ -77,7 +100,7 @@ function doPost(e) {
     return jsonOutput_({ ok: false, error: 'invalid_json' });
   }
 
-  if (body.password !== ADMIN_PASSWORD) {
+  if (!verifyIdToken_(body.idToken)) {
     return jsonOutput_({ ok: false, error: 'unauthorized' });
   }
 

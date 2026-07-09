@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleSignIn()"></script>
 <style>
   :root {
     --navy: #1E293B;
@@ -2013,13 +2014,9 @@
 <div id="login-overlay">
   <div class="login-box">
     <p class="login-title">管理者ログイン</p>
-    <div class="login-error" id="login-error">パスワードが正しくありません。</div>
-    <div class="form-group">
-      <label class="form-label">パスワード</label>
-      <input type="password" id="login-pw" class="form-input" placeholder="パスワードを入力">
-    </div>
+    <p style="font-size:0.85rem;color:#64748B;margin-bottom:1rem">許可された協会のGoogleアカウントでログインしてください。</p>
+    <div id="g_id_signin" style="display:flex;justify-content:center;margin:0.5rem 0"></div>
     <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
-      <button class="btn-save" style="flex:1" onclick="doLogin()">ログイン</button>
       <button class="btn-cancel" style="flex:1" onclick="closeLogin()">キャンセル</button>
     </div>
   </div>
@@ -2610,8 +2607,8 @@ function renderAbout() {
         <span data-lucide="${f.icon}" style="width:20px;height:20px;color:${f.iconColor}"></span>
       </div>
       <div>
-        <p class="feature-title">${f.title}</p>
-        <p class="feature-desc">${f.desc}</p>
+        <p class="feature-title">${escapeHtml(f.title)}</p>
+        <p class="feature-desc">${escapeHtml(f.desc)}</p>
       </div>
     </div>
   `).join('');
@@ -2624,9 +2621,9 @@ function renderFooterOffice() {
   const o = siteContent.officeInfo;
   el.innerHTML = `
     <strong style="color:#fff;display:block;margin-bottom:0.3rem">事務局</strong>
-    ${o.name}<br>
-    ${o.address}<br>
-    MAIL: <a href="mailto:${o.email}">${o.email}</a>
+    ${escapeHtml(o.name)}<br>
+    ${escapeHtml(o.address)}<br>
+    MAIL: <a href="mailto:${escapeHtml(o.email)}">${escapeHtml(o.email)}</a>
   `;
 }
 
@@ -2644,15 +2641,15 @@ function renderEventsListOverlay() {
       ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}日(${de.dow})`; })()
       : '';
     let pdfs = '';
-    if (ev.youkou) pdfs += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
-    if (ev.draw)   pdfs += `<a href="${ev.draw}"   target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
-    if (ev.entry)  pdfs += `<a href="${ev.entry}"  target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
-    if (ev.result) pdfs += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+    if (ev.youkou) pdfs += `<a href="${escapeUrl(ev.youkou)}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
+    if (ev.draw)   pdfs += `<a href="${escapeUrl(ev.draw)}"   target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
+    if (ev.entry)  pdfs += `<a href="${escapeUrl(ev.entry)}"  target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
+    if (ev.result) pdfs += `<a href="${escapeUrl(ev.result)}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
     (ev.extras || []).forEach(ex => {
-      if (ex.label && ex.url) pdfs += `<a href="${ex.url}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${ex.label}</a>`;
+      if (ex.label && ex.url) pdfs += `<a href="${escapeUrl(ex.url)}" target="_blank" rel="noopener" class="pdf-btn"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${escapeHtml(ex.label)}</a>`;
     });
     const addrLine = ev.address
-      ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${ev.address}</p>`
+      ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
       : '';
     return `
       <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
@@ -2665,9 +2662,9 @@ function renderEventsListOverlay() {
           <div style="margin-bottom:0.35rem">
             <span class="status-badge ${st.cls}" style="font-size:0.7rem">${st.label}</span>
           </div>
-          <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">${ev.name}</p>
+          <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">${escapeHtml(ev.name)}</p>
           <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.2rem">
-            <span data-lucide="map-pin" style="width:12px;height:12px"></span>${ev.venue || '会場未定'}
+            <span data-lucide="map-pin" style="width:12px;height:12px"></span>${escapeHtml(ev.venue) || '会場未定'}
           </p>
           ${addrLine}
           ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem">${pdfs}</div>` : ''}
@@ -2684,13 +2681,13 @@ function renderDownloadsOverlay() {
     if (item.title) (groups[item.category] = groups[item.category] || []).push(item);
   });
   return Object.entries(groups).map(([cat, catItems]) => `
-    <h3>${cat}</h3>
+    <h3>${escapeHtml(cat)}</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:0.75rem;margin-bottom:0.5rem">
       ${catItems.map(item => `
         <div style="border:1px solid #E5E7EB;border-radius:0.75rem;padding:1rem;display:flex;flex-direction:column;gap:0.625rem;background:#F8FAFC">
-          <p style="font-weight:600;font-size:0.875rem;color:var(--navy);margin:0;flex:1;line-height:1.45">${item.title}</p>
+          <p style="font-weight:600;font-size:0.875rem;color:var(--navy);margin:0;flex:1;line-height:1.45">${escapeHtml(item.title)}</p>
           ${item.url
-            ? `<a href="${item.url}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;background:var(--navy);color:#fff;padding:0.45rem 0.75rem;border-radius:0.4rem;font-size:0.8rem;font-weight:600;text-decoration:none">
+            ? `<a href="${escapeUrl(item.url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;background:var(--navy);color:#fff;padding:0.45rem 0.75rem;border-radius:0.4rem;font-size:0.8rem;font-weight:600;text-decoration:none">
                 <span data-lucide="download" style="width:13px;height:13px"></span>ダウンロード
               </a>`
             : `<span style="display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;background:#F1F5F9;color:#94A3B8;padding:0.45rem 0.75rem;border-radius:0.4rem;font-size:0.8rem;font-weight:600">準備中</span>`
@@ -2769,7 +2766,7 @@ function renderClubsOverlay() {
       <h3 class="trial-heading">クラブ体験・練習見学のお申し込み</h3>
       <p class="trial-note">※内容を確認後、事務局または各クラブの担当者より折り返しご連絡いたします。</p>
       ${trialUrl
-        ? `<a href="${trialUrl}" target="_blank" rel="noopener" class="trial-external-btn">
+        ? `<a href="${escapeUrl(trialUrl)}" target="_blank" rel="noopener" class="trial-external-btn">
              <span data-lucide="external-link" style="width:17px;height:17px"></span>
              体験申込をする（外部フォームへ）
            </a>`
@@ -2817,7 +2814,7 @@ function renderProceduresOverlay() {
   const markdownHtml = renderMarkdown(siteContent.pages.procedures || '（コンテンツを準備中です）');
   const dlBtn = `<div style="margin-top:1.5rem">
     ${formUrl
-      ? `<a href="${formUrl}" target="_blank" rel="noopener" class="proc-dl-btn">
+      ? `<a href="${escapeUrl(formUrl)}" target="_blank" rel="noopener" class="proc-dl-btn">
            <span data-lucide="download" style="width:16px;height:16px"></span>
            所属協会変更申請フォーム（Excel）をダウンロード
          </a>`
@@ -2997,7 +2994,7 @@ const pageOverlayMeta = {
 };
 
 function nl2br(str) {
-  return (str || '').replace(/\n/g, '<br>');
+  return escapeHtml(str).replace(/\n/g, '<br>');
 }
 
 function renderMarkdown(text) {
@@ -3012,26 +3009,26 @@ function renderMarkdown(text) {
   lines.forEach(line => {
     if (line.startsWith('## ')) {
       closeList();
-      html += `<h3>${line.slice(3)}</h3>`;
+      html += `<h3>${escapeHtml(line.slice(3))}</h3>`;
     } else if (line.startsWith('### ')) {
       closeList();
-      html += `<h4>${line.slice(4)}</h4>`;
+      html += `<h4>${escapeHtml(line.slice(4))}</h4>`;
     } else if (line.startsWith('- ')) {
       if (inOl) { html += '</ol>'; inOl = false; }
       if (!inUl) { html += '<ul>'; inUl = true; }
-      html += `<li>${line.slice(2)}</li>`;
+      html += `<li>${escapeHtml(line.slice(2))}</li>`;
     } else if (/^\d+\.\s/.test(line)) {
       if (inUl) { html += '</ul>'; inUl = false; }
       if (!inOl) { html += '<ol>'; inOl = true; }
-      html += `<li>${line.replace(/^\d+\.\s/, '')}</li>`;
+      html += `<li>${escapeHtml(line.replace(/^\d+\.\s/, ''))}</li>`;
     } else if (line.trim() === '') {
       closeList();
     } else if (line.startsWith('※')) {
       closeList();
-      html += `<p class="overlay-note">${line}</p>`;
+      html += `<p class="overlay-note">${escapeHtml(line)}</p>`;
     } else {
       closeList();
-      html += `<p>${line}</p>`;
+      html += `<p>${escapeHtml(line)}</p>`;
     }
   });
   closeList();
@@ -3170,7 +3167,7 @@ function initHeroSlideshow() {
   }
 
   container.innerHTML = images.map((url, i) =>
-    `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${url}')"></div>`
+    `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${escapeUrl(url)}')"></div>`
   ).join('');
 
   if (dotsEl) {
@@ -3200,7 +3197,7 @@ function initHeroSlideshow() {
 function updateScheduleBtn() {
   const btn = document.getElementById('schedule-pdf-btn');
   if (!btn) return;
-  const url = siteContent.schedulePdfUrl || '';
+  const url = sanitizeUrl(siteContent.schedulePdfUrl);
   btn.href = url || '#';
   if (url) {
     btn.target = '_blank';
@@ -3404,20 +3401,26 @@ async function fetchListFromServer(type) {
 }
 
 async function pushListToServer(type, items) {
-  if (!SHEETS_API_URL) return true; // 未設定時はローカル保存のみで成功扱い
+  if (!SHEETS_API_URL) return { ok: true }; // 未設定時はローカル保存のみで成功扱い
   try {
     const res = await fetch(SHEETS_API_URL, {
       method: 'POST',
       // プリフライトリクエストを避けるため text/plain で送信（Apps Script 側で JSON.parse する）
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ password: ADMIN_PASSWORD, type, items }),
+      body: JSON.stringify({ idToken: googleIdToken, type, items }),
     });
-    const json = await res.json();
-    return !!json.ok;
+    return await res.json();
   } catch (e) {
     console.warn(`${type}データのサーバー保存に失敗しました:`, e);
-    return false;
+    return { ok: false, error: 'network' };
   }
+}
+
+// 保存結果からトースト文言を組み立てる（権限エラーとネットワークエラーを区別する）
+function syncResultMessage(result, successLabel) {
+  if (result.ok) return `${successLabel} ✓`;
+  if (result.error === 'unauthorized') return '⚠ 権限がありません。許可されたGoogleアカウントで再度ログインしてください。';
+  return '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）';
 }
 
 const fetchEventsFromServer     = () => fetchListFromServer('events');
@@ -3459,18 +3462,17 @@ function saveContentToStorage() {
 const fetchContentFromServer = () => fetchListFromServer('content');
 
 async function pushContentToServer() {
-  if (!SHEETS_API_URL) return true;
+  if (!SHEETS_API_URL) return { ok: true };
   try {
     const res = await fetch(SHEETS_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ password: ADMIN_PASSWORD, type: 'content', content: buildContentSnapshot() }),
+      body: JSON.stringify({ idToken: googleIdToken, type: 'content', content: buildContentSnapshot() }),
     });
-    const json = await res.json();
-    return !!json.ok;
+    return await res.json();
   } catch (e) {
     console.warn('ページ本文・情報データのサーバー保存に失敗しました:', e);
-    return false;
+    return { ok: false, error: 'network' };
   }
 }
 
@@ -3557,8 +3559,8 @@ async function toggleEmergencyVisible() {
   siteContent.emergency.visible = document.getElementById('emergency-visible-chk').checked;
   renderEmergencyBar();
   saveContentToStorage();
-  const ok = await pushContentToServer();
-  if (!ok) showToast('⚠ サーバーへの反映に失敗しました（このブラウザにのみ一時保存されています）');
+  const result = await pushContentToServer();
+  if (!result.ok) showToast(syncResultMessage(result, ''));
 }
 
 async function saveContent() {
@@ -3567,8 +3569,8 @@ async function saveContent() {
   if (!meta) return;
   meta.set(document.getElementById('content-editor-textarea').value);
   saveContentToStorage();
-  const ok = await pushContentToServer();
-  showToast(ok ? '保存してページに反映しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
+  const result = await pushContentToServer();
+  showToast(syncResultMessage(result, '保存してページに反映しました'));
 }
 
 // ======================================================
@@ -3576,6 +3578,28 @@ async function saveContent() {
 // ======================================================
 let idCounter = 100;
 function nextId() { return ++idCounter; }
+
+// 管理画面から保存された文字列をinnerHTML/属性値として埋め込む前に無害化する
+function escapeHtml(str) {
+  return String(str == null ? '' : str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// javascript:/data:等の危険なスキームのURLを無効化する（.href/.src への直接代入用）
+function sanitizeUrl(url) {
+  const safe = String(url || '').trim();
+  if (/^(javascript|data|vbscript):/i.test(safe)) return '';
+  return safe;
+}
+
+// href/src をテンプレート文字列に埋め込む前に無害化する（スキーム無効化＋HTMLエスケープ）
+function escapeUrl(url) {
+  return escapeHtml(sanitizeUrl(url));
+}
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -3663,7 +3687,7 @@ function renderNews() {
         <span class="badge ${cat.cls}">${cat.label}</span>
         ${n.important ? `<span class="badge badge-important"><span data-lucide="bell" style="width:11px;height:11px"></span>重要</span>` : ''}
       </div>
-      <span class="news-title">${n.title}</span>
+      <span class="news-title">${escapeHtml(n.title)}</span>
       <span class="news-arrow"><span data-lucide="chevron-right" style="width:16px;height:16px"></span></span>
     `;
     list.appendChild(row);
@@ -3693,18 +3717,18 @@ function buildEventCard(ev, i) {
     : dateBlock.dow;
 
   let pdfBtns = '';
-  if (ev.youkou) pdfBtns += `<a href="${ev.youkou}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
-  if (ev.draw)   pdfBtns += `<a href="${ev.draw}"   target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
-  if (ev.entry)  pdfBtns += `<a href="${ev.entry}"  target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
-  if (ev.result) pdfBtns += `<a href="${ev.result}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
+  if (ev.youkou) pdfBtns += `<a href="${escapeUrl(ev.youkou)}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-text" style="width:12px;height:12px"></span>大会要項</a>`;
+  if (ev.draw)   pdfBtns += `<a href="${escapeUrl(ev.draw)}"   target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="layout-list" style="width:12px;height:12px"></span>ドロー表</a>`;
+  if (ev.entry)  pdfBtns += `<a href="${escapeUrl(ev.entry)}"  target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="file-pen" style="width:12px;height:12px"></span>申込書</a>`;
+  if (ev.result) pdfBtns += `<a href="${escapeUrl(ev.result)}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="clipboard-list" style="width:12px;height:12px"></span>試合結果</a>`;
   (ev.extras || []).forEach(ex => {
-    if (ex.label && ex.url) pdfBtns += `<a href="${ex.url}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${ex.label}</a>`;
+    if (ex.label && ex.url) pdfBtns += `<a href="${escapeUrl(ex.url)}" target="_blank" rel="noopener" class="pdf-btn" onclick="e=>e.stopPropagation()"><span data-lucide="paperclip" style="width:12px;height:12px"></span>${escapeHtml(ex.label)}</a>`;
   });
 
   const addrEl = ev.address
-    ? `<p class="event-venue" style="font-size:0.75rem;color:#94A3B8;margin-top:0.15rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${ev.address}</p>`
+    ? `<p class="event-venue" style="font-size:0.75rem;color:#94A3B8;margin-top:0.15rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
     : '';
-  let photoEl = ev.photo ? `<img src="${ev.photo}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+  let photoEl = ev.photo ? `<img src="${escapeUrl(ev.photo)}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
 
   card.innerHTML = `
     <div class="event-header">
@@ -3717,10 +3741,10 @@ function buildEventCard(ev, i) {
     </div>
     <div class="event-body">
       ${photoEl}
-      <p class="event-name">${ev.name}</p>
+      <p class="event-name">${escapeHtml(ev.name)}</p>
       <p class="event-venue">
         <span data-lucide="map-pin" style="width:13px;height:13px"></span>
-        ${ev.venue || '会場未定'}
+        ${escapeHtml(ev.venue) || '会場未定'}
       </p>
       ${addrEl}
       <div class="event-link-row">
@@ -3805,12 +3829,12 @@ function renderAwayEvents() {
           <div class="away-card-date">${dateLabel}</div>
           <div class="away-card-date-sub">${db.year}</div>
         </div>
-        <span class="away-card-region">${a.region || ''}</span>
+        <span class="away-card-region">${escapeHtml(a.region) || ''}</span>
       </div>
       <div class="away-card-body">
-        <p class="away-card-name">${a.name}</p>
+        <p class="away-card-name">${escapeHtml(a.name)}</p>
         ${a.url
-          ? `<a href="${a.url}" target="_blank" rel="noopener" class="pdf-btn" style="align-self:flex-start">
+          ? `<a href="${escapeUrl(a.url)}" target="_blank" rel="noopener" class="pdf-btn" style="align-self:flex-start">
                <span data-lucide="file-text" style="width:12px;height:12px"></span>詳細・要項
              </a>`
           : ''}
@@ -3902,29 +3926,42 @@ document.addEventListener('click', e => {
 });
 
 // ======================================================
-// 管理画面ロジック
+// 管理画面ロジック（Googleサインイン）
 // ======================================================
-const ADMIN_PASSWORD = 'boundtennis2025'; // ★パスワードを変更してください★
+// Google Cloud Console で発行したOAuthクライアントIDをここに貼り付けてください。
+// （apps-script/セットアップ手順.md 参照）これはパスワードと違い公開して問題ない値です。
+const GOOGLE_CLIENT_ID = '684319382004-0619hecm5kivaefuaaaojneemn3rghqr.apps.googleusercontent.com';
+
+let googleIdToken = null;
+let googleSignInReady = false;
+
+// GISスクリプトの読み込み完了時に呼ばれる（<script onload>）
+function initGoogleSignIn() {
+  if (!GOOGLE_CLIENT_ID || typeof google === 'undefined' || !google.accounts) return;
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+  });
+  googleSignInReady = true;
+}
+
+function handleGoogleCredential(response) {
+  googleIdToken = response.credential;
+  closeLogin();
+  openAdmin();
+}
 
 function openAdminLogin() {
   document.getElementById('login-overlay').classList.add('open');
-  document.getElementById('login-pw').focus();
+  if (googleSignInReady) {
+    const container = document.getElementById('g_id_signin');
+    container.innerHTML = '';
+    google.accounts.id.renderButton(container, { theme: 'outline', size: 'large', text: 'signin_with', locale: 'ja' });
+  }
 }
 function closeLogin() {
   document.getElementById('login-overlay').classList.remove('open');
-  document.getElementById('login-error').style.display = 'none';
-  document.getElementById('login-pw').value = '';
 }
-function doLogin() {
-  const pw = document.getElementById('login-pw').value;
-  if (pw === ADMIN_PASSWORD) {
-    closeLogin();
-    openAdmin();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-  }
-}
-document.getElementById('login-pw').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
 function openAdmin() {
   document.getElementById('admin-overlay').classList.add('open');
@@ -3967,7 +4004,7 @@ function renderAdminNews() {
     li.className = 'admin-list-item';
     li.innerHTML = `
       <div class="admin-item-info">
-        <div class="admin-item-title">${n.title}</div>
+        <div class="admin-item-title">${escapeHtml(n.title)}</div>
         <div class="admin-item-meta">${formatDateShort(n.date)} ／ <span class="badge ${cat.cls}" style="font-size:0.65rem">${cat.label}</span>${n.important?' ／ 重要':''}</div>
       </div>
       <div style="display:flex;gap:0.5rem">
@@ -4019,8 +4056,8 @@ async function saveNews() {
   renderAdminNews();
   renderNews();
   saveNewsToStorage();
-  const ok = await pushNewsToServer(newsData);
-  showToast(ok ? 'お知らせを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
+  const result = await pushNewsToServer(newsData);
+  showToast(syncResultMessage(result, 'お知らせを保存しました'));
 }
 
 async function deleteNews(id) {
@@ -4029,8 +4066,8 @@ async function deleteNews(id) {
   renderAdminNews();
   renderNews();
   saveNewsToStorage();
-  const ok = await pushNewsToServer(newsData);
-  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
+  const result = await pushNewsToServer(newsData);
+  showToast(syncResultMessage(result, '削除しました'));
 }
 
 // -- Admin Events --
@@ -4047,8 +4084,8 @@ function renderAdminEvents() {
     li.className = 'admin-list-item';
     li.innerHTML = `
       <div class="admin-item-info">
-        <div class="admin-item-title">${ev.name}</div>
-        <div class="admin-item-meta">${formatDateRange(ev.date, ev.dateEnd)} ／ ${ev.venue} ／ <span class="status-badge ${st.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${st.label}</span></div>
+        <div class="admin-item-title">${escapeHtml(ev.name)}</div>
+        <div class="admin-item-meta">${formatDateRange(ev.date, ev.dateEnd)} ／ ${escapeHtml(ev.venue)} ／ <span class="status-badge ${st.cls}" style="font-size:0.65rem;padding:0.15rem 0.4rem">${st.label}</span></div>
       </div>
       <div style="display:flex;gap:0.5rem">
         <button class="btn-edit" onclick="editEvent(${ev.id})">編集</button>
@@ -4130,8 +4167,8 @@ async function saveEvent() {
   renderAdminEvents();
   renderEvents();
   saveEventsToStorage();
-  const ok = await pushEventsToServer(eventsData);
-  showToast(ok ? '大会データを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
+  const syncResult = await pushEventsToServer(eventsData);
+  showToast(syncResultMessage(syncResult, '大会データを保存しました'));
 }
 
 async function deleteEvent(id) {
@@ -4140,8 +4177,8 @@ async function deleteEvent(id) {
   renderAdminEvents();
   renderEvents();
   saveEventsToStorage();
-  const ok = await pushEventsToServer(eventsData);
-  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
+  const result = await pushEventsToServer(eventsData);
+  showToast(syncResultMessage(result, '削除しました'));
 }
 
 // -- Admin Away Events --
@@ -4158,8 +4195,8 @@ function renderAdminAwayEvents() {
     li.className = 'admin-list-item';
     li.innerHTML = `
       <div class="admin-item-info">
-        <div class="admin-item-title">${a.name}</div>
-        <div class="admin-item-meta">${formatDateRange(a.date, a.dateEnd)} ／ ${a.region || '地域未設定'}${a.url ? ' ／ 要項リンクあり' : ''}</div>
+        <div class="admin-item-title">${escapeHtml(a.name)}</div>
+        <div class="admin-item-meta">${formatDateRange(a.date, a.dateEnd)} ／ ${escapeHtml(a.region) || '地域未設定'}${a.url ? ' ／ 要項リンクあり' : ''}</div>
       </div>
       <div style="display:flex;gap:0.5rem">
         <button class="btn-edit" onclick="editAwayItem(${a.id})">編集</button>
@@ -4212,8 +4249,8 @@ async function saveAwayItem() {
   renderAdminAwayEvents();
   renderAwayEvents();
   saveAwayEventsToStorage();
-  const ok = await pushAwayEventsToServer(awayEventsData);
-  showToast(ok ? '他県案内データを保存しました ✓' : '⚠ サーバーへの保存に失敗しました（このブラウザにのみ一時保存されています）');
+  const result = await pushAwayEventsToServer(awayEventsData);
+  showToast(syncResultMessage(result, '他県案内データを保存しました'));
 }
 
 async function deleteAwayItem(id) {
@@ -4222,8 +4259,8 @@ async function deleteAwayItem(id) {
   renderAdminAwayEvents();
   renderAwayEvents();
   saveAwayEventsToStorage();
-  const ok = await pushAwayEventsToServer(awayEventsData);
-  showToast(ok ? '削除しました' : '⚠ サーバーへの反映に失敗しました');
+  const result = await pushAwayEventsToServer(awayEventsData);
+  showToast(syncResultMessage(result, '削除しました'));
 }
 
 // ======================================================
