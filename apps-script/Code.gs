@@ -38,13 +38,13 @@ function verifyIdToken_(idToken) {
 
 const EVENT_COLUMNS = [
   'id', 'date', 'dateEnd', 'dow', 'name', 'venue', 'address',
-  'status', 'body', 'youkou', 'draw', 'entry', 'result', 'photo',
+  'status', 'body', 'youkou', 'draw', 'entry', 'entryLabel', 'result', 'photo',
   'extra1_label', 'extra1_url', 'extra2_label', 'extra2_url', 'extra3_label', 'extra3_url',
 ];
 
 const NEWS_COLUMNS = ['id', 'date', 'category', 'title', 'important', 'body'];
 
-const AWAY_COLUMNS = ['id', 'date', 'dateEnd', 'region', 'name', 'url'];
+const AWAY_COLUMNS = ['id', 'date', 'dateEnd', 'region', 'name', 'youkou', 'entry', 'entryLabel'];
 
 // type ごとの設定（シート名・カラム・行⇔オブジェクトの変換）
 const REGISTRY = {
@@ -185,6 +185,7 @@ function rowToEvent_(row) {
     youkou: obj.youkou,
     draw: obj.draw,
     entry: obj.entry,
+    entryLabel: obj.entryLabel,
     result: obj.result,
     photo: obj.photo,
     extras: extras,
@@ -195,7 +196,7 @@ function eventToRow_(ev) {
   const ex = ev.extras || [];
   return [
     ev.id, ev.date, ev.dateEnd || '', ev.dow, ev.name, ev.venue, ev.address || '',
-    ev.status, ev.body || '', ev.youkou || '', ev.draw || '', ev.entry || '', ev.result || '', ev.photo || '',
+    ev.status, ev.body || '', ev.youkou || '', ev.draw || '', ev.entry || '', ev.entryLabel || '', ev.result || '', ev.photo || '',
     ex[0] ? ex[0].label : '', ex[0] ? ex[0].url : '',
     ex[1] ? ex[1].label : '', ex[1] ? ex[1].url : '',
     ex[2] ? ex[2].label : '', ex[2] ? ex[2].url : '',
@@ -232,12 +233,14 @@ function rowToAway_(row) {
     dateEnd: formatDate_(obj.dateEnd),
     region: obj.region,
     name: obj.name,
-    url: obj.url,
+    youkou: obj.youkou,
+    entry: obj.entry,
+    entryLabel: obj.entryLabel,
   };
 }
 
 function awayToRow_(a) {
-  return [a.id, a.date, a.dateEnd || '', a.region, a.name, a.url || ''];
+  return [a.id, a.date, a.dateEnd || '', a.region, a.name, a.youkou || '', a.entry || '', a.entryLabel || ''];
 }
 
 // ---- 共通 ----
