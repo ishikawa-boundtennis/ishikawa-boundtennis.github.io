@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Google等の検索結果に載せないための指定。URLを知っている人は今まで通り閲覧できます。
+     検索に載せたくなったら、この1行を削除して公開し直してください（robots.txt も参照）。 -->
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <title>石川県バウンドテニス協会</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1077,6 +1080,25 @@
     border-left: 3px solid #F59E0B;
   }
 
+  /* 一括登録（プレビュー） */
+  .bulk-summary {
+    font-size: 0.85rem; font-weight: 600; color: var(--navy);
+    background: #F1F5F9; border-radius: 6px; padding: 0.6rem 0.75rem; margin-bottom: 0.75rem;
+  }
+  .bulk-error-list {
+    list-style: none; padding: 0.5rem 0.75rem; margin: 0 0 0.75rem;
+    font-size: 0.75rem; color: #991B1B; background: #FEE2E2;
+    border-left: 3px solid #DC2626; border-radius: 6px;
+  }
+  .bulk-error-list li { margin: 0.15rem 0; }
+  /* 件数が多くても取り込みボタンが遠くならないよう、プレビューは高さを制限してスクロールさせる */
+  .bulk-table-wrap { overflow: auto; max-height: 22rem; border: 1px solid #E5E7EB; border-radius: 6px; }
+  .bulk-table { border-collapse: collapse; width: 100%; font-size: 0.72rem; white-space: nowrap; }
+  .bulk-table th, .bulk-table td { border-bottom: 1px solid #E5E7EB; padding: 0.35rem 0.5rem; text-align: left; }
+  .bulk-table th { background: #F8FAFC; color: var(--navy); font-weight: 600; position: sticky; top: 0; }
+  .bulk-table tr.bulk-row-error td { background: #FEF2F2; color: #991B1B; }
+  .bulk-table td.bulk-row-no { color: #94A3B8; }
+
   /* misc */
   .scroll-fade {
     opacity: 0;
@@ -2035,6 +2057,7 @@
       <button class="admin-tab active" onclick="switchTab('news-tab', this)">お知らせ管理</button>
       <button class="admin-tab" onclick="switchTab('events-tab', this)">大会・イベント管理</button>
       <button class="admin-tab" onclick="switchTab('away-tab', this)">他県案内管理</button>
+      <button class="admin-tab" onclick="switchTab('bulk-tab', this)">一括登録</button>
       <button class="admin-tab" onclick="switchTab('content-tab', this)">ページ本文・情報管理</button>
     </div>
     <div class="admin-body">
@@ -2249,6 +2272,69 @@
             <button class="btn-save" onclick="saveAwayItem()">保存</button>
             <button class="btn-cancel" onclick="cancelAwayForm()">キャンセル</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ★スプレッドシート一括登録タブ★ -->
+      <div id="bulk-tab" class="admin-section">
+        <div class="admin-comment">
+          ★スプレッドシートから一括登録★<br>
+          ExcelやGoogleスプレッドシートで作った表を、そのままコピー＆貼り付け（またはCSVファイル）でまとめて登録できます。<br>
+          手順：① 種類を選ぶ → ② テンプレートを取得 → ③ 表に入力 → ④ 貼り付けかファイル選択 → ⑤「内容を確認」→ ⑥「取り込む」
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">① 登録する種類</label>
+          <select id="bulk-type" class="form-select" onchange="onBulkTypeChange()">
+            <option value="events">大会・イベント</option>
+            <option value="news">お知らせ</option>
+            <option value="away">他県案内・遠征情報</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">② 入力テンプレート</label>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+            <button class="btn-edit" onclick="downloadBulkTemplate()">テンプレートCSVをダウンロード</button>
+            <button class="btn-edit" onclick="copyBulkHeaderRow()">見出し行をコピー</button>
+          </div>
+          <p class="form-hint" id="bulk-columns-hint" style="margin-top:0.5rem"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">③ CSVファイルを選ぶ（またはこの下に貼り付け）</label>
+          <input type="file" id="bulk-file" class="form-input" accept=".csv,.tsv,.txt" onchange="onBulkFileSelected(event)">
+          <p class="form-hint">Excel／スプレッドシートの「CSV形式でダウンロード」で保存したファイルを選んでください。</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">④ スプレッドシートから貼り付け</label>
+          <textarea id="bulk-text" class="form-textarea" style="min-height:160px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:0.8rem" placeholder="スプレッドシートで見出し行を含めて範囲選択 → コピー → ここに貼り付け"></textarea>
+          <p class="form-hint">1行目は必ず見出し行（テンプレートと同じ項目名）にしてください。カンマ区切り・タブ区切りのどちらでも読み取れます。</p>
+        </div>
+
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem">
+          <button class="btn-save" onclick="previewBulkImport()">⑤ 内容を確認</button>
+          <button class="btn-cancel" onclick="resetBulkImport()">クリア</button>
+        </div>
+
+        <div id="bulk-preview" style="display:none">
+          <div id="bulk-summary" class="bulk-summary"></div>
+          <div id="bulk-errors"></div>
+          <div class="bulk-table-wrap"><table class="bulk-table" id="bulk-table"></table></div>
+
+          <div class="form-group" style="margin-top:1.25rem">
+            <label class="form-label">⑥ 取り込み方法</label>
+            <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;margin-bottom:0.35rem">
+              <input type="radio" name="bulk-mode" value="append" checked> 既存のデータに追加する
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem">
+              <input type="radio" name="bulk-mode" value="replace"> 既存のデータをすべて削除して置き換える
+            </label>
+            <p class="form-hint">「置き換える」を選ぶと、いま登録されている同じ種類のデータは消えます。取り消せないのでご注意ください。</p>
+          </div>
+
+          <button class="btn-save" id="bulk-commit-btn" onclick="commitBulkImport()">この内容で取り込む</button>
         </div>
       </div>
 
@@ -4312,6 +4398,362 @@ async function deleteAwayItem(id) {
 }
 
 // ======================================================
+// スプレッドシート一括登録
+// ======================================================
+// 各種類ごとに「スプレッドシートの見出し」と内部フィールドの対応を定義する。
+// header が正式な見出し。aliases にも同じ列として認識させたい表記を並べる
+// （英語のフィールド名は常に別名として受け付ける）。
+const BULK_SCHEMAS = {
+  events: {
+    label: '大会・イベント',
+    columns: [
+      { key: 'date',         header: '開始日',           required: true, type: 'date',   aliases: ['日付', '開催日'], example: '2026-06-21' },
+      { key: 'dateEnd',      header: '終了日',                           type: 'date',   aliases: ['最終日'],         example: '' },
+      { key: 'name',         header: '大会名',           required: true,                 aliases: ['大会・イベント名', 'イベント名', '事業'], example: '第78回石川県民スポーツ大会' },
+      { key: 'venue',        header: '会場',                                             aliases: ['場所'],           example: '金沢市総合体育館' },
+      { key: 'address',      header: '住所',                                             aliases: [],                 example: '石川県金沢市泉野出町3-8-1' },
+      { key: 'status',       header: '状態',                             type: 'status', aliases: ['ステータス'],     example: '予定' },
+      { key: 'body',         header: '詳細',                                             aliases: ['本文', '備考'],   example: '' },
+      { key: 'youkou',       header: '要項URL',                          type: 'url',    aliases: ['大会要項URL'],    example: '' },
+      { key: 'draw',         header: 'ドロー表URL',                      type: 'url',    aliases: ['組合せURL'],      example: '' },
+      { key: 'entry',        header: '申込書URL',                        type: 'url',    aliases: ['申込用紙URL'],    example: '' },
+      { key: 'entryLabel',   header: '申込書の形式',                                     aliases: ['申込書ラベル'],   example: '' },
+      { key: 'result',       header: '結果URL',                          type: 'url',    aliases: ['試合結果URL'],    example: '' },
+      { key: 'photo',        header: '写真URL',                          type: 'url',    aliases: [],                 example: '' },
+      { key: 'extra1_label', header: '追加リンク1ラベル',                                aliases: [],                 example: '' },
+      { key: 'extra1_url',   header: '追加リンク1URL',                   type: 'url',    aliases: [],                 example: '' },
+      { key: 'extra2_label', header: '追加リンク2ラベル',                                aliases: [],                 example: '' },
+      { key: 'extra2_url',   header: '追加リンク2URL',                   type: 'url',    aliases: [],                 example: '' },
+      { key: 'extra3_label', header: '追加リンク3ラベル',                                aliases: [],                 example: '' },
+      { key: 'extra3_url',   header: '追加リンク3URL',                   type: 'url',    aliases: [],                 example: '' },
+    ],
+    build(row) {
+      const dows = ['日','月','火','水','木','金','土'];
+      const extras = [1, 2, 3]
+        .map(i => ({ label: row[`extra${i}_label`], url: row[`extra${i}_url`] }))
+        .filter(x => x.label && x.url);
+      return {
+        id: nextId(),
+        date: row.date, dateEnd: row.dateEnd, dow: dows[new Date(row.date).getDay()],
+        name: row.name, venue: row.venue, address: row.address,
+        status: row.status || 'plan', body: row.body,
+        youkou: row.youkou, draw: row.draw, entry: row.entry, entryLabel: row.entryLabel,
+        result: row.result, photo: row.photo, extras,
+      };
+    },
+    summary: ev => `${formatDateRange(ev.date, ev.dateEnd)}／${ev.name}`,
+  },
+  news: {
+    label: 'お知らせ',
+    columns: [
+      { key: 'date',      header: '日付',     required: true, type: 'date',     aliases: [],                 example: '2026-07-19' },
+      { key: 'category',  header: 'カテゴリ',                 type: 'category', aliases: ['区分'],           example: 'お知らせ' },
+      { key: 'title',     header: 'タイトル', required: true,                   aliases: ['件名'],           example: '初心者講習会を開催します' },
+      { key: 'important', header: '重要',                     type: 'bool',     aliases: ['重要フラグ'],     example: '' },
+      { key: 'body',      header: '本文',                                       aliases: ['詳細'],           example: '' },
+    ],
+    build: row => ({
+      id: nextId(), date: row.date, category: row.category || 'notice',
+      title: row.title, important: row.important === true, body: row.body,
+    }),
+    summary: n => `${formatDateShort(n.date)}／${n.title}`,
+  },
+  away: {
+    label: '他県案内・遠征情報',
+    columns: [
+      { key: 'date',       header: '開始日',       required: true, type: 'date', aliases: ['日付', '開催日'], example: '2026-11-14' },
+      { key: 'dateEnd',    header: '終了日',                       type: 'date', aliases: ['最終日'],         example: '2026-11-15' },
+      { key: 'region',     header: '地域',                                       aliases: ['開催県'],         example: '和歌山県' },
+      { key: 'name',       header: '大会名',       required: true,               aliases: ['イベント名'],     example: '第29回日本バウンドテニスゴールド 和歌山大会' },
+      { key: 'youkou',     header: '要項URL',                      type: 'url',  aliases: [],                 example: '' },
+      { key: 'entry',      header: '申込用紙URL',                  type: 'url',  aliases: ['申込書URL'],      example: '' },
+      { key: 'entryLabel', header: '申込用紙の形式',                             aliases: ['申込書ラベル'],   example: '' },
+    ],
+    build: row => ({
+      id: nextId(), date: row.date, dateEnd: row.dateEnd, region: row.region,
+      name: row.name, youkou: row.youkou, entry: row.entry, entryLabel: row.entryLabel,
+    }),
+    summary: a => `${formatDateRange(a.date, a.dateEnd)}／${a.name}`,
+  },
+};
+
+const BULK_STATUS_WORDS = {
+  '予定': 'plan', '受付中': 'open', '締切間近': 'soon', '開催中': 'active', '終了': 'done',
+  plan: 'plan', open: 'open', soon: 'soon', active: 'active', done: 'done',
+};
+const BULK_CATEGORY_WORDS = {
+  'お知らせ': 'notice', '大会情報': 'tournament', 'イベント': 'event', '会員向け': 'member', 'その他': 'other',
+  notice: 'notice', tournament: 'tournament', event: 'event', member: 'member', other: 'other',
+};
+
+// 「内容を確認」で組み立てた結果を、取り込みボタンが押されるまで保持しておく
+let bulkStaged = null;
+
+function currentBulkSchema() {
+  return BULK_SCHEMAS[document.getElementById('bulk-type').value] || BULK_SCHEMAS.events;
+}
+
+// 見出しの表記ゆれを吸収するためのキー（空白・記号・大文字小文字を無視する）
+function normalizeBulkHeader(s) {
+  return String(s == null ? '' : s)
+    .replace(/^﻿/, '')
+    .replace(/[\s　_\-（）()]/g, '')
+    .toLowerCase();
+}
+
+// CSV / TSV を二次元配列に変換する（引用符・改行入りセルに対応）
+function parseDelimitedText(text, delimiter) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  const src = text.replace(/^﻿/, '');
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') { cell += '"'; i++; }
+        else inQuotes = false;
+      } else cell += ch;
+      continue;
+    }
+    if (ch === '"') { inQuotes = true; continue; }
+    if (ch === delimiter) { row.push(cell); cell = ''; continue; }
+    if (ch === '\r') continue;
+    if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; continue; }
+    cell += ch;
+  }
+  row.push(cell);
+  rows.push(row);
+  // 完全に空の行は捨てる
+  return rows.filter(r => r.some(c => String(c).trim() !== ''));
+}
+
+function detectDelimiter(text) {
+  const firstLine = text.replace(/^﻿/, '').split(/\r?\n/)[0] || '';
+  return firstLine.includes('\t') ? '\t' : ',';
+}
+
+// 2026-06-21 / 2026/6/21 / 2026年6月21日 などを YYYY-MM-DD に揃える
+function parseBulkDate(value) {
+  const s = String(value).trim().replace(/[年月]/g, '/').replace(/日$/, '');
+  const m = s.match(/^(\d{4})[/\-.](\d{1,2})[/\-.](\d{1,2})$/);
+  if (!m) return null;
+  const [, y, mo, d] = m.map(Number);
+  const dt = new Date(y, mo - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+  return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
+function parseBulkBool(value) {
+  return ['true', '1', 'はい', 'yes', '○', '◯', '重要', 'あり'].includes(String(value).trim().toLowerCase());
+}
+
+function onBulkTypeChange() {
+  resetBulkImport();
+  const schema = currentBulkSchema();
+  const required = schema.columns.filter(c => c.required).map(c => c.header).join('・');
+  document.getElementById('bulk-columns-hint').textContent =
+    `見出し行の項目：${schema.columns.map(c => c.header).join(' / ')}　（必須：${required}。使わない列は空欄のままか、列ごと省略してもかまいません）`;
+}
+
+function bulkHeaderRow() {
+  return currentBulkSchema().columns.map(c => c.header);
+}
+
+function downloadBulkTemplate() {
+  const schema = currentBulkSchema();
+  const quote = v => `"${String(v).replace(/"/g, '""')}"`;
+  const csv = [
+    schema.columns.map(c => quote(c.header)).join(','),
+    schema.columns.map(c => quote(c.example || '')).join(','),
+  ].join('\r\n');
+  // Excel が文字化けしないよう BOM を付ける
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `一括登録テンプレート_${schema.label}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('テンプレートをダウンロードしました ✓');
+}
+
+async function copyBulkHeaderRow() {
+  const line = bulkHeaderRow().join('\t');
+  try {
+    await navigator.clipboard.writeText(line);
+    showToast('見出し行をコピーしました。スプレッドシートの1行目に貼り付けてください ✓');
+  } catch (e) {
+    document.getElementById('bulk-text').value = line + '\n';
+    showToast('コピーできなかったため、貼り付け欄に見出し行を入れました');
+  }
+}
+
+function onBulkFileSelected(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById('bulk-text').value = String(reader.result || '');
+    showToast(`${file.name} を読み込みました。「内容を確認」を押してください`);
+  };
+  reader.onerror = () => showToast('⚠ ファイルの読み込みに失敗しました');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function resetBulkImport() {
+  bulkStaged = null;
+  document.getElementById('bulk-text').value = '';
+  document.getElementById('bulk-file').value = '';
+  document.getElementById('bulk-preview').style.display = 'none';
+}
+
+// 貼り付け／ファイルの中身を解析し、プレビューと入力エラー一覧を表示する
+function previewBulkImport() {
+  const schema = currentBulkSchema();
+  const text = document.getElementById('bulk-text').value.trim();
+  const preview = document.getElementById('bulk-preview');
+  if (!text) { alert('CSVファイルを選ぶか、スプレッドシートの内容を貼り付けてください。'); return; }
+
+  const table = parseDelimitedText(text, detectDelimiter(text));
+  if (table.length < 2) { alert('見出し行と、少なくとも1行のデータが必要です。'); return; }
+
+  // 見出し行を内部フィールドへ対応づける
+  const lookup = {};
+  schema.columns.forEach(col => {
+    [col.header, col.key, ...(col.aliases || [])].forEach(name => { lookup[normalizeBulkHeader(name)] = col; });
+  });
+  const headerCells = table[0];
+  const mapping = headerCells.map(h => lookup[normalizeBulkHeader(h)] || null);
+  const unknown = headerCells.filter((h, i) => !mapping[i] && String(h).trim() !== '');
+
+  const missing = schema.columns
+    .filter(c => c.required && !mapping.includes(c))
+    .map(c => c.header);
+  if (missing.length) {
+    alert(`見出し行に必須の項目がありません：${missing.join('、')}\n「見出し行をコピー」またはテンプレートCSVの1行目をそのまま使ってください。`);
+    return;
+  }
+
+  const errors = [];
+  const items = [];
+  const rows = [];
+  table.slice(1).forEach((cells, idx) => {
+    const lineNo = idx + 2; // 見出し行を1行目として数える
+    const raw = {};
+    schema.columns.forEach(c => { raw[c.key] = ''; });
+    let rowError = false;
+
+    mapping.forEach((col, i) => {
+      if (!col) return;
+      const value = String(cells[i] == null ? '' : cells[i]).trim();
+      if (value === '') { if (col.type === 'bool') raw[col.key] = false; return; }
+      if (col.type === 'date') {
+        const d = parseBulkDate(value);
+        if (!d) { errors.push(`${lineNo}行目「${col.header}」：日付として読めません（${value}）`); rowError = true; return; }
+        raw[col.key] = d;
+      } else if (col.type === 'status') {
+        const st = BULK_STATUS_WORDS[value] || BULK_STATUS_WORDS[value.toLowerCase()];
+        if (!st) { errors.push(`${lineNo}行目「${col.header}」：予定／受付中／締切間近／開催中／終了 のいずれかにしてください（${value}）`); rowError = true; return; }
+        raw[col.key] = st;
+      } else if (col.type === 'category') {
+        const cat = BULK_CATEGORY_WORDS[value] || BULK_CATEGORY_WORDS[value.toLowerCase()];
+        if (!cat) { errors.push(`${lineNo}行目「${col.header}」：お知らせ／大会情報／イベント／会員向け／その他 のいずれかにしてください（${value}）`); rowError = true; return; }
+        raw[col.key] = cat;
+      } else if (col.type === 'bool') {
+        raw[col.key] = parseBulkBool(value);
+      } else {
+        raw[col.key] = value;
+      }
+    });
+
+    schema.columns.filter(c => c.required).forEach(c => {
+      if (!raw[c.key]) { errors.push(`${lineNo}行目「${c.header}」：必須項目が空です`); rowError = true; }
+    });
+    if (raw.dateEnd && raw.date && raw.dateEnd < raw.date) {
+      errors.push(`${lineNo}行目：終了日が開始日より前になっています`);
+      rowError = true;
+    }
+
+    rows.push({ lineNo, raw, rowError });
+    if (!rowError) items.push(raw);
+  });
+
+  // 表示用のプレビュー表（見出しはスキーマ順に揃える）
+  const cols = schema.columns.filter(c => mapping.includes(c));
+  const head = `<tr><th>行</th>${cols.map(c => `<th>${escapeHtml(c.header)}</th>`).join('')}</tr>`;
+  const body = rows.map(r => `
+    <tr class="${r.rowError ? 'bulk-row-error' : ''}">
+      <td class="bulk-row-no">${r.lineNo}</td>
+      ${cols.map(c => {
+        let v = r.raw[c.key];
+        // 内部の値ではなく、画面で使っている日本語表記でプレビューする
+        if (c.type === 'bool')          v = v ? '重要' : '';
+        else if (c.type === 'status')   v = v ? (statusMap[v] || {}).label || v : '';
+        else if (c.type === 'category') v = v ? (categoryMap[v] || {}).label || v : '';
+        return `<td>${escapeHtml(String(v == null ? '' : v))}</td>`;
+      }).join('')}
+    </tr>`).join('');
+  document.getElementById('bulk-table').innerHTML = head + body;
+
+  const summaryParts = [`${schema.label}：取り込み可能 ${items.length} 件`];
+  if (errors.length) summaryParts.push(`エラーのある行 ${rows.length - items.length} 件（この行は取り込まれません）`);
+  if (unknown.length) summaryParts.push(`認識できない列 ${unknown.length} 個（無視されます）：${unknown.join('、')}`);
+  document.getElementById('bulk-summary').textContent = summaryParts.join(' ／ ');
+
+  document.getElementById('bulk-errors').innerHTML = errors.length
+    ? `<ul class="bulk-error-list">${errors.map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul>`
+    : '';
+
+  bulkStaged = { type: document.getElementById('bulk-type').value, rawItems: items };
+  document.getElementById('bulk-commit-btn').disabled = items.length === 0;
+  preview.style.display = 'block';
+  preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function commitBulkImport() {
+  if (!bulkStaged || !bulkStaged.rawItems.length) { alert('先に「内容を確認」を押してください。'); return; }
+  const type   = bulkStaged.type;
+  const schema = BULK_SCHEMAS[type];
+  const mode   = document.querySelector('input[name="bulk-mode"]:checked').value;
+
+  const current = { events: eventsData, news: newsData, away: awayEventsData }[type];
+  const confirmMsg = mode === 'replace'
+    ? `いま登録されている「${schema.label}」${current.length}件をすべて削除し、${bulkStaged.rawItems.length}件に置き換えます。よろしいですか？`
+    : `「${schema.label}」に${bulkStaged.rawItems.length}件を追加します。よろしいですか？`;
+  if (!confirm(confirmMsg)) return;
+
+  const built = bulkStaged.rawItems.map(raw => schema.build(raw));
+
+  let result;
+  if (type === 'events') {
+    eventsData = mode === 'replace' ? built : [...eventsData, ...built];
+    eventsData.sort((a, b) => a.date.localeCompare(b.date));
+    saveEventsToStorage();
+    renderAdminEvents();
+    renderEvents();
+    result = await pushEventsToServer(eventsData);
+  } else if (type === 'news') {
+    newsData = mode === 'replace' ? built : [...built, ...newsData];
+    newsData.sort((a, b) => b.date.localeCompare(a.date));
+    saveNewsToStorage();
+    renderAdminNews();
+    renderNews();
+    result = await pushNewsToServer(newsData);
+  } else {
+    awayEventsData = mode === 'replace' ? built : [...awayEventsData, ...built];
+    awayEventsData.sort((a, b) => a.date.localeCompare(b.date));
+    saveAwayEventsToStorage();
+    renderAdminAwayEvents();
+    renderAwayEvents();
+    result = await pushAwayEventsToServer(awayEventsData);
+  }
+
+  resetBulkImport();
+  showToast(syncResultMessage(result, `${schema.label}を${built.length}件取り込みました`));
+}
+
+// ======================================================
 // 初期化
 // ======================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -4327,6 +4769,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAwayEvents();
   initScrollFade();
   initLinkInterception();
+  onBulkTypeChange();     // 一括登録タブの項目説明を初期表示
 
   // 大会データ・お知らせデータはGoogleスプレッドシートが「正」。取得できたら最新の内容で描画し直す。
   fetchEventsFromServer().then(remoteEvents => {

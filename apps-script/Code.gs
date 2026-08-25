@@ -59,7 +59,10 @@ function getSheet_(cfg) {
   if (!sheet) {
     sheet = ss.insertSheet(cfg.sheetName);
   }
-  if (sheet.getLastRow() === 0) {
+  // 行データは常に cfg.columns の順で読み書きするため、見出し行も同じ内容に揃えておく。
+  // （列を増やした後も、古い見出しが残って中身とラベルがずれるのを防ぐ）
+  const header = sheet.getRange(1, 1, 1, cfg.columns.length).getValues()[0];
+  if (cfg.columns.some((name, i) => header[i] !== name)) {
     sheet.getRange(1, 1, 1, cfg.columns.length).setValues([cfg.columns]);
   }
   return sheet;
