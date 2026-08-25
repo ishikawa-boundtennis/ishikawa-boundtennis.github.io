@@ -1320,6 +1320,28 @@
     margin: 0.35rem 0 1rem;
   }
   .page-overlay-body ol li { margin-bottom: 0.65rem; line-height: 1.8; }
+
+  /* 大会一覧（年度アーカイブ） */
+  .events-list-toolbar {
+    display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 0.75rem;
+    padding: 0.875rem 1rem; margin-bottom: 1.25rem;
+  }
+  .events-list-toolbar label {
+    font-size: 0.8rem; font-weight: 600; color: var(--navy); white-space: nowrap;
+  }
+  .events-list-toolbar select { flex: 1; min-width: 220px; margin: 0; }
+  .events-list-fy {
+    display: flex; align-items: baseline; gap: 0.6rem;
+    font-family: 'Shippori Mincho', serif; font-weight: 700; font-size: 0.95rem;
+    color: var(--navy); margin: 1.5rem 0 0.75rem; padding-bottom: 0.4rem;
+    border-bottom: 1px solid #E5E7EB;
+  }
+  .events-list-fy .events-list-count {
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 500;
+    font-size: 0.75rem; color: #94A3B8;
+  }
+  .events-list-empty { text-align: center; color: #94A3B8; padding: 2.5rem 1rem; font-size: 0.875rem; }
   .overlay-note {
     color: #92400E;
     background: #FEF3C7;
@@ -2735,47 +2757,149 @@ function renderFooterOffice() {
 // ページオーバーレイ
 // ======================================================
 
-function renderEventsListOverlay() {
-  if (!eventsData.length) return '<p style="text-align:center;color:#94A3B8;padding:3rem">大会データがありません。</p>';
-  const sorted = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
-  return sorted.map(ev => {
-    const db  = formatDateBlock(ev.date);
-    const st  = computeEventStatus(ev);
-    const stLabel = eventStatusLabel(ev, st);
-    const endLabel = ev.dateEnd && ev.dateEnd !== ev.date
-      ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}日(${de.dow})`; })()
-      : '';
-    let pdfs = '';
-    pdfs += pdfButton(ev.youkou, '大会要項ダウンロード', 'file-text');
-    pdfs += pdfButton(ev.draw, 'ドロー表ダウンロード', 'layout-list');
-    pdfs += pdfButton(ev.entry, ev.entryLabel ? `申込書ダウンロード（${ev.entryLabel}）` : '申込書ダウンロード', 'file-pen');
-    pdfs += pdfButton(ev.result, '試合結果ダウンロード', 'clipboard-list');
-    (ev.extras || []).forEach(ex => {
-      if (ex.label && ex.url) pdfs += pdfButton(ex.url, ex.label, 'paperclip');
+// ---- 大会一覧（年度でさかのぼれるアーカイブ） ----
+
+// 年度は4月始まり。例：2026-03-15 は「令和7年度（2025年度）」に入る。
+function fiscalYearOf(dateStr) {
+  const y = Number(String(dateStr).slice(0, 4));
+  const m = Number(String(dateStr).slice(5, 7));
+  return m >= 4 ? y : y - 1;
+}
+
+function fiscalYearLabel(fy) {
+  const reiwa = fy - 2018;   // 令和1年度 = 2019年度
+  return reiwa >= 1 ? `令和${reiwa}年度` : `${fy}年度`;
+}
+
+function fiscalYearRange(fy) {
+  return `${fy}年4月〜${fy + 1}年3月`;
+}
+
+// 'all' | 'upcoming' | 年度（数値）
+let eventsListFilter = 'all';
+
+function setEventsListFilter(value) {
+  eventsListFilter = (value === 'all' || value === 'upcoming') ? value : Number(value);
+  const box = document.getElementById('events-list-items');
+  if (!box) return;
+  box.innerHTML = buildEventsListBody();
+  lucide.createIcons();
+}
+
+function buildEventsListCard(ev) {
+  const db  = formatDateBlock(ev.date);
+  const st  = computeEventStatus(ev);
+  const stLabel = eventStatusLabel(ev, st);
+  const endLabel = ev.dateEnd && ev.dateEnd !== ev.date
+    ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}日(${de.dow})`; })()
+    : '';
+  let pdfs = '';
+  pdfs += pdfButton(ev.youkou, '大会要項ダウンロード', 'file-text');
+  pdfs += pdfButton(ev.draw, 'ドロー表ダウンロード', 'layout-list');
+  pdfs += pdfButton(ev.entry, ev.entryLabel ? `申込書ダウンロード（${ev.entryLabel}）` : '申込書ダウンロード', 'file-pen');
+  pdfs += pdfButton(ev.result, '試合結果ダウンロード', 'clipboard-list');
+  (ev.extras || []).forEach(ex => {
+    if (ex.label && ex.url) pdfs += pdfButton(ex.url, ex.label, 'paperclip');
+  });
+  const addrLine = ev.address
+    ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
+    : '';
+  return `
+    <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
+      <div style="background:var(--navy);color:#fff;border-radius:0.5rem;padding:0.75rem 1rem;text-align:center;flex-shrink:0;min-width:68px">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.6)">${db.year}</div>
+        <div style="font-size:1.6rem;font-weight:800;font-family:'Shippori Mincho',serif;line-height:1.1">${db.day}</div>
+        <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">${db.dow}${endLabel ? `<br><span style="font-size:0.65rem;opacity:0.85">${endLabel}</span>` : ''}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="margin-bottom:0.35rem">
+          <span class="status-badge ${st.cls}" style="font-size:0.7rem">${stLabel}</span>
+        </div>
+        <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">【${stLabel}】${escapeHtml(ev.name)}</p>
+        <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.2rem">
+          <span data-lucide="map-pin" style="width:12px;height:12px"></span>${escapeHtml(ev.venue) || '会場未定'}
+        </p>
+        ${addrLine}
+        ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem">${pdfs}</div>` : ''}
+      </div>
+    </div>`;
+}
+
+function eventsListSection(heading, note, items) {
+  return `<h3>${escapeHtml(heading)}</h3>`
+    + (note ? `<p style="font-size:0.78rem;color:#94A3B8;margin:-0.35rem 0 0.9rem">${escapeHtml(note)}</p>` : '')
+    + items.map(buildEventsListCard).join('');
+}
+
+function buildEventsListBody() {
+  const asc  = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
+  const done = ev => computeEventStatus(ev) === statusMap.done;
+
+  // 年度を指定した場合は、その年度の大会だけを新しい順に並べる
+  if (typeof eventsListFilter === 'number') {
+    const fy = eventsListFilter;
+    const items = asc.filter(ev => fiscalYearOf(ev.date) === fy).sort((a, b) => b.date.localeCompare(a.date));
+    if (!items.length) return '<p class="events-list-empty">この年度の大会は登録されていません。</p>';
+    return eventsListSection(fiscalYearLabel(fy), `${fiscalYearRange(fy)}　全${items.length}件`, items);
+  }
+
+  const upcoming = asc.filter(ev => !done(ev));
+
+  if (eventsListFilter === 'upcoming') {
+    if (!upcoming.length) return '<p class="events-list-empty">現在、開催予定の大会はありません。</p>';
+    return eventsListSection('開催予定・開催中', `全${upcoming.length}件`, upcoming);
+  }
+
+  // すべて表示：開催予定を上に、その下に過去の大会を年度ごと新しい順で並べる
+  let html = '';
+  if (upcoming.length) html += eventsListSection('開催予定・開催中', `全${upcoming.length}件`, upcoming);
+
+  const past = asc.filter(done).sort((a, b) => b.date.localeCompare(a.date));
+  if (past.length) {
+    const groups = new Map();
+    past.forEach(ev => {
+      const fy = fiscalYearOf(ev.date);
+      if (!groups.has(fy)) groups.set(fy, []);
+      groups.get(fy).push(ev);
     });
-    const addrLine = ev.address
-      ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
-      : '';
-    return `
-      <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
-        <div style="background:var(--navy);color:#fff;border-radius:0.5rem;padding:0.75rem 1rem;text-align:center;flex-shrink:0;min-width:68px">
-          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6)">${db.year}</div>
-          <div style="font-size:1.6rem;font-weight:800;font-family:'Shippori Mincho',serif;line-height:1.1">${db.day}</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">${db.dow}${endLabel ? `<br><span style="font-size:0.65rem;opacity:0.85">${endLabel}</span>` : ''}</div>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="margin-bottom:0.35rem">
-            <span class="status-badge ${st.cls}" style="font-size:0.7rem">${stLabel}</span>
-          </div>
-          <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">【${stLabel}】${escapeHtml(ev.name)}</p>
-          <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.2rem">
-            <span data-lucide="map-pin" style="width:12px;height:12px"></span>${escapeHtml(ev.venue) || '会場未定'}
-          </p>
-          ${addrLine}
-          ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem">${pdfs}</div>` : ''}
-        </div>
-      </div>`;
-  }).join('');
+    html += `<h3>過去の大会</h3>`;
+    html += `<p style="font-size:0.78rem;color:#94A3B8;margin:-0.35rem 0 0.9rem">全${past.length}件。年度ごとに新しい順で表示しています。</p>`;
+    [...groups.keys()].sort((a, b) => b - a).forEach(fy => {
+      const items = groups.get(fy);
+      html += `<div class="events-list-fy">${fiscalYearLabel(fy)}<span class="events-list-count">${fiscalYearRange(fy)}　${items.length}件</span></div>`;
+      html += items.map(buildEventsListCard).join('');
+    });
+  }
+
+  if (!html) return '<p class="events-list-empty">大会データがありません。</p>';
+  return html;
+}
+
+function buildEventsListToolbar() {
+  const counts = {};
+  eventsData.forEach(ev => {
+    const fy = fiscalYearOf(ev.date);
+    counts[fy] = (counts[fy] || 0) + 1;
+  });
+  const years = Object.keys(counts).map(Number).sort((a, b) => b - a);
+  const upcomingCount = eventsData.filter(ev => computeEventStatus(ev) !== statusMap.done).length;
+  return `
+    <div class="events-list-toolbar">
+      <label for="events-list-filter">表示する大会</label>
+      <select id="events-list-filter" class="form-select" onchange="setEventsListFilter(this.value)">
+        <option value="all">すべて（${eventsData.length}件）</option>
+        <option value="upcoming">開催予定・開催中のみ（${upcomingCount}件）</option>
+        ${years.length ? `<optgroup label="年度でさかのぼる">
+          ${years.map(fy => `<option value="${fy}">${fiscalYearLabel(fy)}（${fiscalYearRange(fy)}）　${counts[fy]}件</option>`).join('')}
+        </optgroup>` : ''}
+      </select>
+    </div>`;
+}
+
+function renderEventsListOverlay() {
+  if (!eventsData.length) return '<p class="events-list-empty">大会データがありません。</p>';
+  eventsListFilter = 'all';   // 開くたびに「すべて」に戻す
+  return buildEventsListToolbar() + `<div id="events-list-items">${buildEventsListBody()}</div>`;
 }
 
 function renderDownloadsOverlay() {
