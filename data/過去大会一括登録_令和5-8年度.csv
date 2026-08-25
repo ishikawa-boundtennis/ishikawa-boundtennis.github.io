@@ -1,31 +1,34 @@
-﻿開始日,終了日,大会名,会場,住所,状態
-2023-06-03,2023-06-04,第41回全日本バウンドテニス選手権大会,東京体育館,,終了
-2023-07-08,2023-07-09,第34回北信越ブロックバウンドテニス親善交流大会,いしかわ総合スポーツセンター,,終了
-2023-08-06,,第75回石川県民スポーツ大会,かほく市七塚体育センター,,終了
-2023-08-11,,第19回北信越ブロックバウンドテニス選手権大会 石川県予選,いしかわ総合スポーツセンター,,終了
-2023-10-07,2023-10-08,第26回日本バウンドテニスゴールド 長野大会,長野運動公園総合体育館,,終了
-2023-11-03,,第32回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,金沢市総合体育館,石川県金沢市泉野出町3-8-1,終了
-2023-11-19,,第19回北信越ブロックバウンドテニス選手権大会・第7回北信越ブロックバウンドテニスジュニア選手権大会,滑川市総合体育センター,,終了
-2023-12-17,,第42回全日本バウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了
-2024-05-05,2024-05-06,第42回全日本バウンドテニス選手権大会,東京体育館,,終了
-2024-06-01,2024-06-02,第35回北信越ブロックバウンドテニス親善交流大会,三条市体育文化会館,,終了
-2024-07-07,,第33回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,白山郷公園体育館,,終了
-2024-08-24,2024-08-25,第78回国民スポーツ大会SAGA2024,SAGAサンライズパーク,,終了
-2024-09-08,,第20回北信越ブロックバウンドテニス選手権大会 石川県予選,川北町総合体育館,,終了
-2024-10-05,2024-10-06,第27回日本バウンドテニスゴールド 北海道大会,釧路体育館,,終了
-2024-11-03,,第20回北信越ブロックバウンドテニス選手権大会,ホテルたがわ体育館,,終了
-2024-12-15,,第43回全日本バウンドテニス選手権大会 石川県予選,野々市スポーツセンター,野々市市押野2丁目30,終了
-2025-02-16,,令和6年度石川県バウンドテニス選手権大会,金沢市総合体育館,石川県金沢市泉野出町3-8-1,終了
-2025-03-02,,第28回石川県バウンドテニスチーム別大会,野々市市スポーツセンター,野々市市押野2丁目30,終了
-2025-05-04,2025-05-05,第43回全日本バウンドテニス選手権大会,東京体育館,,終了
-2025-06-07,2025-06-08,第36回北信越ブロックバウンドテニス親善交流大会,竜王総合体育館（長野県）,,終了
-2025-06-29,,第77回石川県民スポーツ大会,能美市立辰口中学校,,終了
-2025-09-07,,第21回北信越ブロックバウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了
-2025-09-20,2025-09-21,第79回国民スポーツ大会・わたSHIGA輝く国スポ,YMITアリーナ（滋賀県草津市）,,終了
-2025-10-05,,第34回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,白山郷公園体育館,,終了
-2025-10-25,2025-10-26,第28回日本バウンドテニスゴールド 宮崎大会,都城市早水公園体育文化センター,,終了
-2025-11-30,,第21回北信越ブロックバウンドテニス選手権大会,滑川総合体育館（富山県）,,終了
-2025-12-13,,第44回全日本バウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了
-2026-02-01,,令和7年度石川県バウンドテニス選手権大会,いしかわ総合スポーツセンター,,終了
-2026-02-15,,第29回石川県バウンドテニスチーム別大会,いしかわ総合スポーツセンター,,終了
-2026-07-10,2026-07-11,第44回全日本バウンドテニス選手権大会,東京体育館,,終了
+﻿開始日,終了日,大会名,会場,住所,状態,要項URL,ドロー表URL,結果URL,追加リンク1ラベル,追加リンク1URL,追加リンク2ラベル,追加リンク2URL
+2023-06-03,2023-06-04,第41回全日本バウンドテニス選手権大会,東京体育館,,終了,,,,,,,
+2023-07-08,2023-07-09,第34回北信越ブロックバウンドテニス親善交流大会,いしかわ総合スポーツセンター,,終了,,,,,,,
+2023-08-06,,第75回石川県民スポーツ大会,かほく市七塚体育センター,,終了,,,,,,,
+2023-08-11,,第19回北信越ブロックバウンドテニス選手権大会 石川県予選,いしかわ総合スポーツセンター,,終了,,,,,,,
+2023-10-07,2023-10-08,第26回日本バウンドテニスゴールド 長野大会,長野運動公園総合体育館,,終了,,,,,,,
+2023-11-03,,第32回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,金沢市総合体育館,石川県金沢市泉野出町3-8-1,終了,,,https://drive.google.com/file/d/1i4BqXqroL6HcsD9nTAPKmGEggZJwssuL/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1fB-ShXMHarCoRVa6WgJSfm0vFwIjHFRd/view?usp=drive_link,,
+2023-11-19,,第19回北信越ブロックバウンドテニス選手権大会・第7回北信越ブロックバウンドテニスジュニア選手権大会,滑川市総合体育センター,,終了,,,,大会プログラム,https://drive.google.com/file/d/1z_pvrDJQnoxP963YdEQiJsxZ2p5VT-QY/view?usp=drive_link,,
+2023-12-17,,第42回全日本バウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了,,,https://drive.google.com/file/d/1y_wniAH2iYW0fwiz3QZZApTtpYZZP-Uf/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1rfR8a7h1y1o5_t-kxqXOHekUAA4c1TN7/view?usp=drive_link,,
+2024-05-05,2024-05-06,第42回全日本バウンドテニス選手権大会,東京体育館,,終了,,https://drive.google.com/file/d/1SI6782iEwJeXx-pYOwSIeAdSiZs-R9kM/view?usp=drive_link,https://drive.google.com/file/d/13W-oiz33b-Ln21p885s4eJL-sDN3bm6N/view?usp=drive_link,,,,
+2024-06-01,2024-06-02,第35回北信越ブロックバウンドテニス親善交流大会,三条市体育文化会館,,終了,,,,,,,
+2024-07-07,,第33回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,白山郷公園体育館,,終了,,,https://drive.google.com/file/d/1jmvToNz8A4mN-m02vH2Ee-64QcK62h7L/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/16Ygnq05gOAMHB_n0vXp4y6Dm71W_-83C/view?usp=drive_link,,
+2024-08-24,2024-08-25,第78回国民スポーツ大会SAGA2024,SAGAサンライズパーク,,終了,,,https://drive.google.com/file/d/1-swBN5KqQ4rib4df6AQ_U7XqcRCb0_vR/view?usp=drive_link,,,,
+2024-09-08,,第20回北信越ブロックバウンドテニス選手権大会 石川県予選,川北町総合体育館,,終了,,https://drive.google.com/file/d/1JdHvqlmLu0O4Qx9jh9iKGAk0Fnzurg26/view?usp=drive_link,,大会プログラム,https://drive.google.com/file/d/1_ajlmH5gkd8PlWk-I08dB_DHFhpw59G1/view?usp=drive_link,ドロー表（シングルス）,https://drive.google.com/file/d/1A9F6IcInkJL4uCLTv7HOHVxM8WjUbdOI/view?usp=drive_link
+2024-10-05,2024-10-06,第27回日本バウンドテニスゴールド 北海道大会,釧路体育館,,終了,,,,,,,
+2024-11-03,,第20回北信越ブロックバウンドテニス選手権大会,ホテルたがわ体育館,,終了,,,,,,,
+2024-12-15,,第43回全日本バウンドテニス選手権大会 石川県予選,野々市スポーツセンター,野々市市押野2丁目30,終了,,https://drive.google.com/file/d/1cwwlHTwfv6tcbZZgrsu37_E41LVEZ2-Q/view?usp=drive_link,https://drive.google.com/file/d/1BE3_hv959WIWf4AicIz1EkHK97bXpTnX/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1MRjx32Q3roLLAFp3d4pbhOJv8xyAVt24/view?usp=drive_link,ドロー表・結果（シングルス）,https://drive.google.com/file/d/19JhHYHL7If2EgjPXhoC8kd2V-KxIVpY9/view?usp=drive_link
+2025-02-16,,令和6年度石川県バウンドテニス選手権大会,金沢市総合体育館,石川県金沢市泉野出町3-8-1,終了,,https://drive.google.com/file/d/1WKFVC5taMqKQjFAZshEIgMdzkTUuaQvt/view?usp=drive_link,,大会プログラム,https://drive.google.com/file/d/1KHJR9LF9SlqcqdnEpaqsMUYHxFPmn-fV/view?usp=drive_link,,
+2025-03-02,,第28回石川県バウンドテニスチーム別大会,野々市市スポーツセンター,野々市市押野2丁目30,終了,,,,大会プログラム,https://drive.google.com/file/d/1aWxq7SbpC7kuPXGkJov4DfH8HejRQbyM/view?usp=drive_link,,
+2025-05-04,2025-05-05,第43回全日本バウンドテニス選手権大会,東京体育館,,終了,https://drive.google.com/file/d/1K8E5DiHX3U4-q3eYk0gISmQI87-Z4rey/view?usp=drive_link,https://drive.google.com/file/d/1Xy5MI0iFEFdL3bMa6P3t2UjR43GbUylA/view?usp=drive_link,https://drive.google.com/file/d/1tFQPKSoLPlCx_6ZX-ft8SFb9dG5kZtHv/view?usp=drive_link,,,,
+2025-06-07,2025-06-08,第36回北信越ブロックバウンドテニス親善交流大会,竜王総合体育館（長野県）,,終了,,,,,,,
+2025-06-29,,第77回石川県民スポーツ大会,能美市立辰口中学校,,終了,,,,,,,
+2025-09-07,,第21回北信越ブロックバウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了,,https://drive.google.com/file/d/18vLg1x80e7qa_CudD-R9SY7IsNmiN_pA/view?usp=drive_link,https://drive.google.com/file/d/1V5p4IHAVzzNtWOxQ0qlqWcIhyfJcB_Us/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1ARPMyCMi4iojxpjpSCS-AfxybhfDO2_J/view?usp=drive_link,ドロー表・試合結果（シングルス）,https://drive.google.com/file/d/1Fn20cmXm8sHP01tyqhw9aN2wGyCpW7A8/view?usp=drive_link
+2025-09-20,2025-09-21,第79回国民スポーツ大会・わたSHIGA輝く国スポ,YMITアリーナ（滋賀県草津市）,,終了,,,,,,,
+2025-10-05,,第34回いしかわスポーツ・レクリエーション交流大会 バウンドテニス大会,白山郷公園体育館,,終了,https://drive.google.com/file/d/1B6eVuyMVxB2DjKnnVcsVoghWOqUB52D0/view?usp=drive_link,,https://drive.google.com/file/d/130EwPk8Q8AHwDrmI_Z3lJS8Dq7VNzcBZ/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/14HcBMbSlz83d7JWuww76k6zNwT0VtDm4/view?usp=drive_link,,
+2025-10-25,2025-10-26,第28回日本バウンドテニスゴールド 宮崎大会,都城市早水公園体育文化センター,,終了,,,,,,,
+2025-11-30,,第21回北信越ブロックバウンドテニス選手権大会,滑川総合体育館（富山県）,,終了,,,https://drive.google.com/file/d/1vFnpnp02j7ZzG3dVZR-cEm5AzurBuFg8/view?usp=drive_link,,,,
+2025-12-13,,第44回全日本バウンドテニス選手権大会 石川県予選,白山郷公園体育館,,終了,https://drive.google.com/file/d/1Akx9QhNYzIjjsQsqdgVqhWO2hlQLyTAz/view?usp=drive_link,https://drive.google.com/file/d/1GTzbiFLfqp437lyPfnKybu3M_j92QwLh/view?usp=drive_link,https://drive.google.com/file/d/1BbGsx-O-iVHVdY3kEN_2RjIBwYKVMwHw/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1JVpa6ueZtVaIjZcSx1sDHdEKu7fcT8au/view?usp=drive_link,ドロー表・結果（シングルス）,https://drive.google.com/file/d/1LZgiY0ifyqkQQAJPmUAfQh9rkIoQNP-E/view?usp=drive_link
+2026-02-01,,令和7年度石川県バウンドテニス選手権大会,いしかわ総合スポーツセンター,,終了,https://drive.google.com/file/d/1vC06b2GzNQTsXoPEz1_Vg-mgza296llx/view?usp=drive_link,https://drive.google.com/file/d/1_Sp8eCieafOF7eakzV8UMgEsWL7LVtmw/view?usp=drive_link,https://drive.google.com/file/d/1cl3m9fO0Al9djy0ZLqZipUpTy-iNDAeA/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1dqIlQD6q_WtA1QLuid66I13VMrBNBLjj/view?usp=drive_link,,
+2026-02-15,,第29回石川県バウンドテニスチーム別大会,いしかわ総合スポーツセンター,,終了,https://drive.google.com/file/d/15ORVC9G3bnUoX8aJeccFGAEQny7LcUsD/view?usp=drive_link,,https://drive.google.com/file/d/1yLP289lu0ah_jF6SnSJrAkUFu3LCsdPx/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1rSxx58TkWYZBw9D_TrIHkfhkluZpFnC7/view?usp=drive_link,,
+2026-05-24,,第35回いしかわスポーツ・レクリエーション交流大会,野々市市スポーツセンター,野々市市押野2丁目30,終了,https://drive.google.com/file/d/1DmRuDeVQpkzxatxGuHiPcG_J2LiIjRf5/view?usp=drive_link,,https://drive.google.com/file/d/1SJBSBg_G-yA7RpVboV_VZT0-R0fJJy0s/view?usp=drive_link,大会プログラム,https://drive.google.com/file/d/1JLi4bQZtg_N8w1JLhMICaYkCvvmA8zj8/view?usp=drive_link,,
+2026-06-06,2026-06-07,第37回 北信越ブロックバウンドテニス親善交流大会,福井県営体育館,福井県福井市福町3-20,終了,https://drive.google.com/file/d/1gBRLYOEmugMtaE69fR6yaFBI7NR4xtQT/view?usp=drive_link,,,大会プログラム,https://drive.google.com/file/d/1W9v9Nxnmiz_aKE_bM48lhDXxu5Zo56n2/view?usp=drive_link,,
+2026-06-21,,第78回石川県民スポーツ大会,金沢市総合体育館,石川県金沢市泉野出町3-8-1,終了,https://drive.google.com/file/d/1XJZuDa9FYU2q1GaA_cpPlsVckJm5-oLO/view?usp=drive_link,,https://drive.google.com/file/d/1QQzKSkbOtKjnP1YRICHtS9J6N7cMgMPR/view?usp=drive_link,,,,
+2026-07-10,2026-07-11,第44回全日本バウンドテニス選手権大会,東京体育館,,終了,https://drive.google.com/file/d/1j7__yG1Y26sCIlHNt1lh3xiclC-lW1rY/view?usp=drive_link,https://drive.google.com/file/d/122_cLSxjJ3ZU4xneK5dYJy2as24OyFXM/view?usp=drive_link,https://drive.google.com/file/d/17NshzZELCurXVzkuUQvRNjcXbfHuLxdB/view?usp=drive_link,,,,
