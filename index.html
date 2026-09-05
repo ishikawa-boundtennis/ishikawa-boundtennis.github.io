@@ -2139,7 +2139,7 @@
       <div id="events-tab" class="admin-section">
         <div class="admin-comment">
           ★ここを書き換えるだけで更新できます★<br>
-          GoogleドライブのURL（要項・結果PDF）やGoogleフォトの画像URLを貼り付けるだけで、ホームページに自動反映されます。
+          GoogleドライブのURL（要項・結果PDF・大会写真）を貼り付けるだけで、ホームページに自動反映されます。
         </div>
         <button class="btn-add" onclick="openEventForm()">
           <span data-lucide="plus" style="width:14px;height:14px"></span>
@@ -2232,8 +2232,8 @@
           </div>
           <div class="form-group">
             <label class="form-label">大会写真URL</label>
-            <input type="url" id="ef-photo" class="form-input" placeholder="https://...">
-            <p class="form-hint">画像URLを貼り付けると写真がカードに表示されます。</p>
+            <input type="url" id="ef-photo" class="form-input" placeholder="https://drive.google.com/file/d/.../view">
+            <p class="form-hint">Googleドライブに置いた写真の共有リンクをそのまま貼り付けてください。共有設定を「リンクを知っている全員」にするのを忘れずに。</p>
           </div>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
             <button class="btn-save" onclick="saveEvent()">保存</button>
@@ -3396,7 +3396,7 @@ function initHeroSlideshow() {
   }
 
   container.innerHTML = images.map((url, i) =>
-    `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${escapeUrl(url)}')"></div>`
+    `<div class="hero-slide${i===0?' active':''}" style="background-image:url('${escapeUrl(toDriveImageUrl(url, 1600))}')"></div>`
   ).join('');
 
   if (dotsEl) {
@@ -3444,7 +3444,7 @@ function updateScheduleBtn() {
 const contentKeyMeta = {
   hero_images: {
     label: 'ヒーロー画像URL（1行に1枚・最大5枚）',
-    hint: '画像URLを1行ずつ入力してください。保存するとスライドショーが切り替わります。',
+    hint: 'Googleドライブに置いた写真の共有リンクを1行ずつ貼り付けてください（共有設定は「リンクを知っている全員」）。2枚以上入れると5.5秒ごとに自動で切り替わります。',
     get: () => siteContent.heroImages.join('\n'),
     set: (v) => {
       siteContent.heroImages = v.split('\n').map(s => s.trim()).filter(Boolean).slice(0, 5);
@@ -3839,6 +3839,17 @@ function toDriveDownloadUrl(url) {
   return `https://drive.google.com/uc?export=download&id=${m[1]}`;
 }
 
+// Googleドライブの共有リンクを、<img> や背景画像にそのまま指定できる画像URLに変換する。
+// 対象は「リンクを知っている全員」に公開されているファイル。Drive以外のURLはそのまま返す。
+// これにより、写真の追加・差し替えをGitHubに触らずに管理画面だけで完結できる。
+function toDriveImageUrl(url, width) {
+  const u = String(url || '').trim();
+  if (!/^https?:\/\/(drive|docs)\.google\.com\//i.test(u)) return u;
+  const m = u.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (!m) return u;
+  return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w${width || 1600}`;
+}
+
 // 要項・申込書等のダウンロードボタンを生成する共通ヘルパー。
 function pdfButton(url, label, icon) {
   if (!url) return '';
@@ -3979,7 +3990,8 @@ function buildEventCard(ev, i) {
   const addrEl = ev.address
     ? `<p class="event-venue" style="font-size:0.75rem;color:#94A3B8;margin-top:0.15rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
     : '';
-  let photoEl = ev.photo ? `<img src="${escapeUrl(ev.photo)}" alt="大会写真" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+  // 読み込みに失敗した写真は枠ごと隠す（共有設定漏れなどでカードが崩れないように）
+  let photoEl = ev.photo ? `<img src="${escapeUrl(toDriveImageUrl(ev.photo, 800))}" alt="大会写真" onerror="this.style.display='none'" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
 
   card.innerHTML = `
     <div class="event-header">
