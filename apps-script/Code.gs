@@ -81,6 +81,11 @@ function doGet(e) {
     return jsonOutput_(getContent_());
   }
 
+  // 大会写真フォルダの中身一覧。共有リンクをそのまま folder に渡せる。
+  if (type === 'photos') {
+    return jsonOutput_(listFolderPhotos_(e && e.parameter && e.parameter.folder));
+  }
+
   const cfg = REGISTRY[type];
   if (!cfg) return jsonOutput_({ ok: false, error: 'unknown_type' });
 
@@ -258,6 +263,75 @@ function formatDate_(v) {
   }
   return String(v);
 }
+
+// ---- 大会写真フォルダ ----
+
+// 1つの大会で読み込む写真の上限。これを超えた分は表示されない。
+const PHOTO_MAX = 600;
+// Driveのフォルダ列挙は写真が多いと数秒かかるため、結果をこの秒数だけキャッシュする。
+const PHOTO_CACHE_SEC = 600;
+
+// 写真の並び順。DSC_9.jpg より DSC_10.jpg が後になるように、数字部分を桁揃えして比較する。
+function photoSortKey_(name) {
+  return String(name).replace(/d+/g, function (n) {
+    return ('000000000000' + n).slice(-12);
+  });
+}
+
+// Googleドライブのフォルダに入っている画像ファイルの一覧を返す。
+// folderRef はフォルダIDでも共有URLでもよい。
+//
+// 「リンクを知っている全員」に共有されていないフォルダは一覧を返さない。
+// このスクリプトは所有者の権限で動くため、共有していないフォルダの中身も
+// 技術的には読めてしまう。共有していない＝公開する意図がないフォルダなので、
+// ファイル名が外部に出ないよう入口で止める。
+// （共有していないフォルダの写真は、そもそもサイト上で表示もできない）
+function listFolderPhotos_(folderRef) {
+  const m = String(folderRef || '').match(/[-w]{25,}/);
+  if (!m) return { ok: false, error: 'invalid_folder' };
+  const id = m[0];
+
+  const cache = CacheService.getScriptCache();
+  const hit = cache.get('photos_' + id);
+  if (hit) return JSON.parse(hit);
+
+  let folder;
+  try {
+    folder = DriveApp.getFolderById(id);
+  } catch (err) {
+    return { ok: false, error: 'folder_not_found' };
+  }
+
+  let access;
+  try {
+    access = folder.getSharingAccess();
+  } catch (err) {
+    return { ok: false, error: 'folder_not_found' };
+  }
+  if (access !== DriveApp.Access.ANYONE_WITH_LINK && access !== DriveApp.Access.ANYONE) {
+    return { ok: false, error: 'folder_not_shared' };
+  }
+
+  const photos = [];
+  const it = folder.getFiles();
+  while (it.hasNext() && photos.length < PHOTO_MAX) {
+    const f = it.next();
+    if (String(f.getMimeType()).indexOf('image/') !== 0) continue;
+    photos.push({ id: f.getId(), name: f.getName() });
+  }
+  photos.sort(function (a, b) {
+    const ka = photoSortKey_(a.name), kb = photoSortKey_(b.name);
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  });
+
+  const res = { ok: true, name: folder.getName(), photos: photos };
+  const json = JSON.stringify(res);
+  // キャッシュの上限は1件あたり100KB。超える場合はキャッシュせずに返す。
+  if (json.length < 90000) cache.put('photos_' + id, json, PHOTO_CACHE_SEC);
+  return res;
+}
+
+// ---- 共通（JSON出力） ----
 
 function jsonOutput_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))

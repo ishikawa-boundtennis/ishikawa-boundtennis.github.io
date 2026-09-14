@@ -1351,6 +1351,100 @@
     border-left: 3px solid #F59E0B;
     margin: 0 0 0.5rem;
   }
+  /* ---- 大会写真ギャラリー ---- */
+  .event-photo-box { position: relative; margin-bottom: 0.75rem; }
+  /* 写真が読み込めなかったときは、余白ごと詰める */
+  .event-photo-box:empty { display: none; }
+  .event-photo-box img {
+    width: 100%; height: 140px; object-fit: cover; border-radius: 0.5rem; display: block;
+  }
+  .event-photo-count {
+    position: absolute; right: 0.5rem; bottom: 0.5rem;
+    background: rgba(15,23,42,0.78); color: #fff;
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em;
+    padding: 0.25rem 0.6rem; border-radius: 999px;
+    display: flex; align-items: center; gap: 0.3rem;
+    border: 0; cursor: pointer; font-family: 'Noto Sans JP', sans-serif;
+  }
+  .event-photo-count:hover { background: rgba(15,23,42,0.92); }
+  .photo-btn {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    background: #F1F5F9; color: var(--navy); border: 1px solid #E2E8F0;
+    border-radius: 0.4rem; padding: 0.3rem 0.6rem;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .photo-btn:hover { background: #E2E8F0; }
+
+  #photo-gallery {
+    display: none; position: fixed; inset: 0; z-index: 1500;
+    background: #0F172A; flex-direction: column;
+  }
+  #photo-gallery.open { display: flex; animation: overlayFadeIn 0.2s ease; }
+  .pg-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 0.9rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.12); flex-shrink: 0;
+  }
+  .pg-title {
+    color: #fff; font-family: 'Shippori Mincho', serif; font-weight: 700;
+    font-size: 0.98rem; margin: 0; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .pg-title span { display: block; font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 500; font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 0.15rem; }
+  .pg-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+  .pg-btn {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 6px;
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.8rem; font-weight: 600;
+    display: flex; align-items: center; gap: 0.35rem; white-space: nowrap; text-decoration: none;
+  }
+  .pg-btn:hover { background: rgba(255,255,255,0.22); }
+  .pg-body { flex: 1; overflow-y: auto; padding: 1rem; -webkit-overflow-scrolling: touch; }
+  .pg-grid {
+    display: grid; gap: 0.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    max-width: 1400px; margin: 0 auto;
+  }
+  .pg-grid img {
+    width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+    border-radius: 0.4rem; background: #1E293B; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .pg-grid img:hover { opacity: 0.82; }
+  .pg-status { color: rgba(255,255,255,0.65); text-align: center; padding: 2.5rem 1rem; font-size: 0.85rem; }
+  .pg-status a { color: #FB7185; }
+
+  #photo-viewer {
+    display: none; position: fixed; inset: 0; z-index: 1600;
+    background: rgba(8,12,22,0.96); align-items: center; justify-content: center;
+  }
+  #photo-viewer.open { display: flex; }
+  #photo-viewer img {
+    max-width: 94vw; max-height: 82vh; object-fit: contain;
+    border-radius: 0.3rem; user-select: none;
+  }
+  .pv-close { position: absolute; top: 0.8rem; right: 0.9rem; }
+  .pv-counter {
+    position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.85); font-size: 0.8rem; font-weight: 600;
+    background: rgba(255,255,255,0.1); padding: 0.3rem 0.9rem; border-radius: 999px;
+  }
+  .pv-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+    color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pv-nav:hover { background: rgba(255,255,255,0.24); }
+  .pv-prev { left: 0.75rem; }
+  .pv-next { right: 0.75rem; }
+  @media (max-width: 640px) {
+    .pg-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 0.35rem; }
+    .pg-body { padding: 0.6rem; }
+    .pv-nav { width: 38px; height: 38px; }
+  }
+
   /* procedures download button */
   .proc-dl-btn {
     display: inline-flex;
@@ -2231,9 +2325,9 @@
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">大会写真URL</label>
-            <input type="url" id="ef-photo" class="form-input" placeholder="https://drive.google.com/file/d/.../view">
-            <p class="form-hint">Googleドライブに置いた写真の共有リンクをそのまま貼り付けてください。共有設定を「リンクを知っている全員」にするのを忘れずに。</p>
+            <label class="form-label">大会写真フォルダURL</label>
+            <input type="url" id="ef-photo" class="form-input" placeholder="https://drive.google.com/drive/folders/...">
+            <p class="form-hint">Googleドライブでこの大会の<strong>写真フォルダ</strong>を開き、アドレス欄のURLをそのまま貼り付けてください。フォルダに入れた写真がそのままホームページに並びます（何枚でも可。あとから追加すれば自動で増えます）。<br>フォルダの共有設定を「リンクを知っている全員」にするのを忘れずに。写真1枚だけのURLを貼った場合は、その1枚だけが表示されます。</p>
           </div>
           <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
             <button class="btn-save" onclick="saveEvent()">保存</button>
@@ -2439,6 +2533,42 @@
     </div>
     <div class="page-overlay-body" id="page-overlay-body"></div>
   </div>
+</div>
+
+<!-- 大会写真ギャラリー -->
+<div id="photo-gallery" aria-hidden="true">
+  <div class="pg-head">
+    <h2 class="pg-title" id="pg-title">大会写真<span id="pg-subtitle"></span></h2>
+    <div class="pg-actions">
+      <a class="pg-btn" id="pg-drive" href="#" target="_blank" rel="noopener">
+        <span data-lucide="folder-open" style="width:14px;height:14px"></span>
+        ドライブで開く
+      </a>
+      <button class="pg-btn" onclick="closePhotoGallery()">
+        <span data-lucide="x" style="width:15px;height:15px"></span>
+        閉じる
+      </button>
+    </div>
+  </div>
+  <div class="pg-body" id="pg-body">
+    <div class="pg-grid" id="pg-grid"></div>
+    <div class="pg-status" id="pg-status"></div>
+  </div>
+</div>
+
+<div id="photo-viewer" aria-hidden="true" onclick="if(event.target===this)closePhotoViewer()">
+  <button class="pg-btn pv-close" onclick="closePhotoViewer()">
+    <span data-lucide="x" style="width:15px;height:15px"></span>
+    閉じる
+  </button>
+  <button class="pv-nav pv-prev" onclick="photoViewerGo(-1)" aria-label="前の写真">
+    <span data-lucide="chevron-left" style="width:20px;height:20px"></span>
+  </button>
+  <img id="pv-image" src="" alt="大会写真">
+  <button class="pv-nav pv-next" onclick="photoViewerGo(1)" aria-label="次の写真">
+    <span data-lucide="chevron-right" style="width:20px;height:20px"></span>
+  </button>
+  <div class="pv-counter" id="pv-counter"></div>
 </div>
 
 <!-- TOAST -->
@@ -2784,6 +2914,7 @@ function setEventsListFilter(value) {
   if (!box) return;
   box.innerHTML = buildEventsListBody();
   lucide.createIcons();
+  hydratePhotoFolders(box);
 }
 
 function buildEventsListCard(ev) {
@@ -2804,6 +2935,12 @@ function buildEventsListCard(ev) {
   const addrLine = ev.address
     ? `<p style="font-size:0.75rem;color:#94A3B8;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.4rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
     : '';
+  // 写真フォルダがある大会には「大会写真（N枚）」ボタンを出す。枚数が分かってから
+  // 差し込むので、ここでは空の入れ物だけ置いておく。
+  const photoFolder = driveFolderId(ev.photo);
+  const photoSlot = photoFolder
+    ? `<div data-photo-folder="${escapeHtml(photoFolder)}" data-photo-title="${escapeHtml(ev.name)}" data-photo-style="button" style="margin-top:0.4rem"></div>`
+    : '';
   return `
     <div style="display:flex;gap:1.25rem;align-items:flex-start;padding:1.25rem;background:#fff;border-radius:0.75rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:0.875rem;border:1px solid #F1F5F9">
       <div style="background:var(--navy);color:#fff;border-radius:0.5rem;padding:0.75rem 1rem;text-align:center;flex-shrink:0;min-width:68px">
@@ -2821,6 +2958,7 @@ function buildEventsListCard(ev) {
         </p>
         ${addrLine}
         ${pdfs ? `<div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.35rem">${pdfs}</div>` : ''}
+        ${photoSlot}
       </div>
     </div>`;
 }
@@ -3277,9 +3415,13 @@ function openPageOverlay(path) {
   ov.scrollTop = 0;
   document.body.style.overflow = 'hidden';
   lucide.createIcons();
+  hydratePhotoFolders(document.getElementById('page-overlay-body'));
 }
 
 function closePageOverlay() {
+  // 写真ギャラリーはこのオーバーレイの上に重なる。ギャラリーが開いている間の
+  // Escやクリックはギャラリー側の操作なので、下のオーバーレイは閉じない。
+  if (photoGalleryIsOpen()) return;
   document.getElementById('page-overlay').classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -3374,7 +3516,8 @@ function initLinkInterception() {
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closePageOverlay();
+    // 写真ギャラリーが先にこのEscを使っていたら、下のオーバーレイは閉じない。
+    if (e.key === 'Escape' && e !== photoEscEvent) closePageOverlay();
   });
 }
 
@@ -3850,6 +3993,238 @@ function toDriveImageUrl(url, width) {
   return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w${width || 1600}`;
 }
 
+// ======================================================
+// 大会写真（Googleドライブのフォルダ）
+// ======================================================
+//
+// 写真は1枚ずつURLを登録するのではなく、大会ごとの「写真フォルダ」の共有URLを
+// 1本だけ登録する。フォルダに写真を入れれば、それだけでサイトに出る。
+// フォルダの中身は Apps Script の ?type=photos で取得する（Driveのフォルダ一覧は
+// APIキーなしでは直接読めないため）。
+
+// 一度に並べるサムネイルの枚数。残りはスクロールに応じて追加する。
+const GALLERY_CHUNK = 60;
+
+// Googleドライブのフォルダ共有URLからフォルダIDを取り出す。
+// 写真1枚のURL（/file/d/...）やDrive以外のURLは null を返す。
+function driveFolderId(url) {
+  const u = String(url || '').trim();
+  if (!/^https?:\/\/(drive|docs)\.google\.com\//i.test(u)) return null;
+  const m = u.match(/\/folders\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+// ファイルIDから表示用の画像URLを作る。幅を指定してサムネイルを取得する。
+function drivePhotoUrl(fileId, width) {
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${width || 800}`;
+}
+
+// フォルダの写真一覧。同じフォルダを何度も取りに行かないようPromiseごと覚えておく。
+const photoFolderCache = new Map();
+
+function fetchFolderPhotos(folderId) {
+  if (!SHEETS_API_URL) return Promise.resolve({ ok: false, error: 'no_api' });
+  if (!photoFolderCache.has(folderId)) {
+    photoFolderCache.set(
+      folderId,
+      fetch(`${SHEETS_API_URL}?type=photos&folder=${encodeURIComponent(folderId)}`)
+        .then(res => res.json())
+        .catch(() => ({ ok: false, error: 'network' }))
+    );
+  }
+  return photoFolderCache.get(folderId);
+}
+
+// 写真フォルダが指定された大会に、表紙の1枚と「すべて見る」ボタンを後から差し込む。
+// 一覧の取得を待たずにカードは先に出るので、写真が出なくても他の情報は読める。
+function hydratePhotoFolders(root) {
+  (root || document).querySelectorAll('[data-photo-folder]').forEach(el => {
+    if (el.dataset.photoLoaded) return;
+    el.dataset.photoLoaded = '1';
+
+    const folderId = el.dataset.photoFolder;
+    const title    = el.dataset.photoTitle || '大会写真';
+    const style    = el.dataset.photoStyle || 'cover';
+
+    fetchFolderPhotos(folderId).then(res => {
+      // 共有設定漏れ・フォルダが空などのときは、枠ごと出さずに黙って諦める。
+      if (!res || !res.ok || !Array.isArray(res.photos) || !res.photos.length) return;
+
+      const n    = res.photos.length;
+      const args = `'${folderId}', ${JSON.stringify(title)}`;
+
+      if (style === 'button') {
+        el.innerHTML = `<button type="button" class="photo-btn" onclick="openPhotoGallery(${escapeHtml(args)})">`
+          + `<span data-lucide="image" style="width:12px;height:12px"></span>大会写真（${n}枚）</button>`;
+      } else {
+        el.innerHTML =
+          `<img src="${escapeUrl(drivePhotoUrl(res.photos[0].id, 800))}" alt="大会写真" `
+          + `onerror="this.style.display='none'">`
+          + `<button type="button" class="event-photo-count" `
+          + `onclick="event.preventDefault();openPhotoGallery(${escapeHtml(args)})">`
+          + `<span data-lucide="images" style="width:12px;height:12px"></span>写真${n}枚を見る</button>`;
+      }
+      if (window.lucide) lucide.createIcons();
+    });
+  });
+}
+
+// ---- ギャラリー本体 ----
+
+let galleryPhotos   = [];
+let galleryShown    = 0;
+let galleryFolderId = '';
+let viewerIndex     = -1;
+
+function openPhotoGallery(folderId, title) {
+  galleryFolderId = folderId;
+  galleryPhotos   = [];
+  galleryShown    = 0;
+
+  const gal = document.getElementById('photo-gallery');
+  document.getElementById('pg-title').firstChild.textContent = title || '大会写真';
+  document.getElementById('pg-subtitle').textContent = '読み込み中…';
+  document.getElementById('pg-drive').href = `https://drive.google.com/drive/folders/${folderId}`;
+  document.getElementById('pg-grid').innerHTML = '';
+  document.getElementById('pg-status').textContent = '';
+  gal.classList.add('open');
+  gal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  if (window.lucide) lucide.createIcons();
+
+  fetchFolderPhotos(folderId).then(res => {
+    // 開いている間に別の大会に切り替えられていたら、古い結果は捨てる。
+    if (galleryFolderId !== folderId) return;
+
+    if (!res || !res.ok || !Array.isArray(res.photos) || !res.photos.length) {
+      document.getElementById('pg-subtitle').textContent = '';
+      document.getElementById('pg-status').innerHTML =
+        '写真を読み込めませんでした。<br>'
+        + `<a href="${escapeUrl('https://drive.google.com/drive/folders/' + folderId)}" `
+        + 'target="_blank" rel="noopener">Googleドライブで開く</a>';
+      return;
+    }
+
+    galleryPhotos = res.photos;
+    document.getElementById('pg-subtitle').textContent =
+      `全${galleryPhotos.length}枚　写真をタップすると大きく表示されます`;
+    renderGalleryChunk();
+  });
+}
+
+// サムネイルを GALLERY_CHUNK 枚ずつ追加する。200枚を一度に並べると
+// 古いスマートフォンで固まるため、スクロールに合わせて足していく。
+function renderGalleryChunk() {
+  if (galleryShown >= galleryPhotos.length) return;
+
+  const grid  = document.getElementById('pg-grid');
+  const next  = galleryPhotos.slice(galleryShown, galleryShown + GALLERY_CHUNK);
+  const start = galleryShown;
+
+  grid.insertAdjacentHTML('beforeend', next.map((ph, i) =>
+    `<img src="${escapeUrl(drivePhotoUrl(ph.id, 400))}" alt="${escapeHtml(ph.name)}" `
+    + `loading="lazy" onclick="openPhotoViewer(${start + i})" `
+    + `onerror="this.style.visibility='hidden'">`
+  ).join(''));
+
+  galleryShown += next.length;
+  document.getElementById('pg-status').textContent =
+    galleryShown < galleryPhotos.length ? `${galleryShown} / ${galleryPhotos.length}枚を表示中…` : '';
+}
+
+function closePhotoGallery() {
+  closePhotoViewer();
+  const gal = document.getElementById('photo-gallery');
+  gal.classList.remove('open');
+  gal.setAttribute('aria-hidden', 'true');
+  galleryFolderId = '';
+  // 大会一覧などのオーバーレイの上から開いている場合があるため、
+  // そちらが開いたままのときはスクロール停止を解除しない。
+  const pageOv = document.getElementById('page-overlay');
+  if (!pageOv || !pageOv.classList.contains('open')) document.body.style.overflow = '';
+}
+
+// ---- 拡大表示 ----
+
+function openPhotoViewer(index) {
+  if (!galleryPhotos.length) return;
+  viewerIndex = Math.max(0, Math.min(index, galleryPhotos.length - 1));
+
+  const viewer = document.getElementById('photo-viewer');
+  document.getElementById('pv-image').src = drivePhotoUrl(galleryPhotos[viewerIndex].id, 1600);
+  document.getElementById('pv-counter').textContent = `${viewerIndex + 1} / ${galleryPhotos.length}`;
+  viewer.classList.add('open');
+  viewer.setAttribute('aria-hidden', 'false');
+  if (window.lucide) lucide.createIcons();
+
+  // 前後の1枚を先に読ませておくと、送ったときの待ち時間が出にくい。
+  [viewerIndex + 1, viewerIndex - 1].forEach(i => {
+    if (i >= 0 && i < galleryPhotos.length) new Image().src = drivePhotoUrl(galleryPhotos[i].id, 1600);
+  });
+}
+
+function photoViewerGo(delta) {
+  if (viewerIndex < 0) return;
+  const next = viewerIndex + delta;
+  if (next < 0 || next >= galleryPhotos.length) return;
+  openPhotoViewer(next);
+}
+
+function closePhotoViewer() {
+  const viewer = document.getElementById('photo-viewer');
+  if (!viewer) return;
+  viewer.classList.remove('open');
+  viewer.setAttribute('aria-hidden', 'true');
+  document.getElementById('pv-image').src = '';
+  viewerIndex = -1;
+}
+
+function photoGalleryIsOpen() {
+  const gal = document.getElementById('photo-gallery');
+  return !!gal && gal.classList.contains('open');
+}
+
+// 写真ギャラリーが処理済みのEscキー。1回のキー操作で下のオーバーレイ（大会一覧など）
+// まで一緒に閉じてしまわないよう、あちら側にこれと同じ操作かどうかを見てもらう。
+let photoEscEvent = null;
+
+// キーボード操作（← → で送り、Escで閉じる）。
+document.addEventListener('keydown', e => {
+  if (!photoGalleryIsOpen()) return;
+  if (viewerIndex >= 0) {
+    if (e.key === 'ArrowRight') { photoViewerGo(1);  e.preventDefault(); }
+    if (e.key === 'ArrowLeft')  { photoViewerGo(-1); e.preventDefault(); }
+    if (e.key === 'Escape')     { closePhotoViewer(); photoEscEvent = e; e.preventDefault(); }
+    return;
+  }
+  if (e.key === 'Escape') { closePhotoGallery(); photoEscEvent = e; e.preventDefault(); }
+});
+
+function initPhotoGallery() {
+  // 一番下（枚数表示）が見えてきたら次の分を読み込む。画面が大きくて最初の
+  // 60枚で埋まらない場合も、続きが自動で足される。
+  const body     = document.getElementById('pg-body');
+  const sentinel = document.getElementById('pg-status');
+  if (body && sentinel) {
+    new IntersectionObserver(entries => {
+      if (entries.some(en => en.isIntersecting)) renderGalleryChunk();
+    }, { root: body, rootMargin: '600px' }).observe(sentinel);
+  }
+
+  // スマートフォンで左右にスワイプして写真を送る。
+  const viewer = document.getElementById('photo-viewer');
+  if (viewer) {
+    let touchX = null;
+    viewer.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; }, { passive: true });
+    viewer.addEventListener('touchend', e => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) photoViewerGo(dx < 0 ? 1 : -1);
+      touchX = null;
+    }, { passive: true });
+  }
+}
+
 // 要項・申込書等のダウンロードボタンを生成する共通ヘルパー。
 function pdfButton(url, label, icon) {
   if (!url) return '';
@@ -3990,8 +4365,16 @@ function buildEventCard(ev, i) {
   const addrEl = ev.address
     ? `<p class="event-venue" style="font-size:0.75rem;color:#94A3B8;margin-top:0.15rem"><span data-lucide="navigation" style="width:11px;height:11px"></span>${escapeHtml(ev.address)}</p>`
     : '';
+  // 写真欄には「写真フォルダのURL」か「写真1枚のURL」のどちらを入れてもよい。
+  // フォルダなら表紙＋枚数バッジを出し、タップでギャラリーを開く。
   // 読み込みに失敗した写真は枠ごと隠す（共有設定漏れなどでカードが崩れないように）
-  let photoEl = ev.photo ? `<img src="${escapeUrl(toDriveImageUrl(ev.photo, 800))}" alt="大会写真" onerror="this.style.display='none'" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">` : '';
+  const photoFolder = driveFolderId(ev.photo);
+  let photoEl = '';
+  if (photoFolder) {
+    photoEl = `<div class="event-photo-box" data-photo-folder="${escapeHtml(photoFolder)}" data-photo-title="${escapeHtml(ev.name)}" data-photo-style="cover"></div>`;
+  } else if (ev.photo) {
+    photoEl = `<img src="${escapeUrl(toDriveImageUrl(ev.photo, 800))}" alt="大会写真" onerror="this.style.display='none'" style="width:100%;height:140px;object-fit:cover;border-radius:0.5rem;margin-bottom:0.75rem">`;
+  }
 
   card.innerHTML = `
     <div class="event-header">
@@ -4046,6 +4429,7 @@ function renderEvents() {
     grid.appendChild(buildEventCard(ev, i));
   });
   lucide.createIcons();
+  hydratePhotoFolders(grid);
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
@@ -4555,7 +4939,7 @@ const BULK_SCHEMAS = {
       { key: 'entry',        header: '申込書URL',                        type: 'url',    aliases: ['申込用紙URL'],    example: '' },
       { key: 'entryLabel',   header: '申込書の形式',                                     aliases: ['申込書ラベル'],   example: '' },
       { key: 'result',       header: '結果URL',                          type: 'url',    aliases: ['試合結果URL'],    example: '' },
-      { key: 'photo',        header: '写真URL',                          type: 'url',    aliases: [],                 example: '' },
+      { key: 'photo',        header: '写真フォルダURL',                  type: 'url',    aliases: ['写真URL'],        example: '' },
       { key: 'extra1_label', header: '追加リンク1ラベル',                                aliases: [],                 example: '' },
       { key: 'extra1_url',   header: '追加リンク1URL',                   type: 'url',    aliases: [],                 example: '' },
       { key: 'extra2_label', header: '追加リンク2ラベル',                                aliases: [],                 example: '' },
@@ -4905,6 +5289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderAwayEvents();
   initScrollFade();
   initLinkInterception();
+  initPhotoGallery();
   onBulkTypeChange();     // 一括登録タブの項目説明を初期表示
 
   // 大会データ・お知らせデータはGoogleスプレッドシートが「正」。取得できたら最新の内容で描画し直す。
