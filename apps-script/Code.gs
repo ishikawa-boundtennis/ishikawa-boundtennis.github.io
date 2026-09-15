@@ -273,7 +273,7 @@ const PHOTO_CACHE_SEC = 600;
 
 // 写真の並び順。DSC_9.jpg より DSC_10.jpg が後になるように、数字部分を桁揃えして比較する。
 function photoSortKey_(name) {
-  return String(name).replace(/d+/g, function (n) {
+  return String(name).replace(/\d+/g, function (n) {
     return ('000000000000' + n).slice(-12);
   });
 }
@@ -287,9 +287,12 @@ function photoSortKey_(name) {
 // ファイル名が外部に出ないよう入口で止める。
 // （共有していないフォルダの写真は、そもそもサイト上で表示もできない）
 function listFolderPhotos_(folderRef) {
-  const m = String(folderRef || '').match(/[-w]{25,}/);
+  const u = String(folderRef || '').trim();
+  const m = u.match(/\/folders\/([A-Za-z0-9_-]+)/)   // フォルダの共有URL
+         || u.match(/[?&]id=([A-Za-z0-9_-]+)/)       // ?id=... 形式のURL
+         || u.match(/^([A-Za-z0-9_-]{10,})$/);       // フォルダIDだけを渡した場合
   if (!m) return { ok: false, error: 'invalid_folder' };
-  const id = m[0];
+  const id = m[1];
 
   const cache = CacheService.getScriptCache();
   const hit = cache.get('photos_' + id);
