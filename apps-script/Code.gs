@@ -391,3 +391,164 @@ function jsonOutput_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+// ---- 大会写真の自動縮小 ----
+//
+// 大会写真フォルダに入れられた写真を、サイトの表示に必要な大きさまで縮小して
+// 置き換える。フォルダに入れるだけで済ませたいので、定期実行にまかせている。
+//
+// Apps Script には画像を縮小する機能が無い。そのため、ドライブ自身が作る縮小版
+// （Drive API の thumbnailLink）を取り出して保存し直している。
+//
+// 元の写真はゴミ箱へ送る。原本が必要なら、アップロードする前に事務局側で
+// 保管しておくこと。ゴミ箱の中身は30日間は容量を使い続けるので、すぐ空き容量を
+// 増やしたいときは手動でゴミ箱を空にする。
+
+// ギャラリーの拡大表示が要求する幅。これより大きい部分は誰にも表示されない。
+const PHOTO_RESIZE_WIDTH     = 1600;
+// これ以下の写真は縮小しても効果が薄いので触らない。
+const PHOTO_RESIZE_MIN_BYTES = 700 * 1024;
+// 1回の実行で処理する枚数と時間の上限。Apps Script は1回6分で打ち切られる。
+const PHOTO_RESIZE_MAX_FILES = 40;
+const PHOTO_RESIZE_MAX_MS    = 4 * 60 * 1000;
+// 処理済みの目印。ファイルの説明欄に入れる（ファイル名は変えたくないため）。
+const PHOTO_RESIZE_MARK      = '[web用に縮小済み]';
+// 縮小版がこれより小さいときは、幅の指定が効いていないとみなして置き換えない。
+const PHOTO_RESIZE_MIN_SANE_BYTES = 60 * 1024;
+
+// 1回だけ手動で実行すると、1時間おきの自動縮小が有効になる。
+function setupPhotoResizeTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'resizeTournamentPhotos') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('resizeTournamentPhotos').timeBased().everyHours(1).create();
+  Logger.log('大会写真の自動縮小を1時間おきに実行するよう設定しました。');
+}
+
+// 定期実行の入口。大会データに登録されている写真フォルダだけを見る。
+// 登録されていないフォルダには触らない（公開する意図が無いものを変えないため）。
+function resizeTournamentPhotos() {
+  const started = Date.now();
+  let resized = 0, skipped = 0, failed = 0;
+
+  const folderIds = photoFolderIdsFromSheet_();
+  for (let i = 0; i < folderIds.length; i++) {
+    let folder;
+    try {
+      folder = DriveApp.getFolderById(folderIds[i]);
+    } catch (err) {
+      continue;   // 消された・権限が無いフォルダは黙って飛ばす
+    }
+
+    const it = folder.getFiles();
+    while (it.hasNext()) {
+      if (resized >= PHOTO_RESIZE_MAX_FILES || Date.now() - started > PHOTO_RESIZE_MAX_MS) {
+        Logger.log('上限に達したので中断（残りは次回）: 縮小%s枚 / 対象外%s枚 / 失敗%s枚',
+                   resized, skipped, failed);
+        return;
+      }
+      const result = resizeOnePhoto_(it.next(), folder);
+      if (result === 'resized')     resized++;
+      else if (result === 'failed') failed++;
+      else                          skipped++;
+    }
+  }
+  Logger.log('大会写真の縮小: 縮小%s枚 / 対象外%s枚 / 失敗%s枚', resized, skipped, failed);
+}
+
+// 大会データの photo 欄から、写真フォルダのIDを集める。
+function photoFolderIdsFromSheet_() {
+  const cfg = REGISTRY.events;
+  const sheet = getSheet_(cfg);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  const col = cfg.columns.indexOf('photo') + 1;
+  const values = sheet.getRange(2, col, lastRow - 1, 1).getValues();
+  const ids = [];
+  values.forEach(function (row) {
+    const m = String(row[0] || '').match(/\/folders\/([A-Za-z0-9_-]+)/);
+    if (m && ids.indexOf(m[1]) === -1) ids.push(m[1]);
+  });
+  return ids;
+}
+
+// 写真1枚を縮小版に置き換える。戻り値は 'resized' / 'skipped' / 'failed'。
+function resizeOnePhoto_(file, folder) {
+  const type = String(file.getMimeType());
+  if (type !== MimeType.JPEG && type !== MimeType.PNG) return 'skipped';
+  if (String(file.getDescription() || '').indexOf(PHOTO_RESIZE_MARK) !== -1) return 'skipped';
+  if (file.getSize() < PHOTO_RESIZE_MIN_BYTES) return 'skipped';
+
+  const name = file.getName();
+
+  // 前回が「縮小版を作った直後・元を捨てる前」で止まっていた場合の後始末。
+  // 同じ名前で目印の付いたファイルが既にあるなら、元を捨てるだけでよい。
+  const same = folder.getFilesByName(name);
+  while (same.hasNext()) {
+    const other = same.next();
+    if (other.getId() !== file.getId()
+        && String(other.getDescription() || '').indexOf(PHOTO_RESIZE_MARK) !== -1) {
+      file.setTrashed(true);
+      return 'resized';
+    }
+  }
+
+  const blob = fetchResizedBlob_(file.getId());
+  // アップロード直後は縮小版がまだ作られていない。次回の実行に回す。
+  if (!blob) return 'failed';
+
+  // 小さすぎるものが返ったときは、幅の指定が効かず既定の縮小版（220px程度）を
+  // 掴んでいる疑いがある。元の写真を置き換えてしまわないよう、失敗として扱う。
+  if (blob.getBytes().length < PHOTO_RESIZE_MIN_SANE_BYTES) return 'failed';
+
+  if (blob.getBytes().length >= file.getSize()) {
+    // 縮小しても小さくならない写真。毎回取りに行かないよう目印だけ付ける。
+    file.setDescription(PHOTO_RESIZE_MARK + '（元のまま。縮小しても小さくならないため）');
+    return 'skipped';
+  }
+
+  // 縮小版はJPEGで返る。元がPNGのときは拡張子も合わせておく。
+  let newName = name;
+  if (blob.getContentType() === MimeType.JPEG && /\.png$/i.test(newName)) {
+    newName = newName.replace(/\.png$/i, '.jpg');
+  }
+
+  const created = folder.createFile(blob.setName(newName));
+  created.setDescription(PHOTO_RESIZE_MARK + ' 幅' + PHOTO_RESIZE_WIDTH + 'px');
+  file.setTrashed(true);
+  return 'resized';
+}
+
+// ドライブが作った縮小版を取り出す。thumbnailLink は末尾のサイズ指定
+// （=s220 など）を書き換えると、その大きさで取得できる。
+function fetchResizedBlob_(fileId) {
+  try {
+    const metaRes = UrlFetchApp.fetch(
+      'https://www.googleapis.com/drive/v3/files/' + fileId + '?fields=thumbnailLink',
+      {
+        headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+        muteHttpExceptions: true,
+      }
+    );
+    if (metaRes.getResponseCode() !== 200) return null;
+
+    const link = JSON.parse(metaRes.getContentText()).thumbnailLink;
+    if (!link) return null;   // 縮小版がまだ生成されていない
+
+    // 末尾のサイズ指定を書き換える。指定が無い形のリンクには付け足す。
+    // 書き換えそこねると既定の220px版が返り、それを保存してしまうため。
+    const sized = /=[^=/]*$/.test(link)
+      ? link.replace(/=[^=/]*$/, '=w' + PHOTO_RESIZE_WIDTH)
+      : link + '=w' + PHOTO_RESIZE_WIDTH;
+
+    const imgRes = UrlFetchApp.fetch(sized, { muteHttpExceptions: true });
+    if (imgRes.getResponseCode() !== 200) return null;
+
+    const blob = imgRes.getBlob();
+    if (String(blob.getContentType() || '').indexOf('image/') !== 0) return null;
+    return blob;
+  } catch (err) {
+    return null;
+  }
+}
