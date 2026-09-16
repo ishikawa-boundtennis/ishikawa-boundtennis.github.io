@@ -59,13 +59,64 @@ function getSheet_(cfg) {
   if (!sheet) {
     sheet = ss.insertSheet(cfg.sheetName);
   }
-  // 行データは常に cfg.columns の順で読み書きするため、見出し行も同じ内容に揃えておく。
-  // （列を増やした後も、古い見出しが残って中身とラベルがずれるのを防ぐ）
-  const header = sheet.getRange(1, 1, 1, cfg.columns.length).getValues()[0];
-  if (cfg.columns.some((name, i) => header[i] !== name)) {
+
+  const lastCol = sheet.getLastColumn();
+  const lastRow = sheet.getLastRow();
+
+  // まだ何も入っていないシートは、見出し行を作るだけでよい。
+  if (lastCol === 0 || lastRow === 0) {
     sheet.getRange(1, 1, 1, cfg.columns.length).setValues([cfg.columns]);
+    return sheet;
   }
+
+  const oldHeader = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(v => String(v).trim());
+
+  // 見出しが定義どおりならそのまま使う。（定義より右にある余分な列は見ない）
+  if (cfg.columns.every((name, i) => oldHeader[i] === name)) return sheet;
+
+  migrateSheetColumns_(sheet, cfg, oldHeader, lastRow);
   return sheet;
+}
+
+// cfg.columns を変更したとき、既存行を「古い見出し名」を手がかりに新しい列順へ並べ替える。
+//
+// 以前はここで見出し行だけを黙って上書きしていた。行データは常に cfg.columns の順で
+// 読み書きするため、途中に列を1つ挿入すると、それ以降の既存データが1つずつずれたまま
+// 別の項目名として読まれてしまう（2026-09に entryLabel を追加して実際に起きた）。
+// 見出しは正しく見えるので気づけない。そのため、ずれを直してから見出しを書き換える。
+function migrateSheetColumns_(sheet, cfg, oldHeader, lastRow) {
+  const index = {};
+  oldHeader.forEach((name, i) => {
+    if (name && !(name in index)) index[name] = i;
+  });
+
+  const known = cfg.columns.filter(name => name in index);
+  // 見出しが定義とまったく対応しない場合、並べ替えの手がかりが無い。
+  // ここで黙って詰め直すと中身を失うので、止めて人が確認できるようにする。
+  if (known.length === 0) {
+    throw new Error(
+      'シート「' + cfg.sheetName + '」の見出し行が列定義と一致しません（実際: ' + oldHeader.join(', ') + '）。' +
+      '見出し行を ' + cfg.columns.join(', ') + ' に戻してから再実行してください。'
+    );
+  }
+
+  const dropped = oldHeader.filter(name => name && cfg.columns.indexOf(name) === -1);
+  if (dropped.length > 0) {
+    Logger.log('シート「%s」: 列定義から消えたため破棄する列 = %s', cfg.sheetName, dropped.join(', '));
+  }
+
+  if (lastRow > 1) {
+    const oldRows = sheet.getRange(2, 1, lastRow - 1, oldHeader.length).getValues();
+    const newRows = oldRows.map(row => cfg.columns.map(name => (name in index) ? row[index[name]] : ''));
+    sheet.getRange(2, 1, newRows.length, cfg.columns.length).setValues(newRows);
+  }
+  sheet.getRange(1, 1, 1, cfg.columns.length).setValues([cfg.columns]);
+
+  // 旧定義のほうが列数が多かった場合、右側に取り残された列を消す。
+  if (oldHeader.length > cfg.columns.length) {
+    sheet.getRange(1, cfg.columns.length + 1, lastRow, oldHeader.length - cfg.columns.length).clearContent();
+  }
+  Logger.log('シート「%s」の列を %s 列から %s 列へ並べ替えました。', cfg.sheetName, oldHeader.length, cfg.columns.length);
 }
 
 // 初回セットアップ時に一度だけ手動実行してください（各シート・ヘッダー行を作成します）。
