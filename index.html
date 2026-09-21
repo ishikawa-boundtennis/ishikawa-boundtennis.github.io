@@ -2307,7 +2307,7 @@
             <input type="url" id="ef-result" class="form-input" placeholder="https://drive.google.com/...">
           </div>
           <div class="form-group">
-            <label class="form-label" style="font-weight:700;margin-bottom:0.5rem;display:block">その他資料（最大3件）</label>
+            <label class="form-label" style="font-weight:700;margin-bottom:0.5rem;display:block">その他資料（最大6件）</label>
             <p class="form-hint" style="margin-bottom:0.75rem">ラベルとURLの両方を入力するとボタンが表示されます。</p>
             <div style="display:flex;flex-direction:column;gap:0.5rem">
               <div style="display:flex;gap:0.5rem;align-items:center">
@@ -2321,6 +2321,18 @@
               <div style="display:flex;gap:0.5rem;align-items:center">
                 <input type="text" id="ef-extra3-label" class="form-input" placeholder="ラベル例：参加者名簿" style="flex:1;min-width:0">
                 <input type="url"  id="ef-extra3-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra4-label" class="form-input" placeholder="ラベル例：試合結果（女子ダブルス）" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra4-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra5-label" class="form-input" placeholder="ラベル例：試合結果（女子ダブルス）" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra5-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
+              </div>
+              <div style="display:flex;gap:0.5rem;align-items:center">
+                <input type="text" id="ef-extra6-label" class="form-input" placeholder="ラベル例：試合結果（女子ダブルス）" style="flex:1;min-width:0">
+                <input type="url"  id="ef-extra6-url"   class="form-input" placeholder="URL" style="flex:2;min-width:0">
               </div>
             </div>
           </div>
@@ -4762,12 +4774,10 @@ function openEventForm(data) {
   document.getElementById('ef-result').value      = data ? data.result     : '';
   document.getElementById('ef-photo').value       = data ? data.photo      : '';
   const ex = (data && data.extras) ? data.extras : [];
-  document.getElementById('ef-extra1-label').value = ex[0] ? ex[0].label : '';
-  document.getElementById('ef-extra1-url').value   = ex[0] ? ex[0].url   : '';
-  document.getElementById('ef-extra2-label').value = ex[1] ? ex[1].label : '';
-  document.getElementById('ef-extra2-url').value   = ex[1] ? ex[1].url   : '';
-  document.getElementById('ef-extra3-label').value = ex[2] ? ex[2].label : '';
-  document.getElementById('ef-extra3-url').value   = ex[2] ? ex[2].url   : '';
+  for (let i = 0; i < EXTRA_LINK_COUNT; i++) {
+    document.getElementById('ef-extra' + (i + 1) + '-label').value = ex[i] ? ex[i].label : '';
+    document.getElementById('ef-extra' + (i + 1) + '-url').value   = ex[i] ? ex[i].url   : '';
+  }
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -4795,11 +4805,10 @@ async function saveEvent() {
   const entryLabel = document.getElementById('ef-entry-label').value.trim();
   const result  = document.getElementById('ef-result').value.trim();
   const photo   = document.getElementById('ef-photo').value.trim();
-  const extras  = [
-    { label: document.getElementById('ef-extra1-label').value.trim(), url: document.getElementById('ef-extra1-url').value.trim() },
-    { label: document.getElementById('ef-extra2-label').value.trim(), url: document.getElementById('ef-extra2-url').value.trim() },
-    { label: document.getElementById('ef-extra3-label').value.trim(), url: document.getElementById('ef-extra3-url').value.trim() },
-  ].filter(e => e.label && e.url);
+  const extras  = Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => ({
+    label: document.getElementById('ef-extra' + (i + 1) + '-label').value.trim(),
+    url:   document.getElementById('ef-extra' + (i + 1) + '-url').value.trim(),
+  })).filter(e => e.label && e.url);
   if (!name || !date) { alert('開始日と大会名は必須です。'); return; }
   if (dateEnd && dateEnd < date) { alert('終了日は開始日より後の日付を設定してください。'); return; }
 
@@ -4923,6 +4932,16 @@ async function deleteAwayItem(id) {
 // 各種類ごとに「スプレッドシートの見出し」と内部フィールドの対応を定義する。
 // header が正式な見出し。aliases にも同じ列として認識させたい表記を並べる
 // （英語のフィールド名は常に別名として受け付ける）。
+// 「その他資料」の枠の数。増やすときはここと、管理画面の入力欄、
+// そして apps-script/Code.gs の EXTRA_LINK_COUNT を同じ値に揃えること。
+const EXTRA_LINK_COUNT = 6;
+
+// 一括登録CSVの「追加リンクNラベル / 追加リンクNURL」列。
+const EXTRA_LINK_COLUMNS = Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => i + 1).flatMap(i => [
+  { key: `extra${i}_label`, header: `追加リンク${i}ラベル`,               aliases: [], example: '' },
+  { key: `extra${i}_url`,   header: `追加リンク${i}URL`,   type: 'url',   aliases: [], example: '' },
+]);
+
 const BULK_SCHEMAS = {
   events: {
     label: '大会・イベント',
@@ -4940,16 +4959,11 @@ const BULK_SCHEMAS = {
       { key: 'entryLabel',   header: '申込書の形式',                                     aliases: ['申込書ラベル'],   example: '' },
       { key: 'result',       header: '結果URL',                          type: 'url',    aliases: ['試合結果URL'],    example: '' },
       { key: 'photo',        header: '写真フォルダURL',                  type: 'url',    aliases: ['写真URL'],        example: '' },
-      { key: 'extra1_label', header: '追加リンク1ラベル',                                aliases: [],                 example: '' },
-      { key: 'extra1_url',   header: '追加リンク1URL',                   type: 'url',    aliases: [],                 example: '' },
-      { key: 'extra2_label', header: '追加リンク2ラベル',                                aliases: [],                 example: '' },
-      { key: 'extra2_url',   header: '追加リンク2URL',                   type: 'url',    aliases: [],                 example: '' },
-      { key: 'extra3_label', header: '追加リンク3ラベル',                                aliases: [],                 example: '' },
-      { key: 'extra3_url',   header: '追加リンク3URL',                   type: 'url',    aliases: [],                 example: '' },
+      ...EXTRA_LINK_COLUMNS,
     ],
     build(row) {
       const dows = ['日','月','火','水','木','金','土'];
-      const extras = [1, 2, 3]
+      const extras = Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => i + 1)
         .map(i => ({ label: row[`extra${i}_label`], url: row[`extra${i}_url`] }))
         .filter(x => x.label && x.url);
       return {

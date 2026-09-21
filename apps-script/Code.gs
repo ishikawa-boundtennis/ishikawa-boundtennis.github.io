@@ -36,11 +36,18 @@ function verifyIdToken_(idToken) {
   }
 }
 
+// 「その他資料」の枠の数。増やすときはここだけ変える。
+// index.html の EXTRA_LINK_COUNT と必ず同じ値にすること。
+const EXTRA_LINK_COUNT = 6;
+
 const EVENT_COLUMNS = [
   'id', 'date', 'dateEnd', 'dow', 'name', 'venue', 'address',
   'status', 'body', 'youkou', 'draw', 'entry', 'entryLabel', 'result', 'photo',
-  'extra1_label', 'extra1_url', 'extra2_label', 'extra2_url', 'extra3_label', 'extra3_url',
-];
+].concat(
+  // extra1_label, extra1_url, extra2_label, … と並べる
+  Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => ['extra' + (i + 1) + '_label', 'extra' + (i + 1) + '_url'])
+    .reduce((a, b) => a.concat(b), [])
+);
 
 const NEWS_COLUMNS = ['id', 'date', 'category', 'title', 'important', 'body'];
 
@@ -65,6 +72,7 @@ function getSheet_(cfg) {
 
   // まだ何も入っていないシートは、見出し行を作るだけでよい。
   if (lastCol === 0 || lastRow === 0) {
+    ensureColumns_(sheet, cfg.columns.length);
     sheet.getRange(1, 1, 1, cfg.columns.length).setValues([cfg.columns]);
     return sheet;
   }
@@ -78,6 +86,13 @@ function getSheet_(cfg) {
   return sheet;
 }
 
+// 列を増やしたとき、シートの実際の列数が足りないと setValues が失敗する。
+// （シートの列数は既定26列で、定義がそれを超えることがある）
+function ensureColumns_(sheet, needed) {
+  const max = sheet.getMaxColumns();
+  if (max < needed) sheet.insertColumnsAfter(max, needed - max);
+}
+
 // cfg.columns を変更したとき、既存行を「古い見出し名」を手がかりに新しい列順へ並べ替える。
 //
 // 以前はここで見出し行だけを黙って上書きしていた。行データは常に cfg.columns の順で
@@ -85,6 +100,8 @@ function getSheet_(cfg) {
 // 別の項目名として読まれてしまう（2026-09に entryLabel を追加して実際に起きた）。
 // 見出しは正しく見えるので気づけない。そのため、ずれを直してから見出しを書き換える。
 function migrateSheetColumns_(sheet, cfg, oldHeader, lastRow) {
+  ensureColumns_(sheet, cfg.columns.length);
+
   const index = {};
   oldHeader.forEach((name, i) => {
     if (name && !(name in index)) index[name] = i;
@@ -225,11 +242,10 @@ function rowToEvent_(row) {
   const obj = {};
   EVENT_COLUMNS.forEach((key, i) => { obj[key] = row[i]; });
 
-  const extras = [
-    { label: obj.extra1_label, url: obj.extra1_url },
-    { label: obj.extra2_label, url: obj.extra2_url },
-    { label: obj.extra3_label, url: obj.extra3_url },
-  ].filter(x => x.label && x.url);
+  const extras = Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => ({
+    label: obj['extra' + (i + 1) + '_label'],
+    url:   obj['extra' + (i + 1) + '_url'],
+  })).filter(x => x.label && x.url);
 
   return {
     id: Number(obj.id),
@@ -256,10 +272,10 @@ function eventToRow_(ev) {
   return [
     ev.id, ev.date, ev.dateEnd || '', ev.dow, ev.name, ev.venue, ev.address || '',
     ev.status, ev.body || '', ev.youkou || '', ev.draw || '', ev.entry || '', ev.entryLabel || '', ev.result || '', ev.photo || '',
-    ex[0] ? ex[0].label : '', ex[0] ? ex[0].url : '',
-    ex[1] ? ex[1].label : '', ex[1] ? ex[1].url : '',
-    ex[2] ? ex[2].label : '', ex[2] ? ex[2].url : '',
-  ];
+  ].concat(
+    Array.from({ length: EXTRA_LINK_COUNT }, (_, i) => [ex[i] ? ex[i].label : '', ex[i] ? ex[i].url : ''])
+      .reduce((a, b) => a.concat(b), [])
+  );
 }
 
 // ---- news ----
