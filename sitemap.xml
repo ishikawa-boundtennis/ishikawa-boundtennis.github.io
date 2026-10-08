@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- このサイトは1ページ構成です。クラブ一覧・協会概要などは同じページ内で
+     切り替えて表示しているため、独立したURLは持っていません。
+     （/clubs などを直接開くと404になります） -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ishikawa-boundtennis.github.io/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

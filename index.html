@@ -3,10 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google等の検索結果に載せないための指定。URLを知っている人は今まで通り閲覧できます。
-     検索に載せたくなったら、この1行を削除して公開し直してください（robots.txt も参照）。 -->
-<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-<title>石川県バウンドテニス協会</title>
+<!-- 検索結果に載せる設定。2026-10に noindex を解除しました。
+     再び載せたくなくなったら content を "noindex, nofollow" に戻し、robots.txt も合わせてください。 -->
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<title>石川県バウンドテニス協会｜大会情報・クラブ一覧・体験のご案内</title>
+<meta name="description" content="石川県バウンドテニス協会の公式サイト。県内の大会日程・結果、金沢・野々市・白山・かほく・川北のクラブ一覧と練習日、初心者の体験・入会案内を掲載しています。バウンドテニスは体育館でできる日本生まれの生涯スポーツです。">
+<link rel="canonical" href="https://ishikawa-boundtennis.github.io/">
+
+<!-- SNSで共有されたときの表示 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="石川県バウンドテニス協会">
+<meta property="og:title" content="石川県バウンドテニス協会｜大会情報・クラブ一覧・体験のご案内">
+<meta property="og:description" content="県内の大会日程・結果、クラブ一覧と練習日、初心者の体験・入会案内を掲載しています。">
+<meta property="og:url" content="https://ishikawa-boundtennis.github.io/">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- 検索結果に団体情報を出すための構造化データ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsOrganization",
+  "name": "石川県バウンドテニス協会",
+  "url": "https://ishikawa-boundtennis.github.io/",
+  "email": "ishikawaboundtennis@gmail.com",
+  "sport": "バウンドテニス",
+  "areaServed": { "@type": "AdministrativeArea", "name": "石川県" },
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "JP",
+    "addressRegion": "石川県",
+    "addressLocality": "野々市市",
+    "streetAddress": "三日市3-160",
+    "postalCode": "921-8806"
+  }
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -138,6 +170,12 @@
     justify-content: center;
     overflow: hidden;
   }
+  /* 写真そのものに手を加えず、表示するときだけ色味を落ち着かせる。
+     強さを変えたいときはこの --hero-filter の数値だけ触ればよい。
+     写真を差し替えても、Googleドライブの写真にしても同じように効く。 */
+  :root {
+    --hero-filter: saturate(0.78) contrast(1.06) brightness(0.94) sepia(0.16);
+  }
   #hero-slides { position: absolute; inset: 0; overflow: hidden; }
   .hero-slide {
     position: absolute;
@@ -147,13 +185,23 @@
     transition: opacity 1.4s ease;
     transform: scale(1.05);
     animation: heroZoom 22s ease-in-out infinite alternate;
+    filter: var(--hero-filter);
   }
   .hero-slide.active { opacity: 1; }
-  .hero-slide::before {
+  /* 色かぶりと周辺減光。スライドの外側に重ねることで、
+     上の filter が overlay 自体を濁らせないようにしている。 */
+  #hero-slides::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(14,22,40,0.92) 0%, rgba(30,41,59,0.75) 50%, rgba(225,29,72,0.2) 100%);
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 38%, rgba(8,12,24,0.55) 100%),
+      linear-gradient(135deg, rgba(14,22,40,0.90) 0%, rgba(30,41,59,0.72) 50%, rgba(225,29,72,0.22) 100%);
+  }
+  /* 画面の動きを減らす設定にしている人には、ズームを止める */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-slide { animation: none; }
   }
   .hero-dots {
     position: absolute;
