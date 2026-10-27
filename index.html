@@ -795,6 +795,9 @@
   .status-plan   { background:#DBEAFE; color:#1E40AF; }
   .status-active { background:#A7F3D0; color:#064E3B; }
   .status-done   { background:#E2E8F0; color:#64748B; }
+  .status-closed { background:#F1F5F9; color:#475569; }
+  .status-cancel { background:#64748B; color:#fff; }
+  .event-name-cancelled { text-decoration: line-through; }
   .event-body { padding: 1.25rem 1.5rem; flex:1; display:flex; flex-direction:column; }
   .event-name {
     font-weight: 700;
@@ -2316,8 +2319,10 @@
               <option value="plan">予定</option>
               <option value="active">開催中</option>
               <option value="done">終了</option>
+              <option value="closed">受付終了</option>
+              <option value="cancel">中止</option>
             </select>
-            <p class="form-hint">開始日当日〜終了日は「開催中」、翌日以降は「終了」に自動切替されます。</p>
+            <p class="form-hint">開始日当日〜終了日は「開催中」、翌日以降は「終了」に自動切替されます。「中止」は日付が来ても切り替わりません。</p>
           </div>
           <div class="form-group">
             <label class="form-label">大会名 *</label>
@@ -3017,7 +3022,7 @@ function buildEventsListCard(ev) {
         <div style="margin-bottom:0.35rem">
           <span class="status-badge ${st.cls}" style="font-size:0.7rem">${stLabel}</span>
         </div>
-        <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">【${stLabel}】${escapeHtml(ev.name)}</p>
+        <p style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:1rem;color:var(--navy);margin:0 0 0.3rem;line-height:1.4">【${stLabel}】${eventNameHtml(ev, st)}</p>
         <p style="font-size:0.8rem;color:#64748B;display:flex;align-items:center;gap:0.25rem;margin:0 0 0.2rem">
           <span data-lucide="map-pin" style="width:12px;height:12px"></span>${escapeHtml(ev.venue) || '会場未定'}
         </p>
@@ -3036,7 +3041,7 @@ function eventsListSection(heading, note, items) {
 
 function buildEventsListBody() {
   const asc  = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
-  const done = ev => computeEventStatus(ev) === statusMap.done;
+  const done = isEventOver;
 
   // 年度を指定した場合は、その年度の大会だけを新しい順に並べる
   if (typeof eventsListFilter === 'number') {
@@ -3085,7 +3090,7 @@ function buildEventsListToolbar() {
     counts[fy] = (counts[fy] || 0) + 1;
   });
   const years = Object.keys(counts).map(Number).sort((a, b) => b - a);
-  const upcomingCount = eventsData.filter(ev => computeEventStatus(ev) !== statusMap.done).length;
+  const upcomingCount = eventsData.filter(ev => !isEventOver(ev)).length;
   return `
     <div class="events-list-toolbar">
       <label for="events-list-filter">表示する大会</label>
@@ -4335,7 +4340,9 @@ const statusMap = {
   soon:   { label: '締切間近', cls: 'status-soon'   },
   plan:   { label: '予定',     cls: 'status-plan'   },
   active: { label: '開催中',   cls: 'status-active' },
-  done:   { label: '終了',     cls: 'status-done'   }
+  done:   { label: '終了',     cls: 'status-done'   },
+  closed: { label: '受付終了', cls: 'status-closed' },
+  cancel: { label: '中止',     cls: 'status-cancel' }
 };
 
 // 終了大会は結果PDFの有無で「終了・結果」/「終了」を出し分ける（バッジ・タイトル共通）
@@ -4344,16 +4351,37 @@ function eventStatusLabel(ev, st) {
   return st.label;
 }
 
+// 最終日を過ぎた大会か
+function isEventPast(ev) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = ev.dateEnd ? new Date(ev.dateEnd) : new Date(ev.date);
+  end.setHours(0, 0, 0, 0);
+  return today > end;
+}
+
+// 大会名。中止の大会は取り消し線を引く
+function eventNameHtml(ev, st) {
+  const name = escapeHtml(ev.name);
+  return st === statusMap.cancel ? `<span class="event-name-cancelled">${name}</span>` : name;
+}
+
 function computeEventStatus(ev) {
+  // 中止は日付による自動切替より優先する
+  if (ev.status === 'cancel') return statusMap.cancel;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const start = new Date(ev.date);
   start.setHours(0, 0, 0, 0);
-  const end = ev.dateEnd ? new Date(ev.dateEnd) : new Date(ev.date);
-  end.setHours(0, 0, 0, 0);
-  if (today > end) return statusMap.done;
+  if (isEventPast(ev)) return statusMap.done;
   if (today >= start) return statusMap.active;
   return statusMap[ev.status] || statusMap.plan;
+}
+
+// 「過去の大会」側に並べるか。終了の大会に加え、中止の大会も日付が過ぎたらこちら
+function isEventOver(ev) {
+  const st = computeEventStatus(ev);
+  return st === statusMap.done || (st === statusMap.cancel && isEventPast(ev));
 }
 
 function formatDateRange(date, dateEnd) {
@@ -4458,7 +4486,7 @@ function buildEventCard(ev, i) {
     </div>
     <div class="event-body">
       ${photoEl}
-      <p class="event-name">【${stLabel}】${escapeHtml(ev.name)}</p>
+      <p class="event-name">【${stLabel}】${eventNameHtml(ev, st)}</p>
       <p class="event-venue">
         <span data-lucide="map-pin" style="width:13px;height:13px"></span>
         ${escapeHtml(ev.venue) || '会場未定'}
@@ -4485,8 +4513,8 @@ function renderEvents() {
   }
 
   const sorted = [...eventsData].sort((a, b) => a.date.localeCompare(b.date));
-  const active = sorted.filter(ev => computeEventStatus(ev) !== statusMap.done);
-  const done   = sorted.filter(ev => computeEventStatus(ev) === statusMap.done);
+  const active = sorted.filter(ev => !isEventOver(ev));
+  const done   = sorted.filter(isEventOver);
 
   // 開催中・開催予定を優先して最大3件。3件に満たない場合は直近で終了した大会を
   // 新しい順に必要数だけ補完し（表示順は古い順→新しい順）、常にジャスト3件を維持する。
@@ -5071,8 +5099,8 @@ const BULK_SCHEMAS = {
 };
 
 const BULK_STATUS_WORDS = {
-  '予定': 'plan', '受付中': 'open', '締切間近': 'soon', '開催中': 'active', '終了': 'done',
-  plan: 'plan', open: 'open', soon: 'soon', active: 'active', done: 'done',
+  '予定': 'plan', '受付中': 'open', '締切間近': 'soon', '開催中': 'active', '終了': 'done', '受付終了': 'closed', '中止': 'cancel',
+  plan: 'plan', open: 'open', soon: 'soon', active: 'active', done: 'done', closed: 'closed', cancel: 'cancel',
 };
 const BULK_CATEGORY_WORDS = {
   'お知らせ': 'notice', '大会情報': 'tournament', 'イベント': 'event', '会員向け': 'member', 'その他': 'other',
@@ -5247,7 +5275,7 @@ function previewBulkImport() {
         raw[col.key] = d;
       } else if (col.type === 'status') {
         const st = BULK_STATUS_WORDS[value] || BULK_STATUS_WORDS[value.toLowerCase()];
-        if (!st) { errors.push(`${lineNo}行目「${col.header}」：予定／受付中／締切間近／開催中／終了 のいずれかにしてください（${value}）`); rowError = true; return; }
+        if (!st) { errors.push(`${lineNo}行目「${col.header}」：予定／受付中／締切間近／開催中／終了／受付終了／中止 のいずれかにしてください（${value}）`); rowError = true; return; }
         raw[col.key] = st;
       } else if (col.type === 'category') {
         const cat = BULK_CATEGORY_WORDS[value] || BULK_CATEGORY_WORDS[value.toLowerCase()];
