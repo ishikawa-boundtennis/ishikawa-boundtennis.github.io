@@ -2802,7 +2802,7 @@ const siteContent = {
 石川県バウンドテニス協会 事務局
 Mail: ishikawaboundtennis@gmail.com`,
     clubs:
-`石川県内のバウンドテニスクラブをご紹介します。ご入会・体験参加を希望される方は、各クラブへ直接お問い合わせいただくか、協会事務局（ishikawaboundtennis@gmail.com）までご連絡ください。`,
+`石川県内のバウンドテニスクラブをご紹介します。ご入会・体験参加を希望される方は、協会事務局（ishikawaboundtennis@gmail.com）までお問い合わせください。`,
     downloads:
 `## 資料ダウンロード
 
@@ -3188,7 +3188,7 @@ function renderClubsOverlay() {
            </table>
          </div>`).join('')}
        <p class="overlay-note" style="margin-top:1rem">
-         ※練習日・時間は変更になる場合があります。参加前に各クラブへご確認ください。
+         ※練習日・時間は変更になる場合があります。参加前に協会事務局へご確認ください。
        </p>`
     : '<p style="color:#94A3B8;text-align:center;padding:2rem">クラブデータがありません。</p>';
 
@@ -3196,7 +3196,7 @@ function renderClubsOverlay() {
   const trialSection = `
     <div class="trial-section">
       <h3 class="trial-heading">クラブ体験・練習見学のお申し込み</h3>
-      <p class="trial-note">※内容を確認後、事務局または各クラブの担当者より折り返しご連絡いたします。</p>
+      <p class="trial-note">※内容を確認後、協会事務局より折り返しご連絡いたします。</p>
       ${trialUrl
         ? `<a href="${escapeUrl(trialUrl)}" target="_blank" rel="noopener" class="trial-external-btn">
              <span data-lucide="external-link" style="width:17px;height:17px"></span>
@@ -3949,6 +3949,12 @@ function applyContentSnapshot(saved) {
     }
     if (saved.officeInfo)                      Object.assign(siteContent.officeInfo, saved.officeInfo);
     if (saved.pages)                           Object.assign(siteContent.pages,      saved.pages);
+    // 旧文面「各クラブへ直接お問い合わせ」が保存されたままなら、体験の問い合わせ先を事務局に置き換える
+    if (siteContent.pages.clubs && siteContent.pages.clubs.includes('各クラブへ直接お問い合わせいただくか、協会事務局')) {
+      siteContent.pages.clubs = siteContent.pages.clubs.replace(
+        /各クラブへ直接お問い合わせいただくか、協会事務局（([^）]*)）までご連絡ください。/,
+        '協会事務局（$1）までお問い合わせください。');
+    }
     // 旧バージョンに保存された「対応時間」セクションを自動削除
     if (siteContent.pages.contact && siteContent.pages.contact.includes('対応時間')) {
       siteContent.pages.contact = siteContent.pages.contact.replace(/\n*### 対応時間\n[^\n]*/g, '');
