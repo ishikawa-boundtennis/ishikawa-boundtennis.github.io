@@ -2582,7 +2582,7 @@
           <button class="btn-cancel" onclick="loadContentEditor()">元に戻す</button>
         </div>
         <div style="margin-top:2rem;padding-top:1.25rem;border-top:1px solid #E5E7EB">
-          <p style="font-size:0.78rem;color:#64748B;margin-bottom:0.6rem">⚠️ すべての管理データ（お知らせ・大会・ページ本文）を初期値にリセットします</p>
+          <p style="font-size:0.78rem;color:#64748B;margin-bottom:0.6rem">このパソコンのブラウザに一時保存したデータを消します（ホームページ本体のデータは消えません）</p>
           <button class="btn-delete" onclick="resetAllData()">データを初期化（リセット）</button>
         </div>
       </div>
@@ -3981,7 +3981,7 @@ function applyContentSnapshot(saved) {
 }
 
 function resetAllData() {
-  if (!confirm('お知らせ・大会データ・他県案内・ページ本文をすべて初期値に戻します。\nこの操作は取り消せません。よろしいですか？')) return;
+  if (!confirm('このパソコンのブラウザに一時保存したデータを消して、ページを読み込み直します。\nホームページ本体のデータ（スプレッドシート）は消えず、読み込み直すと元どおり表示されます。\n続けますか？')) return;
   Object.values(LS).forEach(k => localStorage.removeItem(k));
   location.reload();
 }
