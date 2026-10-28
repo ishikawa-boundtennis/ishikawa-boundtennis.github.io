@@ -2992,7 +2992,7 @@ function buildEventsListCard(ev) {
   const st  = computeEventStatus(ev);
   const stLabel = eventStatusLabel(ev, st);
   const endLabel = ev.dateEnd && ev.dateEnd !== ev.date
-    ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}日(${de.dow})`; })()
+    ? (() => { const de = formatDateBlock(ev.dateEnd); return `〜 ${de.day}${de.dow}`; })()
     : '';
   let pdfs = '';
   pdfs += pdfButton(ev.youkou, '大会要項ダウンロード', 'file-text');
@@ -4449,7 +4449,7 @@ function buildEventCard(ev, i) {
 
   const endBlock = ev.dateEnd && ev.dateEnd !== ev.date ? formatDateBlock(ev.dateEnd) : null;
   const dowLine = endBlock
-    ? `${dateBlock.dow} 〜 ${endBlock.day}日(${endBlock.dow})`
+    ? `${dateBlock.dow} 〜 ${endBlock.day}${endBlock.dow}`
     : dateBlock.dow;
 
   let pdfBtns = '';
@@ -4566,7 +4566,7 @@ function renderAwayEvents() {
     const db    = formatDateBlock(a.date);
     const dbEnd = a.dateEnd && a.dateEnd !== a.date ? formatDateBlock(a.dateEnd) : null;
     const dateLabel = dbEnd
-      ? `${db.day}(${db.dow}) 〜 ${dbEnd.day}(${dbEnd.dow})`
+      ? `${db.day}${db.dow} 〜 ${dbEnd.day}${dbEnd.dow}`
       : `${db.day} ${db.dow}`;
     const card = document.createElement('div');
     card.className = 'away-card';
