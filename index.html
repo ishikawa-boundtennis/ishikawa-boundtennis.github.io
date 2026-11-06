@@ -1024,6 +1024,24 @@
   .ps-toggle.on-album { background: #2B5C86; border-color: #2B5C86; color: #fff; }
   .ps-toggle.on-hero  { background: var(--red); border-color: var(--red); color: #fff; }
   .ps-pub { font-size: 0.6rem; color: #1F6B45; font-weight: 700; }
+  /* 使い方タブ（運用マニュアルの表示） */
+  .help-doc { font-size: 0.9rem; line-height: 1.8; color: #1E293B; }
+  .help-doc h1 { font-size: 1.3rem; margin: 0.5rem 0 1rem; color: var(--navy); }
+  .help-doc h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; padding-bottom: 0.3rem; border-bottom: 2px solid #E2E8F0; color: var(--navy); }
+  .help-doc h3 { font-size: 1.02rem; margin: 1.5rem 0 0.5rem; color: var(--navy); }
+  .help-doc h4, .help-doc h5 { font-size: 0.95rem; margin: 1.1rem 0 0.4rem; }
+  .help-doc table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.82rem; display: block; overflow-x: auto; }
+  .help-doc th, .help-doc td { border: 1px solid #CBD5E1; padding: 0.4rem 0.6rem; text-align: left; vertical-align: top; }
+  .help-doc th { background: #F1F5F9; }
+  .help-doc pre { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 0.4rem; padding: 0.75rem; overflow-x: auto; font-size: 0.78rem; line-height: 1.5; }
+  .help-doc code { background: #F1F5F9; padding: 0 0.25rem; border-radius: 0.2rem; font-size: 0.85em; }
+  .help-doc pre code { background: none; padding: 0; }
+  .help-doc blockquote { margin: 0.75rem 0; padding: 0.5rem 0.9rem; border-left: 4px solid #93C5FD; background: #EFF6FF; }
+  .help-doc a { color: #2563EB; }
+  .help-doc ul, .help-doc ol { padding-left: 1.4rem; }
+  .help-doc ul { list-style: disc; }
+  .help-doc ol { list-style: decimal; }
+  .help-doc blockquote p { margin: 0.25rem 0; }
   .form-group { margin-bottom: 1rem; }
   .form-label {
     display: block;
@@ -2246,8 +2264,10 @@
       <button class="admin-tab" onclick="switchTab('events-tab', this)">大会・イベント管理</button>
       <button class="admin-tab" onclick="switchTab('away-tab', this)">他県案内管理</button>
       <button class="admin-tab" onclick="switchTab('photos-tab', this)">写真の仕分け</button>
+      <button class="admin-tab" onclick="switchTab('post-tab', this); renderPostDraftEvents()">投稿文づくり</button>
       <button class="admin-tab" onclick="switchTab('bulk-tab', this)">一括登録</button>
       <button class="admin-tab" onclick="switchTab('content-tab', this)">ページ本文・情報管理</button>
+      <button class="admin-tab" onclick="switchTab('help-tab', this); loadHelpDoc()">使い方</button>
     </div>
     <div class="admin-body">
 
@@ -2512,6 +2532,68 @@
           <p class="form-hint" style="margin-top:0">写真を押すと大きく表示します。「トップ」は最大5枚で、トップにした写真はアルバムにも入ります。顔が大きく写った写真や子どもの写真は、本人・保護者の了解を確かめてから選んでください。</p>
           <div class="ps-grid" id="ps-grid"></div>
         </div>
+      </div>
+
+      <div id="post-tab" class="admin-section">
+        <div class="admin-comment">
+          ★SNS・LINEの投稿文づくり★<br>
+          登録してある大会の情報から、LINE・Instagram・X・Facebook に載せる文章のたたき台を作ります。<br>
+          手順：① 大会を選ぶ → ② 投稿の種類と載せる先を選ぶ → ③ 文章を直す → ④「コピー」して各アプリに貼り付ける<br>
+          ここで作った文章はどこにも送られません。投稿は各アプリで行ってください。
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">① 大会</label>
+          <select id="pd-event" class="form-select" onchange="onPostDraftEventChange()"></select>
+        </div>
+        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="form-group">
+            <label class="form-label">② 投稿の種類</label>
+            <select id="pd-kind" class="form-select" onchange="buildPostDraft()">
+              <option value="announce">開催のお知らせ（参加募集）</option>
+              <option value="result">大会結果のご報告</option>
+              <option value="photos">大会写真を公開しました</option>
+              <option value="cancel">中止のお知らせ</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">載せる先</label>
+            <select id="pd-target" class="form-select" onchange="buildPostDraft()">
+              <option value="line">LINE（グループ・公式アカウント）</option>
+              <option value="instagram">Instagram</option>
+              <option value="x">X（旧Twitter）</option>
+              <option value="facebook">Facebook</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ひとこと（任意・本文の最後に入ります）</label>
+          <input type="text" id="pd-note" class="form-input" placeholder="例：初めての方も大歓迎です！" oninput="buildPostDraft()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">③ 投稿文（自由に直せます）</label>
+          <textarea id="pd-text" class="form-textarea" style="min-height:260px" oninput="updatePostDraftCount()"></textarea>
+          <p class="form-hint" id="pd-count"></p>
+        </div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+          <button class="btn-save" onclick="copyPostDraft()">④ コピー</button>
+          <button class="btn-cancel" onclick="buildPostDraft()">作り直す（直した内容は消えます）</button>
+        </div>
+        <p class="form-hint" style="margin-top:1rem">写真を付けるときは、管理画面で「アルバム」に入れた写真から選んでください。顔が大きく写った写真や子どもの写真は、本人・保護者の了解を確かめてから使ってください。</p>
+      </div>
+
+      <div id="help-tab" class="admin-section">
+        <div class="admin-comment">
+          ★使い方★ ホームページの更新・公開のしかたをここで読めます。<br>
+          内容は「運用マニュアル」と同じものです（Googleドライブの「05_運用マニュアル」には印刷向けのExcel版があります）。
+        </div>
+        <div class="form-group">
+          <select id="help-doc" class="form-select" onchange="loadHelpDoc(true)">
+            <option value="運用マニュアル.md">運用マニュアル（更新・公開のしかた）</option>
+            <option value="apps-script/セットアップ手順.md">裏側の仕組みの設定・更新手順（Apps Script）</option>
+          </select>
+        </div>
+        <div id="help-body" class="help-doc"><p class="form-hint">読み込んでいます…</p></div>
       </div>
 
       <div id="bulk-tab" class="admin-section">
@@ -5003,6 +5085,208 @@ async function applyPhotoSort() {
     btn.disabled = false;
   }
 }
+
+// ======================================================
+// 投稿文づくり（管理画面）
+// ======================================================
+//
+// 大会データから、SNS・LINE に貼る文章のたたき台を組み立てる。
+// 送信はしない。コピーして各アプリで投稿してもらう。
+
+const SITE_URL = 'https://ishikawa-boundtennis.github.io/';
+const POST_HASHTAGS = '#バウンドテニス #石川県 #石川県バウンドテニス協会';
+
+function renderPostDraftEvents() {
+  const sel = document.getElementById('pd-event');
+  if (!sel) return;
+  const keep = sel.value;
+  // 近い日付の大会ほど使うので、今日に近い順に並べる
+  const today = new Date().toISOString().slice(0, 10);
+  const sorted = [...eventsData].sort((a, b) =>
+    Math.abs(new Date(a.date) - new Date(today)) - Math.abs(new Date(b.date) - new Date(today)));
+  sel.innerHTML = '<option value="">大会を選んでください</option>'
+    + sorted.map(ev => `<option value="${ev.id}">${escapeHtml(ev.date)} ${escapeHtml(ev.name)}</option>`).join('');
+  if (keep) sel.value = keep;
+}
+
+// 大会の状態から、いちばん使いそうな投稿の種類を選んでおく
+function onPostDraftEventChange() {
+  const ev = eventsData.find(x => String(x.id) === document.getElementById('pd-event').value);
+  if (ev) {
+    document.getElementById('pd-kind').value =
+      ev.status === 'cancel' ? 'cancel' : isEventOver(ev) ? (driveFolderId(ev.photo) && !ev.result ? 'photos' : 'result') : 'announce';
+  }
+  buildPostDraft();
+}
+
+function postDateLabel(ev) {
+  const fmt = (d) => {
+    const dt = new Date(d + 'T00:00:00');
+    return `${dt.getMonth() + 1}月${dt.getDate()}日（${'日月火水木金土'[dt.getDay()]}）`;
+  };
+  const y = new Date(ev.date + 'T00:00:00').getFullYear();
+  return `${y}年${fmt(ev.date)}${ev.dateEnd && ev.dateEnd !== ev.date ? '〜' + fmt(ev.dateEnd) : ''}`;
+}
+
+function postResultUrl(ev) {
+  if (ev.result) return ev.result;
+  const ex = (ev.extras || []).find(e => /結果/.test(e.label || ''));
+  return ex ? ex.url : '';
+}
+
+function buildPostDraft() {
+  const ev = eventsData.find(x => String(x.id) === document.getElementById('pd-event').value);
+  const box = document.getElementById('pd-text');
+  if (!ev) { box.value = ''; updatePostDraftCount(); return; }
+  const kind = document.getElementById('pd-kind').value;
+  const target = document.getElementById('pd-target').value;
+  const note = document.getElementById('pd-note').value.trim();
+  // Instagram は本文のURLを押せないので、プロフィールのリンクへ案内する
+  const link = (url) => target === 'instagram' ? 'プロフィールのリンク（ホームページ）からご覧ください。' : url;
+  const when = `日時：${postDateLabel(ev)}`;
+  const where = ev.venue ? `会場：${ev.venue}` : '';
+  const L = [];
+
+  // X は文字数の上限が厳しいので、初めから短い文にする
+  if (target === 'x') {
+    const day = postDateLabel(ev).replace(/^\d+年/, '');
+    if (kind === 'announce') L.push(`【大会のお知らせ】${ev.name}`, `${day}${ev.venue ? '・' + ev.venue : ''}`, 'くわしくはホームページへ', SITE_URL);
+    if (kind === 'result')   L.push(`【大会結果】${day}の${ev.name}の結果です。ご参加ありがとうございました！`, postResultUrl(ev) || SITE_URL);
+    if (kind === 'photos')   L.push(`【写真公開】${day}の${ev.name}の写真をホームページに載せました`, SITE_URL);
+    if (kind === 'cancel')   L.push(`【中止】${day}の${ev.name}は中止となりました`, SITE_URL);
+    if (note) L.push(note);
+    L.push(POST_HASHTAGS);
+    box.value = L.join('\n');
+    updatePostDraftCount();
+    return;
+  }
+
+  if (kind === 'announce') {
+    L.push('【大会のお知らせ】', ev.name, '', when);
+    if (where) L.push(where);
+    L.push('');
+    if (ev.youkou) L.push('要項・申込書はホームページに掲載しています。', link(SITE_URL));
+    else L.push('くわしくはホームページをご覧ください。', link(SITE_URL));
+    L.push('', '皆さまのご参加をお待ちしています。');
+  } else if (kind === 'result') {
+    L.push('【大会結果のご報告】', `${postDateLabel(ev)}に「${ev.name}」を開催しました。`,
+      'ご参加いただいた皆さま、運営にご協力いただいた皆さま、ありがとうございました。', '');
+    const r = postResultUrl(ev);
+    if (r) L.push('結果はこちらからご覧いただけます。', link(target === 'instagram' ? SITE_URL : r));
+    else L.push('結果はホームページに掲載しています。', link(SITE_URL));
+    if (driveFolderId(ev.photo)) L.push('', '当日の写真もホームページの大会情報から見られます。');
+  } else if (kind === 'photos') {
+    L.push('【大会写真を公開しました】', `${postDateLabel(ev)}に開催した「${ev.name}」の写真を、ホームページに掲載しました。`,
+      '', 'ホームページの大会情報から「大会写真」を押してご覧ください。', link(SITE_URL),
+      '', '掲載している写真について、取り下げのご希望があれば協会事務局までご連絡ください。');
+  } else if (kind === 'cancel') {
+    L.push('【中止のお知らせ】', `${postDateLabel(ev)}に予定していた「${ev.name}」は、中止となりました。`,
+      '楽しみにしてくださっていた皆さまには申し訳ありません。', '', 'くわしくはホームページをご覧ください。', link(SITE_URL));
+  }
+
+  if (note) L.push('', note);
+  if (target === 'line') L.push('', '石川県バウンドテニス協会');
+  if (target === 'instagram' || target === 'facebook') L.push('', POST_HASHTAGS);
+
+  box.value = L.join('\n').replace(/\n{3,}/g, '\n\n');
+  updatePostDraftCount();
+}
+
+// X は全角1文字を2、URLを23として数え、280までが上限
+function xWeightedLength(text) {
+  let n = 0;
+  const rest = text.replace(/https?:\/\/\S+/g, () => { n += 23; return ''; });
+  for (const ch of rest) n += ch.codePointAt(0) > 0x10FF ? 2 : 1;
+  return n;
+}
+
+function updatePostDraftCount() {
+  const text = document.getElementById('pd-text').value;
+  const target = document.getElementById('pd-target').value;
+  const el = document.getElementById('pd-count');
+  if (target === 'x') {
+    const w = xWeightedLength(text);
+    el.textContent = `Xの文字数：${Math.ceil(w / 2)} / 140（全角換算）${w > 280 ? ' ⚠ 長すぎます。短くするか、2つに分けて投稿してください' : ''}`;
+    el.style.color = w > 280 ? 'var(--red)' : '';
+  } else {
+    el.textContent = `${text.length}文字`;
+    el.style.color = '';
+  }
+}
+
+async function copyPostDraft() {
+  const text = document.getElementById('pd-text').value;
+  if (!text.trim()) { showToast('先に大会を選んでください'); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('投稿文をコピーしました ✓');
+  } catch (e) {
+    const box = document.getElementById('pd-text');
+    box.focus();
+    box.select();
+    showToast('コピーできませんでした。文章を選んだ状態にしたので Ctrl+C（スマホは長押し）でコピーしてください');
+  }
+}
+
+// ======================================================
+// 使い方（管理画面）
+// ======================================================
+//
+// リポジトリにある運用マニュアル（Markdown）をそのまま読み込んで表示する。
+// 表や見出しを含むので、表示には marked を使う（このタブを開いたときだけ読み込む）。
+
+let markedLoading = null;
+function loadMarked() {
+  if (window.marked) return Promise.resolve();
+  if (!markedLoading) {
+    markedLoading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js';
+      s.onload = resolve;
+      s.onerror = () => { markedLoading = null; reject(new Error('marked')); };
+      document.head.appendChild(s);
+    });
+  }
+  return markedLoading;
+}
+
+// 目次のリンク（#1-ホームページの仕組み全体像 など）に合わせて、見出しにidを付ける
+function helpSlug(text) {
+  return text.trim().toLowerCase().replace(/[^\p{L}\p{Nd}\s_-]/gu, '').replace(/\s/g, '-');
+}
+
+let helpLoadedDoc = '';
+async function loadHelpDoc(force) {
+  const doc = document.getElementById('help-doc').value;
+  if (!force && helpLoadedDoc === doc) return;
+  const body = document.getElementById('help-body');
+  body.innerHTML = '<p class="form-hint">読み込んでいます…</p>';
+  try {
+    const [md] = await Promise.all([
+      fetch(encodeURI(doc), { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }),
+      loadMarked(),
+    ]);
+    body.innerHTML = marked.parse(md);
+    body.querySelectorAll('h1,h2,h3,h4,h5').forEach(h => { h.id = 'help-' + helpSlug(h.textContent); });
+    helpLoadedDoc = doc;
+  } catch (e) {
+    body.innerHTML = '<p class="form-hint">読み込めませんでした。通信状態を確かめて、もう一度タブを開いてください。</p>';
+  }
+}
+
+// マニュアル内のリンク：目次はページ内を移動し、外部リンクは別タブで開く
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('#help-body a');
+  if (!a) return;
+  const href = a.getAttribute('href') || '';
+  e.preventDefault();
+  if (href.startsWith('#')) {
+    const t = document.getElementById('help-' + decodeURIComponent(href.slice(1)));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else if (/^https?:/i.test(href)) {
+    window.open(href, '_blank', 'noopener');
+  }
+});
 
 // -- Toast --
 function showToast(msg) {
