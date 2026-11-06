@@ -188,6 +188,11 @@ function doPost(e) {
     return jsonOutput_({ ok: true });
   }
 
+  // 管理画面「写真の仕分け」。仕分け待ちフォルダは非公開なので、閲覧もログイン必須。
+  if (body.type === 'photoSort') {
+    return jsonOutput_(handlePhotoSort_(body));
+  }
+
   const cfg = REGISTRY[body.type];
   if (!cfg) return jsonOutput_({ ok: false, error: 'unknown_type' });
   if (!Array.isArray(body.items)) {
@@ -566,5 +571,248 @@ function fetchResizedBlob_(fileId) {
     return blob;
   } catch (err) {
     return null;
+  }
+}
+
+// ---- 写真の仕分け（管理画面のタブ） ----
+//
+// 撮った写真をまず非公開の「仕分け待ち」フォルダに入れ、管理画面で1枚ずつ
+// 「アルバムに載せる」「トップ背景にする」を選ぶ。選んだ結果は photo_sort シートに
+// 残すので、途中でやめても別のパソコンから続きができる。
+//
+// 「ホームページに反映」で、選んだ写真を大会の写真フォルダ（公開用）へコピーする。
+// 仕分け待ちの原本は動かさない。外した写真は、公開用にコピーした分だけゴミ箱へ送る。
+
+const SORT_SHEET_NAME = 'photo_sort';
+const SORT_COLUMNS = ['folderId', 'fileId', 'name', 'album', 'hero', 'publicId', 'updatedAt'];
+
+// 共有URL・?id=…・IDそのもの のどれからでもフォルダIDを取り出す。
+function folderIdFromRef_(ref) {
+  const u = String(ref || '').trim();
+  const m = u.match(/\/folders\/([A-Za-z0-9_-]+)/)
+         || u.match(/[?&]id=([A-Za-z0-9_-]+)/)
+         || u.match(/^([A-Za-z0-9_-]{10,})$/);
+  return m ? m[1] : null;
+}
+
+function handlePhotoSort_(body) {
+  const folderId = folderIdFromRef_(body.folder);
+  if (!folderId) return { ok: false, error: 'invalid_folder' };
+
+  let folder;
+  try {
+    folder = DriveApp.getFolderById(folderId);
+  } catch (err) {
+    return { ok: false, error: 'folder_not_found' };
+  }
+
+  if (body.action === 'list')  return listSortFolder_(folder);
+  if (body.action === 'save')  return saveSortChoices_(folderId, body.choices);
+  if (body.action === 'apply') return applySortChoices_(folder, body);
+  return { ok: false, error: 'unknown_action' };
+}
+
+function getSortSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SORT_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SORT_SHEET_NAME);
+    sheet.getRange(1, 1, 1, SORT_COLUMNS.length).setValues([SORT_COLUMNS]);
+  }
+  return sheet;
+}
+
+function readSortRows_() {
+  const sheet = getSortSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  return sheet.getRange(2, 1, lastRow - 1, SORT_COLUMNS.length).getValues()
+    .filter(r => r[1])
+    .map(r => ({
+      folderId: String(r[0]), fileId: String(r[1]), name: String(r[2]),
+      album: r[3] === true || r[3] === 'TRUE', hero: r[4] === true || r[4] === 'TRUE',
+      publicId: String(r[5] || ''), updatedAt: r[6],
+    }));
+}
+
+function writeSortRows_(rows) {
+  const sheet = getSortSheet_();
+  const lastRow = sheet.getLastRow();
+  if (lastRow > 1) sheet.getRange(2, 1, lastRow - 1, SORT_COLUMNS.length).clearContent();
+  if (!rows.length) return;
+  sheet.getRange(2, 1, rows.length, SORT_COLUMNS.length).setValues(
+    rows.map(r => [r.folderId, r.fileId, r.name, !!r.album, !!r.hero, r.publicId || '', r.updatedAt || new Date()])
+  );
+}
+
+// 仕分け待ちフォルダの写真一覧と、これまでの選択結果を返す。
+// サムネイルは Drive が作る一時URL（数時間で切れる）をそのまま渡す。
+function listSortFolder_(folder) {
+  const folderId = folder.getId();
+  const files = [];
+  let pageToken = '';
+  do {
+    const url = 'https://www.googleapis.com/drive/v3/files'
+      + '?q=' + encodeURIComponent("'" + folderId + "' in parents and trashed = false and mimeType contains 'image/'")
+      + '&fields=' + encodeURIComponent('nextPageToken,files(id,name,thumbnailLink)')
+      + '&pageSize=1000'
+      + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : '');
+    const res = UrlFetchApp.fetch(url, {
+      headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+      muteHttpExceptions: true,
+    });
+    if (res.getResponseCode() !== 200) return { ok: false, error: 'drive_list_failed' };
+    const data = JSON.parse(res.getContentText());
+    (data.files || []).forEach(f => files.push({ id: f.id, name: f.name, thumb: f.thumbnailLink || '' }));
+    pageToken = data.nextPageToken || '';
+  } while (pageToken);
+
+  files.sort(function (a, b) {
+    const ka = photoSortKey_(a.name), kb = photoSortKey_(b.name);
+    return ka < kb ? -1 : ka > kb ? 1 : 0;
+  });
+
+  const choices = {};
+  readSortRows_().forEach(r => {
+    if (r.folderId === folderId) choices[r.fileId] = { album: r.album, hero: r.hero, publicId: r.publicId };
+  });
+  return { ok: true, name: folder.getName(), files: files, choices: choices };
+}
+
+// 選択結果を保存する。このフォルダの行だけを入れ替え、公開済みの記録は引き継ぐ。
+function saveSortChoices_(folderId, choices) {
+  if (!Array.isArray(choices)) return { ok: false, error: 'invalid_choices' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const rows = readSortRows_();
+    const prev = {};
+    rows.forEach(r => { if (r.folderId === folderId) prev[r.fileId] = r; });
+    const others = rows.filter(r => r.folderId !== folderId);
+    const seen = {};
+    const mine = choices
+      .filter(c => c && c.fileId)
+      .map(c => {
+        const fid = String(c.fileId);
+        seen[fid] = true;
+        return {
+          folderId: folderId, fileId: fid, name: String(c.name || ''),
+          album: !!c.album || !!c.hero, hero: !!c.hero,
+          publicId: prev[fid] ? prev[fid].publicId : '', updatedAt: new Date(),
+        };
+      });
+    // 画面から送られてこなかったが公開済みの写真は、記録を消さずに残す
+    Object.keys(prev).forEach(fid => { if (!seen[fid] && prev[fid].publicId) mine.push(prev[fid]); });
+    writeSortRows_(others.concat(mine.filter(r => r.album || r.hero || r.publicId)));
+    return { ok: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+// 大会データの photo 欄から、その大会の公開用フォルダを探す。
+function eventPhotoFolder_(eventId) {
+  const cfg = REGISTRY.events;
+  const sheet = getSheet_(cfg);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const rows = sheet.getRange(2, 1, lastRow - 1, cfg.columns.length).getValues();
+  const photoCol = cfg.columns.indexOf('photo');
+  const row = rows.find(r => String(r[0]) === String(eventId));
+  if (!row) return null;
+  const id = folderIdFromRef_(row[photoCol]);
+  if (!id) return null;
+  try {
+    return DriveApp.getFolderById(id);
+  } catch (err) {
+    return null;
+  }
+}
+
+// 写真1枚を公開用フォルダへコピーする。大きい写真は縮小してから置き、目印も付けるので、
+// 自動縮小でファイルが作り直されて（＝トップ背景のリンクが変わって）しまうことがない。
+function publishSortPhoto_(file, target) {
+  const name = file.getName();
+  const same = target.getFilesByName(name);
+  while (same.hasNext()) {
+    const f = same.next();
+    if (!f.isTrashed()) return f.getId();   // 既に同じ名前があれば、それを使う
+  }
+
+  if (file.getSize() >= PHOTO_RESIZE_MIN_BYTES) {
+    const blob = fetchResizedBlob_(file.getId());
+    const size = blob ? blob.getBytes().length : 0;
+    if (blob && size >= PHOTO_RESIZE_MIN_SANE_BYTES && size < file.getSize()) {
+      const created = target.createFile(blob.setName(name));
+      created.setDescription(PHOTO_RESIZE_MARK + ' 幅' + PHOTO_RESIZE_WIDTH + 'px');
+      return created.getId();
+    }
+  }
+  const copy = file.makeCopy(name, target);
+  copy.setDescription(PHOTO_RESIZE_MARK + '（元のまま）');
+  return copy.getId();
+}
+
+function isInFolder_(file, folderId) {
+  const ps = file.getParents();
+  while (ps.hasNext()) if (ps.next().getId() === folderId) return true;
+  return false;
+}
+
+// 選んだ写真を公開用フォルダへコピーし、外した写真のコピーをゴミ箱へ送る。
+// 1回の実行時間に上限があるので、画面側から少しずつ（addIds/removeIds を分けて）呼ぶ。
+function applySortChoices_(source, body) {
+  const target = eventPhotoFolder_(body.eventId);
+  if (!target) return { ok: false, error: 'no_event_folder' };
+  const access = target.getSharingAccess();
+  if (access !== DriveApp.Access.ANYONE_WITH_LINK && access !== DriveApp.Access.ANYONE) {
+    return { ok: false, error: 'event_folder_not_shared' };
+  }
+  const sourceId = source.getId();
+  const targetId = target.getId();
+  if (sourceId === targetId) return { ok: false, error: 'same_folder' };
+  const addIds = Array.isArray(body.addIds) ? body.addIds.map(String) : [];
+  const removeIds = Array.isArray(body.removeIds) ? body.removeIds.map(String) : [];
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const rows = readSortRows_();
+    const byFile = {};
+    rows.forEach(r => { if (r.folderId === sourceId) byFile[r.fileId] = r; });
+
+    const published = {}, errors = [];
+    addIds.forEach(fid => {
+      try {
+        const file = DriveApp.getFileById(fid);
+        if (!isInFolder_(file, sourceId)) throw new Error('not_in_source');   // 仕分け待ち以外は扱わない
+        const pid = publishSortPhoto_(file, target);
+        published[fid] = pid;
+        if (byFile[fid]) byFile[fid].publicId = pid;
+        else rows.push(byFile[fid] = { folderId: sourceId, fileId: fid, name: file.getName(), album: true, hero: false, publicId: pid });
+      } catch (err) {
+        errors.push({ fileId: fid, error: String(err.message || err) });
+      }
+    });
+
+    const removed = [];
+    removeIds.forEach(fid => {
+      const r = byFile[fid];
+      if (!r || !r.publicId) return;
+      try {
+        const copy = DriveApp.getFileById(r.publicId);
+        if (isInFolder_(copy, targetId)) copy.setTrashed(true);   // 公開用のコピーだけを捨てる
+      } catch (err) {
+        // 既に消されている場合は記録だけ消す
+      }
+      r.publicId = '';
+      removed.push(fid);
+    });
+
+    writeSortRows_(rows.filter(r => r.album || r.hero || r.publicId));
+    CacheService.getScriptCache().remove('photos_' + targetId);
+    return { ok: true, published: published, removed: removed, errors: errors };
+  } finally {
+    lock.releaseLock();
   }
 }

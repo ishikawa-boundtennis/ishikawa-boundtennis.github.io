@@ -1008,6 +1008,22 @@
   .admin-body { padding: 1.5rem; }
   .admin-section { display: none; }
   .admin-section.active { display: block; }
+  /* 写真の仕分けタブ */
+  .ps-bar { position: sticky; top: 0; z-index: 2; background: #fff; border-bottom: 1px solid #E2E8F0; padding: 0.6rem 0; margin-bottom: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .ps-filter { font-size: 0.78rem; padding: 0.3rem 0.7rem; border-radius: 99px; border: 1px solid #CBD5E1; background: #fff; color: #475569; cursor: pointer; }
+  .ps-filter.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .ps-count { font-size: 0.8rem; color: #475569; margin-left: auto; }
+  .ps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.5rem; }
+  .ps-tile { border: 2px solid #E2E8F0; border-radius: 0.4rem; overflow: hidden; background: #F8FAFC; }
+  .ps-tile.album { border-color: #2B5C86; }
+  .ps-tile.hero  { border-color: var(--red); }
+  .ps-tile img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; cursor: zoom-in; background: #E2E8F0; }
+  .ps-tile-foot { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem; }
+  .ps-name { font-size: 0.68rem; color: #64748B; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ps-toggle { font-size: 0.68rem; font-weight: 700; padding: 0.2rem 0.4rem; border-radius: 0.25rem; border: 1px solid #CBD5E1; background: #fff; color: #64748B; cursor: pointer; white-space: nowrap; }
+  .ps-toggle.on-album { background: #2B5C86; border-color: #2B5C86; color: #fff; }
+  .ps-toggle.on-hero  { background: var(--red); border-color: var(--red); color: #fff; }
+  .ps-pub { font-size: 0.6rem; color: #1F6B45; font-weight: 700; }
   .form-group { margin-bottom: 1rem; }
   .form-label {
     display: block;
@@ -2229,6 +2245,7 @@
       <button class="admin-tab active" onclick="switchTab('news-tab', this)">お知らせ管理</button>
       <button class="admin-tab" onclick="switchTab('events-tab', this)">大会・イベント管理</button>
       <button class="admin-tab" onclick="switchTab('away-tab', this)">他県案内管理</button>
+      <button class="admin-tab" onclick="switchTab('photos-tab', this)">写真の仕分け</button>
       <button class="admin-tab" onclick="switchTab('bulk-tab', this)">一括登録</button>
       <button class="admin-tab" onclick="switchTab('content-tab', this)">ページ本文・情報管理</button>
     </div>
@@ -2462,6 +2479,41 @@
       </div>
 
       <!-- ★スプレッドシート一括登録タブ★ -->
+      <div id="photos-tab" class="admin-section">
+        <div class="admin-comment">
+          ★大会写真の仕分け★<br>
+          撮った写真を見ながら、大会のアルバムに載せる写真とトップページの背景にする写真を選べます。<br>
+          手順：① Googleドライブの「仕分け待ち」フォルダに写真を入れる → ② そのフォルダのURLと大会を選んで「読み込む」→ ③ 写真ごとに「アルバム」「トップ」を押す → ④「ホームページに反映」<br>
+          選んだ結果は自動で保存されるので、途中でやめても続きからできます。仕分け待ちフォルダは<b>共有しないまま</b>にしてください（反映した写真だけが公開されます）。
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">① 仕分け待ちフォルダのURL</label>
+          <input type="text" id="ps-folder" class="form-input" placeholder="https://drive.google.com/drive/folders/...">
+          <p class="form-hint">ドライブでフォルダを開いたときのアドレスをそのまま貼り付けてください。</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">② 写真を載せる大会</label>
+          <select id="ps-event" class="form-select"></select>
+          <p class="form-hint">選べない大会は「大会・イベント管理」で「大会写真フォルダURL」を先に登録してください。</p>
+        </div>
+        <button class="btn-save" onclick="loadPhotoSort()">読み込む</button>
+        <p class="form-hint" id="ps-status" style="margin:0.75rem 0"></p>
+
+        <div id="ps-work" style="display:none">
+          <div class="ps-bar">
+            <button class="ps-filter active" data-f="all" onclick="setPhotoSortFilter('all', this)">すべて</button>
+            <button class="ps-filter" data-f="album" onclick="setPhotoSortFilter('album', this)">アルバム</button>
+            <button class="ps-filter" data-f="hero" onclick="setPhotoSortFilter('hero', this)">トップ</button>
+            <button class="ps-filter" data-f="none" onclick="setPhotoSortFilter('none', this)">未選択</button>
+            <span class="ps-count" id="ps-count"></span>
+            <button class="btn-save" id="ps-apply-btn" onclick="applyPhotoSort()">ホームページに反映</button>
+          </div>
+          <p class="form-hint" style="margin-top:0">写真を押すと大きく表示します。「トップ」は最大5枚で、トップにした写真はアルバムにも入ります。顔が大きく写った写真や子どもの写真は、本人・保護者の了解を確かめてから選んでください。</p>
+          <div class="ps-grid" id="ps-grid"></div>
+        </div>
+      </div>
+
       <div id="bulk-tab" class="admin-section">
         <div class="admin-comment">
           ★スプレッドシートから一括登録★<br>
@@ -4716,6 +4768,7 @@ function openAdmin() {
   renderAdminEvents();
   renderAdminAwayEvents();
   loadContentEditor();
+  renderPhotoSortEvents();
   lucide.createIcons();
 }
 function closeAdmin() {
@@ -4727,6 +4780,228 @@ function switchTab(id, btn) {
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
+}
+
+// ======================================================
+// 写真の仕分け（管理画面）
+// ======================================================
+//
+// 非公開の「仕分け待ち」フォルダの写真を一覧にし、1枚ずつアルバム／トップ背景を選ぶ。
+// 選択はスプレッドシート（photo_sort シート）に自動保存し、「反映」で選んだ写真だけを
+// 大会の写真フォルダ（公開用）へコピーする。原本は仕分け待ちフォルダに残る。
+
+const HERO_MAX = 5;
+const PS_ADD_CHUNK = 8;      // 1回のサーバー呼び出しでコピーする枚数（実行時間の上限対策）
+const PS_REMOVE_CHUNK = 30;
+
+let psState = null;          // { folder, files: [{id,name,thumb}], choices: {id: {album,hero,publicId}} }
+let psFilter = 'all';
+let psSaveTimer = null;
+
+async function postPhotoSort(payload) {
+  try {
+    const res = await fetch(SHEETS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ idToken: googleIdToken, type: 'photoSort' }, payload)),
+    });
+    return await res.json();
+  } catch (e) {
+    return { ok: false, error: 'network' };
+  }
+}
+
+function photoSortErrorText(error) {
+  return ({
+    unauthorized: '権限がありません。協会のGoogleアカウントでログインし直してください（ログインは約1時間で切れます）。',
+    invalid_folder: 'フォルダのURLが読み取れません。ドライブでフォルダを開いたときのアドレスを貼り付けてください。',
+    folder_not_found: 'フォルダが見つかりません。協会のドライブにあるフォルダか確かめてください。',
+    no_event_folder: 'この大会に「大会写真フォルダURL」が登録されていません。',
+    event_folder_not_shared: '大会写真フォルダが「リンクを知っている全員」に共有されていません。',
+    same_folder: '仕分け待ちフォルダと大会写真フォルダが同じです。仕分け待ちは別のフォルダにしてください。',
+    network: '通信に失敗しました。時間をおいてもう一度お試しください。',
+  })[error] || ('エラーが発生しました（' + error + '）');
+}
+
+// 写真フォルダが登録されている大会だけを選べるようにする（新しい順）
+function renderPhotoSortEvents() {
+  const sel = document.getElementById('ps-event');
+  if (!sel) return;
+  const keep = sel.value;
+  const sorted = [...eventsData].sort((a, b) => b.date.localeCompare(a.date));
+  sel.innerHTML = '<option value="">大会を選んでください</option>' + sorted.map(ev => {
+    const ok = !!driveFolderId(ev.photo);
+    return `<option value="${ev.id}"${ok ? '' : ' disabled'}>${escapeHtml(ev.date)} ${escapeHtml(ev.name)}${ok ? '' : '（写真フォルダ未登録）'}</option>`;
+  }).join('');
+  if (keep) sel.value = keep;
+}
+
+function psSetStatus(msg) {
+  document.getElementById('ps-status').textContent = msg || '';
+}
+
+async function loadPhotoSort() {
+  const folder = document.getElementById('ps-folder').value.trim();
+  const eventId = document.getElementById('ps-event').value;
+  if (!folder) { psSetStatus('仕分け待ちフォルダのURLを入れてください。'); return; }
+  if (!eventId) { psSetStatus('写真を載せる大会を選んでください。'); return; }
+  const ev = eventsData.find(x => String(x.id) === String(eventId));
+  if (ev && driveFolderId(ev.photo) === driveFolderId(folder)) {
+    psSetStatus(photoSortErrorText('same_folder'));
+    return;
+  }
+
+  psSetStatus('写真を読み込んでいます…');
+  const res = await postPhotoSort({ action: 'list', folder });
+  if (!res.ok) { psSetStatus(photoSortErrorText(res.error)); return; }
+
+  psState = { folder, eventId, files: res.files, choices: res.choices || {} };
+  psSetStatus(`「${res.name}」の写真 ${res.files.length} 枚を読み込みました。`);
+  document.getElementById('ps-work').style.display = res.files.length ? 'block' : 'none';
+  renderPhotoSortGrid();
+}
+
+function psChoice(id) {
+  return psState.choices[id] || (psState.choices[id] = { album: false, hero: false, publicId: '' });
+}
+
+function psThumb(url, width) {
+  return String(url || '').replace(/=[^=/]*$/, '') + '=w' + width;
+}
+
+function renderPhotoSortGrid() {
+  const grid = document.getElementById('ps-grid');
+  const items = psState.files.filter(f => {
+    const c = psState.choices[f.id] || {};
+    if (psFilter === 'album') return c.album || c.hero;
+    if (psFilter === 'hero')  return c.hero;
+    if (psFilter === 'none')  return !c.album && !c.hero;
+    return true;
+  });
+  grid.innerHTML = items.map(f => {
+    const c = psState.choices[f.id] || {};
+    const album = c.album || c.hero;
+    return `<div class="ps-tile${c.hero ? ' hero' : album ? ' album' : ''}" data-id="${escapeHtml(f.id)}">
+      <img loading="lazy" src="${escapeUrl(psThumb(f.thumb, 400))}" data-big="${escapeUrl(psThumb(f.thumb, 1600))}" alt="" onclick="window.open(this.dataset.big, '_blank', 'noopener')">
+      <div class="ps-tile-foot">
+        <span class="ps-name" title="${escapeHtml(f.name)}">${c.publicId ? '<span class="ps-pub">公開中 </span>' : ''}${escapeHtml(f.name)}</span>
+        <button type="button" class="ps-toggle${album ? ' on-album' : ''}" onclick="togglePhotoSort(this.closest('.ps-tile').dataset.id, 'album')">アルバム</button>
+        <button type="button" class="ps-toggle${c.hero ? ' on-hero' : ''}" onclick="togglePhotoSort(this.closest('.ps-tile').dataset.id, 'hero')">トップ</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="form-hint">この条件に当てはまる写真はありません。</p>';
+
+  const all = Object.values(psState.choices);
+  const nAlbum = all.filter(c => c.album || c.hero).length;
+  const nHero = all.filter(c => c.hero).length;
+  document.getElementById('ps-count').textContent = `全${psState.files.length}枚 ／ アルバム ${nAlbum}枚 ／ トップ ${nHero}/${HERO_MAX}枚`;
+}
+
+function setPhotoSortFilter(f, btn) {
+  psFilter = f;
+  document.querySelectorAll('.ps-filter').forEach(b => b.classList.toggle('active', b === btn));
+  renderPhotoSortGrid();
+}
+
+function togglePhotoSort(id, kind) {
+  const c = psChoice(id);
+  if (kind === 'hero') {
+    if (!c.hero && Object.values(psState.choices).filter(x => x.hero).length >= HERO_MAX) {
+      showToast(`トップに選べるのは${HERO_MAX}枚までです`);
+      return;
+    }
+    c.hero = !c.hero;
+    if (c.hero) c.album = true;
+  } else {
+    c.album = !(c.album || c.hero);
+    if (!c.album) c.hero = false;
+  }
+  renderPhotoSortGrid();
+  schedulePhotoSortSave();
+}
+
+// 押すたびに送ると重いので、操作が止まってから少し待って保存する
+function schedulePhotoSortSave() {
+  clearTimeout(psSaveTimer);
+  psSaveTimer = setTimeout(savePhotoSortNow, 1500);
+}
+
+async function savePhotoSortNow() {
+  clearTimeout(psSaveTimer);
+  if (!psState) return { ok: true };
+  const names = Object.fromEntries(psState.files.map(f => [f.id, f.name]));
+  const choices = Object.entries(psState.choices)
+    .filter(([, c]) => c.album || c.hero || c.publicId)
+    .map(([fileId, c]) => ({ fileId, name: names[fileId] || '', album: c.album, hero: c.hero }));
+  const res = await postPhotoSort({ action: 'save', folder: psState.folder, choices });
+  if (!res.ok) showToast('⚠ 選択の保存に失敗しました：' + photoSortErrorText(res.error));
+  return res;
+}
+
+async function applyPhotoSort() {
+  if (!psState) return;
+  const order = psState.files.map(f => f.id);
+  const ch = psState.choices;
+  const addIds = order.filter(id => ch[id] && (ch[id].album || ch[id].hero) && !ch[id].publicId);
+  const removeIds = order.filter(id => ch[id] && !ch[id].album && !ch[id].hero && ch[id].publicId);
+  const heroIds = order.filter(id => ch[id] && ch[id].hero);
+  const ev = eventsData.find(x => String(x.id) === String(psState.eventId));
+
+  if (!addIds.length && !removeIds.length && !heroIds.length) {
+    showToast('反映する変更はありません');
+    return;
+  }
+  const lines = [`「${ev ? ev.name : ''}」に反映します。`];
+  if (addIds.length) lines.push(`・アルバムに ${addIds.length} 枚を追加`);
+  if (removeIds.length) lines.push(`・アルバムから ${removeIds.length} 枚を外す`);
+  lines.push(heroIds.length ? `・トップページの背景を、選んだ ${heroIds.length} 枚に替える` : '・トップページの背景はそのまま');
+  lines.push('', '反映した写真は、すぐにホームページで公開されます。続けますか？');
+  if (!confirm(lines.join('\n'))) return;
+
+  const btn = document.getElementById('ps-apply-btn');
+  btn.disabled = true;
+  try {
+    const saved = await savePhotoSortNow();
+    if (!saved.ok) return;
+
+    const errors = [];
+    for (let i = 0; i < addIds.length; i += PS_ADD_CHUNK) {
+      psSetStatus(`アルバムに追加しています… ${Math.min(i + PS_ADD_CHUNK, addIds.length)} / ${addIds.length} 枚`);
+      const res = await postPhotoSort({ action: 'apply', folder: psState.folder, eventId: psState.eventId, addIds: addIds.slice(i, i + PS_ADD_CHUNK) });
+      if (!res.ok) { psSetStatus(photoSortErrorText(res.error)); return; }
+      Object.entries(res.published).forEach(([fid, pid]) => { psChoice(fid).publicId = pid; });
+      errors.push(...res.errors);
+    }
+    for (let i = 0; i < removeIds.length; i += PS_REMOVE_CHUNK) {
+      psSetStatus(`アルバムから外しています… ${Math.min(i + PS_REMOVE_CHUNK, removeIds.length)} / ${removeIds.length} 枚`);
+      const res = await postPhotoSort({ action: 'apply', folder: psState.folder, eventId: psState.eventId, removeIds: removeIds.slice(i, i + PS_REMOVE_CHUNK) });
+      if (!res.ok) { psSetStatus(photoSortErrorText(res.error)); return; }
+      res.removed.forEach(fid => { psChoice(fid).publicId = ''; });
+    }
+
+    if (heroIds.length) {
+      const urls = heroIds.map(id => ch[id].publicId).filter(Boolean).map(pid => `https://drive.google.com/file/d/${pid}/view`);
+      if (urls.length) {
+        siteContent.heroImages = urls;
+        saveContentToStorage();
+        const r = await pushContentToServer();
+        if (!r.ok) { psSetStatus('⚠ トップ背景の保存に失敗しました：' + photoSortErrorText(r.error)); return; }
+        initHeroSlideshow();
+      }
+    }
+
+    // 大会ページのアルバムは次に開いたときに取り直す
+    const ev2 = eventsData.find(x => String(x.id) === String(psState.eventId));
+    if (ev2) photoFolderCache.delete(driveFolderId(ev2.photo));
+
+    renderPhotoSortGrid();
+    psSetStatus(errors.length
+      ? `反映しました。ただし ${errors.length} 枚はコピーできませんでした（もう一度「反映」を押すと再試行します）。`
+      : '反映しました。ホームページの大会ページとトップで確かめてください。');
+    showToast('ホームページに反映しました ✓');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // -- Toast --
