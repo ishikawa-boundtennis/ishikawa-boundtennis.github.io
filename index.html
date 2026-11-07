@@ -2275,7 +2275,7 @@
       <div id="news-tab" class="admin-section active">
         <div class="admin-comment">
           ★ここを書き換えるだけで更新できます★<br>
-          下の「＋新規作成」から追加、または既存の項目を編集・削除してください。ページを閉じると初期データに戻ります（将来はLocalStorage/CMSへ保存可）。
+          下の「＋新規作成」から追加、または既存の項目を編集・削除してください。保存するとホームページに反映されます。
         </div>
         <button class="btn-add" onclick="openNewsForm()">
           <span data-lucide="plus" style="width:14px;height:14px"></span>
@@ -2504,7 +2504,7 @@
           ★大会写真の仕分け★<br>
           撮った写真を見ながら、大会のアルバムに載せる写真とトップページの背景にする写真を選べます。<br>
           手順：① Googleドライブの「仕分け待ち」フォルダに写真を入れる → ② そのフォルダのURLと大会を選んで「読み込む」→ ③ 写真ごとに「アルバム」「トップ」を押す → ④「ホームページに反映」<br>
-          選んだ結果は自動で保存されるので、途中でやめても続きからできます。仕分け待ちフォルダは<b>共有しないまま</b>にしてください（反映した写真だけが公開されます）。
+          選んだ結果は自動で保存されるので、途中でやめても続きからできます。仕分け待ちフォルダは<b>「リンクを知っている全員」にしないでください</b>（反映した写真だけが公開されます）。
         </div>
 
         <div class="form-group">
@@ -2585,10 +2585,11 @@
       <div id="help-tab" class="admin-section">
         <div class="admin-comment">
           ★使い方★ ホームページの更新・公開のしかたをここで読めます。<br>
-          内容は「運用マニュアル」と同じものです（Googleドライブの「05_運用マニュアル」には印刷向けのExcel版があります）。
+          広報担当の方は、まず「広報の手引き」を読んでください。下の選択欄で読むものを切り替えられます（Googleドライブの「05_運用マニュアル」には印刷向けのExcel版があります）。
         </div>
         <div class="form-group">
           <select id="help-doc" class="form-select" onchange="loadHelpDoc(true)">
+            <option value="広報の手引き.md">広報の手引き（写真・投稿文・お知らせ）</option>
             <option value="運用マニュアル.md">運用マニュアル（更新・公開のしかた）</option>
             <option value="apps-script/セットアップ手順.md">裏側の仕組みの設定・更新手順（Apps Script）</option>
           </select>
@@ -4895,7 +4896,7 @@ async function postPhotoSort(payload) {
 
 function photoSortErrorText(error) {
   return ({
-    unauthorized: '権限がありません。協会のGoogleアカウントでログインし直してください（ログインは約1時間で切れます）。',
+    unauthorized: '権限がありません。協会用か広報用のGoogleアカウントでログインし直してください（ログインは約1時間で切れます）。',
     invalid_folder: 'フォルダのURLが読み取れません。ドライブでフォルダを開いたときのアドレスを貼り付けてください。',
     folder_not_found: 'フォルダが見つかりません。協会のドライブにあるフォルダか確かめてください。',
     no_event_folder: 'この大会に「大会写真フォルダURL」が登録されていません。',
