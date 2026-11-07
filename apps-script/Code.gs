@@ -15,7 +15,7 @@
 const GOOGLE_CLIENT_ID = '684319382004-0619hecm5kivaefuaaaojneemn3rghqr.apps.googleusercontent.com';
 
 // 管理画面での書き込みを許可するGoogleアカウントのメールアドレス一覧。
-const ALLOWED_EMAILS = ['ishikawaboundtennis@gmail.com'];
+const ALLOWED_EMAILS = ['ishikawaboundtennis@gmail.com', 'ishikawa.bt.koho@gmail.com'];
 
 // Googleが発行したID tokenを検証し、認証済みメールアドレスを返す（不正な場合はnull）。
 function verifyIdToken_(idToken) {
