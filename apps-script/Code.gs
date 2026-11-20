@@ -176,7 +176,8 @@ function doPost(e) {
     return jsonOutput_({ ok: false, error: 'invalid_json' });
   }
 
-  if (!verifyIdToken_(body.idToken)) {
+  const email = verifyIdToken_(body.idToken);
+  if (!email) {
     return jsonOutput_({ ok: false, error: 'unauthorized' });
   }
 
@@ -185,12 +186,16 @@ function doPost(e) {
       return jsonOutput_({ ok: false, error: 'invalid_content' });
     }
     setContent_(body.content);
+    logUpdate_(email, 'content', '');
     return jsonOutput_({ ok: true });
   }
 
   // 管理画面「写真の仕分け」。仕分け待ちフォルダは非公開なので、閲覧もログイン必須。
   if (body.type === 'photoSort') {
-    return jsonOutput_(handlePhotoSort_(body));
+    const result = handlePhotoSort_(body);
+    // 一覧を開いただけ（list）は更新ではないので記録しない。
+    if (body.action !== 'list') logUpdate_(email, 'photoSort', body.action || '');
+    return jsonOutput_(result);
   }
 
   const cfg = REGISTRY[body.type];
@@ -208,7 +213,31 @@ function doPost(e) {
     const rows = body.items.map(cfg.objToRow);
     sheet.getRange(2, 1, rows.length, cfg.columns.length).setValues(rows);
   }
+  logUpdate_(email, body.type, body.items.length + '件');
   return jsonOutput_({ ok: true });
+}
+
+// ---- 更新記録（誰がいつ何を保存したか） ----
+// Web App は協会アカウントの権限で動くため、スプレッドシートの変更履歴では
+// 誰が保存したか区別できない。ここでログインしたアカウントを1行ずつ書き残す。
+
+const LOG_SHEET_NAME = '更新記録';
+
+function logUpdate_(email, type, detail) {
+  // 記録に失敗しても保存そのものは成功させる。
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(LOG_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(LOG_SHEET_NAME);
+      sheet.getRange(1, 1, 1, 4).setValues([['日時', 'アカウント', '保存した場所', '内容']]);
+      sheet.setFrozenRows(1);
+    }
+    const labels = { events: '大会・イベント', news: 'お知らせ', away: '他県案内', content: 'ページ本文・情報', photoSort: '写真の仕分け' };
+    sheet.appendRow([new Date(), email, labels[type] || type, detail]);
+  } catch (err) {
+    Logger.log('更新記録の書き込みに失敗: %s', err);
+  }
 }
 
 // ---- content（ページ本文・情報管理。単一のJSON設定オブジェクトとして1セルに保存） ----
